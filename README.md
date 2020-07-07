@@ -1,4 +1,4 @@
-# interval dict
+# interval_dict
 
 
 An associative array library for c++17/20. 
@@ -17,7 +17,7 @@ Searching for values that are valid for a specified query interval involves a 2-
 
 ## Documentation:
 
-Check out the (woefully incomplete) documentation [here](https://github.com/bunbun/interval-dict).
+Check out the (woefully incomplete) documentation [here](https://github.com/bunbun/interval_dict).
 
 #### 1. Chaining lookups
 `interval dict` dictionaries can be "chained" together.
@@ -42,7 +42,7 @@ Under the hood, the bidirectional interval map stores the data in both direction
 
 ## License:
 
-Boost Software License
+[Boost Software License](https://github.com/bunbun/interval_dict/blob/master/LICENSE)
 
 ## Dependencies
 
@@ -81,18 +81,19 @@ This reflects the requirements of the cppcoro library
 1. Test / Benchmark Framework
 
 1. Abstract out the per-key "implementation" API necessary for an alternative data structure to support `interval dict`
-   - insert / erase
-   - count
-   - Given a query interval
-     - iterate through per contiguous interval per value
-     - iterate through per disjoint interval per values
-   - Find first interval, get all values
-   - Find last interval, get all values
-   - `sandwiched_gaps()` Get all gaps along with values on either side  
-   - `gaps()` Get all gaps
-   - merge / subtract  
+   1. insert 
+   2. erase
+   3. count
+   4. iterate through per contiguous interval per value, given a query interval
+   5. iterate through per disjoint interval per values, given a query interval
+   6. Find first interval, get all values
+   7. Find last interval, get all values
+   8. `gaps()` Get all gaps
+   9. `sandwiched_gaps()` Get all gaps along with values on either side  
+   10. merge
+   11. subtract  
    
-1. Create more performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
+1. More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
    Candidates include
    - RTrees
    - [Nested Containment Lists](https://academic.oup.com/bioinformatics/article/23/11/1386/199545). See
