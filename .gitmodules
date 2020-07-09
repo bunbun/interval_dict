@@ -1,0 +1,6 @@
+[submodule "extern/cppcoro"]
+	path = extern/cppcoro
+	url = https://github.com/lewissbaker/cppcoro.git
+[submodule "extern/range-v3"]
+	path = extern/range-v3
+	url = https://github.com/ericniebler/range-v3.git
