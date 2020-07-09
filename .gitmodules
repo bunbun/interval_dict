@@ -4,3 +4,6 @@
 [submodule "extern/range-v3"]
 	path = extern/range-v3
 	url = https://github.com/ericniebler/range-v3.git
+[submodule "extern/ygg"]
+	path = extern/ygg
+	url = https://github.com/tinloaf/ygg.git
