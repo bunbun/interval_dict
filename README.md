@@ -68,30 +68,22 @@ This reflects the requirements of the cppcoro library
 1. Initial implementation `IntervalDictICL` of `interval dict` using a [Boost ICL](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html) [`interval_map`](https://www.boost.org/doc/libs/release/libs/icl/doc/html/header/boost/icl/interval_map_hpp.html) of `std::set`
    This is straightforward to implement, and stores the underlying data as disjoint intervals for quick lookups.
    
-   Needs
-   - is_empty()
-   - count()
-   - clear()
-   - contains()
-  
    However, this data structure has polynomial if not exponential complexity for insertion/removal of elements.
    This typically is noticeable if there are large number of intervals (>50,000) for a single key.
    This is true only if the associations are very imbalanced (each key has many tens of thousands of values).   
   
-1. Test / Benchmark Framework
-
 1. Abstract out the per-key "implementation" API necessary for an alternative data structure to support `interval dict`
-   1. insert 
+   1. insert
    2. erase
-   3. count
-   4. iterate through per contiguous interval per value, given a query interval
-   5. iterate through per disjoint interval per values, given a query interval
-   6. Find first interval, get all values
-   7. Find last interval, get all values
-   8. `gaps()` Get all gaps
-   9. `sandwiched_gaps()` Get all gaps along with values on either side  
-   10. merge
-   11. subtract  
+   3. `gaps()` Get all gaps
+   4. `sandwiched_gaps()` Get all gaps along with values on either side as std::vector  
+   5. iterate through per contiguous interval per value, given a query interval
+   6. iterate through per disjoint interval per values, given a query interval
+   7. first / last disjoint interval
+   8. merge_with (`+=`)
+   9. subtract_by (`-=`)
+
+1. Test / Benchmark Framework
    
 1. More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
    Candidates include
