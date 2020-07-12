@@ -67,7 +67,7 @@ This reflects the requirements of the cppcoro library
 ## Development Status
 `interval dict` is under active development.
 
-Done:  
+### Done:  
 
 1. Initial implementation `IntervalDictICL` of `interval dict` using a [Boost ICL](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html) [`interval_map`](https://www.boost.org/doc/libs/release/libs/icl/doc/html/header/boost/icl/interval_map_hpp.html) of `std::set`
    This is straightforward to implement, and stores the underlying data as disjoint intervals for quick lookups.
@@ -78,7 +78,7 @@ Done:
   
 1. Abstract common traits for "implementing" `interval dict` using alternative data structures / algorithms
 
-In progress:
+### In progress:
 
 1. Tests / Benchmarks
    - Exercise all functions testing edge cases for
@@ -89,7 +89,7 @@ In progress:
      - [boost:gregorian::date](https://www.boost.org/doc/libs/release/doc/html/date_time/gregorian.html)
      - [boost::posix_time::ptime](https://www.boost.org/doc/libs/release/doc/html/date_time/posix_time.html) 
 
-Early days:
+### Early days:
 
 1. A bidirectional dictionary wrapper 
    
@@ -109,7 +109,7 @@ Early days:
      - [Erik Garrison's Interval Tree](https://github.com/ekg/intervaltree/blob/master/IntervalTree.h)
      - [Julia Discussion](https://github.com/BioJulia/Bio.jl/issues/340)
 
-Not yet started :-)      
+### Not yet started :bowtie:      
 
 1. Documentation
 
