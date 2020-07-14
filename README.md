@@ -8,7 +8,7 @@ Useful for building time-varying lookup dictionaries.
 
 ## Overview:
 
-Interval Dictionaries are an extension of the associative containers that allow efficient lookup of Key->Values that are valid only over a specified interval.
+Interval Dictionaries are an extension of the associative containers that allow efficient lookup of Key&rarr;Values that are valid only over a specified interval.
 
 Two stage lookup: 
 
