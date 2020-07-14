@@ -81,7 +81,6 @@ using Intervals = boost::icl::interval_set<
     std::less,
     Interval>;
 
-
 /*
  * Insertion and Erasure types
  */

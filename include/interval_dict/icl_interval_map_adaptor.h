@@ -9,7 +9,8 @@
 //  Project home: https://github.com/goodstadt/intervaldict
 //
 /// \file icl_interval_map_adaptor.h
-/// \brief Definitions of functions to implement IntervalDict with boost::icl::interval_map
+/// \brief Definitions of functions to implement IntervalDict with
+/// boost::icl::interval_map
 //
 // This allows interval_map storing values as disjoint intervals to be used to
 // implement interval associative dictionaries

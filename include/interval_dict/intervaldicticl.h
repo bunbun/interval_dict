@@ -21,19 +21,21 @@
 #define INCLUDE_INTERVAL_DICT_INTERVALDICTICL_H
 
 #include <interval_dict/icl_interval_map_adaptor.h>
-#include <interval_dict/intervaldict_func.h>
 #include <interval_dict/intervaldict.h>
+#include <interval_dict/intervaldict_func.h>
 
 namespace interval_dict
 {
 template <typename Key, typename Val, typename Interval>
 using IntervalDictICLExp =
-IntervalDictExp<Key, Val, Interval, implementation::IntervalDictICLSubMap<Val, Interval>>;
-
+    IntervalDictExp<Key,
+                    Val,
+                    Interval,
+                    implementation::IntervalDictICLSubMap<Val, Interval>>;
 
 template <typename Key, typename Val, typename BaseType>
 using IntervalDictICL =
-IntervalDictICLExp<Key, Val, typename boost::icl::interval<BaseType>::type>;
+    IntervalDictICLExp<Key, Val, typename boost::icl::interval<BaseType>::type>;
 
 } // namespace interval_dict
 
