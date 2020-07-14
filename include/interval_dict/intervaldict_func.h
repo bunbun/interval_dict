@@ -293,8 +293,7 @@ Insertions<Key, Val, Interval> fill_gaps_inserts(
             // to avoid being mired in open/close interval creation semantics
             else
             {
-                const typename IntervalTraits<Interval>::BaseType adjustment =
-                    length(gap_interval) - max_extension;
+                const auto adjustment = length(gap_interval) - max_extension;
                 const auto lower_gap = Interval{
                     lower(gap_interval), upper(gap_interval) - adjustment};
                 add_values_to_gap(results, key, common_values, lower_gap);
@@ -336,8 +335,7 @@ Insertions<Key, Val, Interval> extend_into_gaps_inserts(
 
             // Make fill segments by adjusting the gap segment (adjustment)
             // to avoid being mired in open/close interval creation semantics
-            const typename IntervalTraits<Interval>::BaseType adjustment =
-                length(gap_interval) - max_extension;
+            const auto adjustment = length(gap_interval) - max_extension;
 
             // Fill forward
             if (gap_extension_direction != GapExtensionDirection::Backwards)
