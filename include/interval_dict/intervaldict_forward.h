@@ -9,7 +9,7 @@
 //  Project home: https://github.com/goodstadt/intervaldict
 //
 /// \file intervaldict_func.h
-/// \brief Forward declarations of functions and associated types of IntervalDict
+/// \brief Forward declarations of functions / associated types of IntervalDict
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
@@ -179,17 +179,66 @@ template <typename Key, typename Val, typename Interval>
 using FlattenPolicy = std::function<std::optional<Val>(
     const std::optional<Val>&, Interval, const Key&, const std::vector<Val>&)>;
 
+// Use template member function of struct so we don't have to
+// explicitly specify type parameters
+struct FlattenPolicyDiscard
+{
+    template <typename Key, typename Val, typename Interval>
+    std::optional<Val> operator()(const std::optional<Val>&,
+                                  Interval,
+                                  const Key&,
+                                  const std::vector<Val>&);
+};
+
 /// \brief Policy that simple discards data for intervals where a key maps to
 /// multiple values
-template <typename Key, typename Val, typename Interval>
-FlattenPolicy<Key, Val, Interval> flatten_policy_discard();
+// template <typename Key, typename Val, typename Interval>
+// FlattenPolicy<Key, Val, Interval> flatten_policy_discard();
+FlattenPolicyDiscard flatten_policy_discard();
+
+// Use template member function of struct so we don't have to
+// explicitly specify type parameters
+template <typename FlattenPolicy> struct FlattenPolicyPreferStatusQuo
+{
+    template <typename Key, typename Val, typename Interval>
+    std::optional<Val> operator()(const std::optional<Val>&,
+                                  Interval,
+                                  const Key&,
+                                  const std::vector<Val>&);
+    FlattenPolicyPreferStatusQuo(FlattenPolicy fallback_policy)
+        : fallback_policy(fallback_policy)
+    {
+    }
+    FlattenPolicy fallback_policy;
+};
+
+/// \brief Policy that simple discards data for intervals where a key maps to
+/// multiple values
+// template <typename Key, typename Val, typename Interval>
+// FlattenPolicy<Key, Val, Interval> flatten_policy_discard();
+FlattenPolicyDiscard flatten_policy_discard();
 
 /// \brief Policy that prefers to extend the preceding interval if possible.
 /// Otherwise, uses the supplied (nested) fallback policy
-template <typename Key, typename Val, typename Interval>
-FlattenPolicy<Key, Val, Interval> flatten_policy_prefer_status_quo(
-    FlattenPolicy<Key, Val, Interval> fallback_policy =
-        flatten_policy_discard<Key, Val, Interval>());
+// template <typename Key, typename Val, typename Interval>
+// FlattenPolicy<Key, Val, Interval> flatten_policy_prefer_status_quo(
+//     FlattenPolicy<Key, Val, Interval> fallback_policy =
+//         flatten_policy_discard());
+template <typename FlattenPolicy = FlattenPolicyDiscard>
+FlattenPolicyPreferStatusQuo<FlattenPolicy> flatten_policy_prefer_status_quo(
+    FlattenPolicy fallback_policy = flatten_policy_discard());
+
+namespace detail
+{
+// Exclude specific arguments from deduction for flattened()
+// (available as std::type_identity as of C++20)
+// Otherwise, we would, for example, have to use a cast from lambda to
+// std::function
+template <typename T> struct identity
+{
+    typedef T type;
+};
+} // namespace detail
 
 /// flatten()
 /// \brief Flattens dictionary to one value per key per interval
@@ -218,10 +267,13 @@ FlattenPolicy<Key, Val, Interval> flatten_policy_prefer_status_quo(
 /// \param keep_one_value Callback policy to select the correct value
 /// \return a flattened dictionary where keys and values correspond 1:1
 template <typename Key, typename Val, typename Interval, typename Impl>
-IntervalDictExp<Key, Val, Interval, Impl>
-flattened(IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
-        FlattenPolicy<Key, Val, Interval> keep_one_value =
-            flatten_policy_prefer_status_quo<Key, Val, Interval>());
+[[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl> flattened(
+    IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
+    FlattenPolicy<typename detail::identity<Key>::type,
+                  typename detail::identity<Val>::type,
+                  typename detail::identity<Interval>::type> keep_one_value =
+        // flatten_policy_prefer_status_quo<Key, Val, Interval>());
+    flatten_policy_prefer_status_quo());
 
 namespace detail
 {

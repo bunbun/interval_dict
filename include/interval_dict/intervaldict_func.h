@@ -524,37 +524,28 @@ using FlattenPolicy = std::function<std::optional<Val>(
 /*
  * Flatten
  */
+
+// Use template member function of struct so we don't have to
+// explicitly specify type parameters
 template <typename Key, typename Val, typename Interval>
-FlattenPolicy<Key, Val, Interval> flatten_policy_discard()
+std::optional<Val> FlattenPolicyDiscard::operator()(const std::optional<Val>&,
+                                                    Interval,
+                                                    const Key&,
+                                                    const std::vector<Val>&)
 {
-    return [](const std::optional<Val>& status_quo,
-              Interval interval,
-              const Key& key,
-              const std::vector<Val>& values) -> std::optional<Val> {
-        // Return no value to indicate the entire interval should be discarded
-        return {};
-    };
+    return {};
 }
 
-template <typename Key, typename Val, typename Interval>
-FlattenPolicy<Key, Val, Interval> flatten_policy_prefer_status_quo(
-    FlattenPolicy<Key, Val, Interval> fallback_policy)
+inline FlattenPolicyDiscard flatten_policy_discard()
 {
-    return [fallback_policy](
-               const std::optional<Val>& status_quo,
-               Interval interval,
-               const Key& key,
-               const std::vector<Val>& values) -> std::optional<Val> {
-        assert(values.size());
-        if (status_quo.has_value() &&
-            std::find(values.begin(), values.end(), status_quo.value()) !=
-                values.end())
-        {
-            return status_quo.value();
-        }
-        // There is no status quo: use backup plan ('fallback_policy')
-        return fallback_policy(status_quo, interval, key, values);
-    };
+    return FlattenPolicyDiscard();
+}
+
+template <typename FlattenPolicy>
+FlattenPolicyPreferStatusQuo<FlattenPolicy>
+flatten_policy_prefer_status_quo(FlattenPolicy fallback_policy)
+{
+    return FlattenPolicyPreferStatusQuo(fallback_policy);
 }
 
 namespace detail
@@ -634,11 +625,31 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
 
 } // namespace detail
 
+template <typename FlattenPolicy>
+template <typename Key, typename Val, typename Interval>
+std::optional<Val> FlattenPolicyPreferStatusQuo<FlattenPolicy>::operator()(
+    const std::optional<Val>& status_quo,
+    Interval interval,
+    const Key& key,
+    const std::vector<Val>& values)
+{
+    assert(values.size());
+    if (status_quo.has_value() &&
+        std::find(values.begin(), values.end(), status_quo.value()) !=
+            values.end())
+    {
+        return status_quo.value();
+    }
+    // There is no status quo: use backup plan ('fallback_policy')
+    return fallback_policy(status_quo, interval, key, values);
+}
+
 template <typename Key, typename Val, typename Interval, typename Impl>
-[[nodiscard]]
-IntervalDictExp<Key, Val, Interval, Impl>
-flattened(IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
-        FlattenPolicy<Key, Val, Interval> keep_one_value)
+IntervalDictExp<Key, Val, Interval, Impl> flattened(
+    IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
+    FlattenPolicy<typename detail::identity<Key>::type,
+                  typename detail::identity<Val>::type,
+                  typename detail::identity<Interval>::type> keep_one_value)
 {
     const auto [insertions, erasures] =
         detail::flatten_actions(interval_dict, keep_one_value);
