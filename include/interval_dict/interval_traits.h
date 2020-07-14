@@ -21,8 +21,7 @@
 
 #ifndef INCLUDE_INTERVAL_DICT__INTERVAL_TRAITS_H
 #define INCLUDE_INTERVAL_DICT__INTERVAL_TRAITS_H
-#include <boost/icl/interval.hpp>
-#include <boost/icl/interval_set.hpp>
+#include <boost/icl/interval_traits.hpp>
 #include <limits>
 #include <type_traits>
 namespace interval_dict
@@ -73,21 +72,6 @@ template <typename IntervalType>
 IntervalType interval_extent =
     IntervalType{IntervalTraits<IntervalType>::lowest(),
                  IntervalTraits<IntervalType>::max()};
-
-/// \brief Set of disjoint intervals
-template <typename Interval>
-using Intervals = boost::icl::interval_set<
-    typename boost::icl::interval_traits<Interval>::domain_type,
-    std::less,
-    Interval>;
-
-/*
- * Insertion and Erasure types
- */
-template <typename Key, typename Val, typename Interval>
-using Insertions = std::vector<std::tuple<Key, Val, Interval>>;
-template <typename Key, typename Val, typename Interval>
-using Erasures = std::vector<std::tuple<Key, Val, Interval>>;
 
 } // namespace interval_dict
 #endif // INCLUDE_INTERVAL_DICT__INTERVAL_TRAITS_H

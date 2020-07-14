@@ -22,6 +22,7 @@
 #define INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H
 
 #include "interval_traits.h"
+#include "intervaldict_forward.h"
 
 #include <boost/icl/interval_map.hpp>
 #include <cppcoro/generator.hpp>

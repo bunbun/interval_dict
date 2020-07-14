@@ -25,6 +25,21 @@
 namespace interval_dict
 {
 
+/// \brief Set of disjoint intervals
+template <typename Interval>
+using Intervals = boost::icl::interval_set<
+    typename boost::icl::interval_traits<Interval>::domain_type,
+    std::less,
+    Interval>;
+
+/*
+ * Insertion and Erasure types
+ */
+template <typename Key, typename Val, typename Interval>
+using Insertions = std::vector<std::tuple<Key, Val, Interval>>;
+template <typename Key, typename Val, typename Interval>
+using Erasures = std::vector<std::tuple<Key, Val, Interval>>;
+
 /// \brief Whether to use values from one side or another to fill in gaps
 /// (Forward fill, or backward fill or both).
 /// See extend_into_gaps()
