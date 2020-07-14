@@ -59,7 +59,7 @@ set(HEADER_FILES
         include/interval_dict/icl_interval_map_adaptor.h
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldict_forward.h)
-set(SOURCE_FILES src/intervaldicticl.cpp)
+set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/gregorian.h)
 add_library(interval_dict
         ${HEADER_FILES}
         ${SOURCE_FILES})
