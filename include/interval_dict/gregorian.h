@@ -9,24 +9,29 @@
 //  Project home: https://github.com/goodstadt/intervaldict
 //
 /// \file gregorian.h
-/// \brief Allow use of boost gregorian dates in IntervalDict
+/// \brief Adapts boost gregorian dates for IntervalDict
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
 #ifndef INCLUDE_INTERVAL_DICT_GREGORIAN_H
 #define INCLUDE_INTERVAL_DICT_GREGORIAN_H
 
-#include "interval_traits.h"
-#include <boost/date_time/gregorian/gregorian.hpp>
+//#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/icl/gregorian.hpp>
 
-inline boost::gregorian::date from_int(int date_int)
+#include "interval_traits.h"
+
+namespace interval_dict::date_literals
+{
+/// Convenience function to make dates
+inline boost::gregorian::date operator"" _dt(unsigned long long int date_int)
 {
     int year = date_int / 10000;
     int month = date_int / 100 - year * 100;
     int day = date_int - date_int / 100 * 100;
     return {year, month, day};
 }
+} // namespace interval_dict::date_literals
 
 namespace interval_dict
 {
