@@ -6,14 +6,14 @@ An associative array / interval library for c++17/20:
  - Associations are only valid over specific intervals.
 Useful for building time-varying lookup dictionaries.
 
-## About:
+## Overview:
 
-Interval Dictionaries are an extension of the associative types found in the c++ standard library that allow efficient lookup of Key->Values valid only over a specified interval.
+Interval Dictionaries are an extension of the associative containers that allow efficient lookup of Key->Values that are valid only over a specified interval.
 
-2-stage lookup for values valid over a query interval: 
+Two stage lookup: 
 
-- Stage 1: key &rarr; values uses `std::map`. O(log N).
-- Stage 2: Match query interval: Different implementations for different data.
+- Stage 1: Search, removal, and insertion operations for key &rarr; interval/values have logarithmic complexity (`std::map` under the hood).
+- Stage 2: Values specified by query interval: Search operations have logarithmic complexity. Different implementations have different complexity for insertions and deletions.
 
 ## Documentation:
 
@@ -74,7 +74,7 @@ This reflects the requirements of the cppcoro library
    
    However, for insertion/removal of elements, this data structure can have polynomial or worse complexity .
    This typically is noticeable if there are large number of intervals (>50,000) for a single key.
-   This happens if the associations are very imbalanced (each key has many tens of thousands of values).   
+   This happens if the associations are very imbalanced (each key has many tens of thousands of values with overlapping validity intervals).   
   
 1. Abstract common traits for "implementing" `interval dict` using alternative data structures / algorithms
 
@@ -101,7 +101,7 @@ This reflects the requirements of the cppcoro library
      1. Centered interval trees
      1. [Nested Containment Lists](https://academic.oup.com/bioinformatics/article/23/11/1386/199545). See
         [ncls](https://github.com/biocore-ntnu/ncls)
-     1. RTrees (ruled out)
+     1. RTrees (Will not pursue further)
      
      For implementations, see  
      - [cGranges](https://github.com/lh3/cgranges)
