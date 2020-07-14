@@ -209,7 +209,7 @@ template <typename Val, typename Interval>
 std::tuple<const Interval&, const std::set<Val>&> first_disjoint_interval(
     const IntervalDictICLSubMap<Val, Interval>& interval_values)
 {
-    assert(interval_values.size());
+    assert(interval_values.iterative_size() > 0);
     const auto it = interval_values.begin();
     return {it->first, it->second};
 }
@@ -218,7 +218,7 @@ template <typename Val, typename Interval>
 std::tuple<const Interval&, const std::set<Val>&> last_disjoint_interval(
     const IntervalDictICLSubMap<Val, Interval>& interval_values)
 {
-    assert(interval_values.size());
+    assert(interval_values.iterative_size());
     const auto it = interval_values.rbegin();
     return {it->first, it->second};
 }
