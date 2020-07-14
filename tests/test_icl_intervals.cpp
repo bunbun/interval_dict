@@ -18,7 +18,6 @@
 // intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
 //           Interval query_interval = interval_extent<Interval>);
 
-
 // std::vector<std::string> test_keys{"aa"s, "bb"s, "cc"s, "dd"s};
 // {
 //     auto vec_intervals
