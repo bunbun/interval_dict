@@ -179,9 +179,7 @@ public:
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query interval from first to last
     [[nodiscard]] std::vector<Val>
-    find(const Key& key,
-         BaseType first,
-         BaseType last = IntervalTraits<Interval>::max()) const;
+    find(const Key& key, BaseType first, BaseType last) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query interval
@@ -464,7 +462,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
 {
     for (const auto& [key, value] : key_value_pairs)
     {
-        implementation::insert(data[key], interval, value);
+        if (!boost::icl::is_empty(interval))
+        {
+            implementation::insert(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -476,7 +477,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
 {
     for (const auto& [key, value, interval] : key_value_intervals)
     {
-        implementation::insert(data[key], interval, value);
+        if (!boost::icl::is_empty(interval))
+        {
+            implementation::insert(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -501,7 +505,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
 {
     for (const auto& [value, key, interval] : value_key_intervals)
     {
-        implementation::insert(data[key], interval, value);
+        if (!boost::icl::is_empty(interval))
+        {
+            implementation::insert(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -511,9 +518,12 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
     const std::vector<std::pair<Val, Key>>& value_key_pairs, Interval interval)
 {
-    for (const auto& [value, key] : value_key_pairs)
+    if (!boost::icl::is_empty(interval))
     {
-        implementation::insert(data[key], interval, value);
+        for (const auto& [value, key] : value_key_pairs)
+        {
+            implementation::insert(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -538,7 +548,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
 {
     for (const auto& [key, value, interval] : key_value_intervals)
     {
-        implementation::erase(data[key], interval, value);
+        if (!boost::icl::is_empty(interval))
+        {
+            implementation::erase(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -548,9 +561,12 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
     const std::vector<std::pair<Key, Val>>& key_value_pairs, Interval interval)
 {
-    for (const auto& [key, value] : key_value_pairs)
+    if (!boost::icl::is_empty(interval))
     {
-        implementation::erase(data[key], interval, value);
+        for (const auto& [key, value] : key_value_pairs)
+        {
+            implementation::erase(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -571,6 +587,11 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(const Key& key,
                                                  Interval query_interval)
 {
+    if (boost::icl::is_empty(query_interval))
+    {
+        return *this;
+    }
+
     // Do not assume key is valid
     const auto ff = data.find(key);
     if (ff == data.end())
@@ -591,7 +612,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
     typename IntervalTraits<Interval>::BaseType first,
     typename IntervalTraits<Interval>::BaseType last)
 {
-    return erase(key, {first, last});
+    return erase(key, Interval{first, last});
 }
 
 /// Erase all values over the given @p interval.
@@ -599,6 +620,11 @@ template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
 {
+    if (boost::icl::is_empty(query_interval))
+    {
+        return *this;
+    }
+
     // cleanup keys without intervals afterwards
     std::vector<Key> empty_keys;
     for (const auto& [key, interval_values] : data)
@@ -623,7 +649,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
     typename IntervalTraits<Interval>::BaseType first,
     typename IntervalTraits<Interval>::BaseType last)
 {
-    return erase({first, last});
+    return erase(Interval{first, last});
 }
 
 /*
@@ -636,7 +662,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
 {
     for (const auto& [value, key, interval] : value_key_intervals)
     {
-        implementation::erase(data[key], interval, value);
+        if (!boost::icl::is_empty(interval))
+        {
+            implementation::erase(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -646,9 +675,12 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     const std::vector<std::pair<Val, Key>>& value_key_pairs, Interval interval)
 {
-    for (const auto& [value, key] : value_key_pairs)
+    if (!boost::icl::is_empty(interval))
     {
-        implementation::erase(data[key], interval, value);
+        for (const auto& [value, key] : value_key_pairs)
+        {
+            implementation::erase(data[key], interval, value);
+        }
     }
     return *this;
 }
@@ -672,12 +704,13 @@ std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
     std::set<Val> unique_results;
     for (const auto& query_interval : query_intervals)
     {
-        using namespace ranges;
-        const auto itpair = ff->second.equal_range(query_interval);
-        for (const auto& values :
-             subrange(itpair.first, itpair.second) | views::keys)
+        if (!boost::icl::is_empty(query_interval))
         {
-            unique_results.insert(values.begin(), values.end());
+            for (const auto& [_, value] :
+                 implementation::intervals(ff->second, query_interval))
+            {
+                unique_results.insert(value);
+            }
         }
     }
     return {unique_results.begin(), unique_results.end()};
@@ -688,6 +721,10 @@ std::vector<Val>
 IntervalDictExp<Key, Val, Interval, Impl>::find(const std::vector<Key>& keys,
                                                 Interval query_interval) const
 {
+    if (boost::icl::is_empty(query_interval))
+    {
+        return {};
+    }
     std::set<Val> unique_results;
 
     // Do not assume key is valid
@@ -699,12 +736,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::find(const std::vector<Key>& keys,
             return {};
         }
 
-        const auto itpair = ff->second.equal_range(query_interval);
-        using namespace ranges;
-        for (const auto& values :
-             subrange(itpair.first, itpair.second) | views::keys)
+        for (const auto& [_, value] :
+             implementation::intervals(ff->second, query_interval))
         {
-            unique_results.insert(values.begin(), values.end());
+            unique_results.insert(value);
         }
     }
     return {unique_results.begin(), unique_results.end()};
@@ -714,7 +749,7 @@ template <typename Key, typename Val, typename Interval, typename Impl>
 std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
     const Key& key, typename IntervalTraits<Interval>::BaseType query) const
 {
-    return find(key, {Interval{query, query}});
+    return find(key, Interval{query, query});
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -723,7 +758,7 @@ std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
     typename IntervalTraits<Interval>::BaseType first,
     typename IntervalTraits<Interval>::BaseType last) const
 {
-    return find(key, {Interval{first, last}});
+    return find(std::vector{key}, Interval{first, last});
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -731,7 +766,7 @@ std::vector<Val>
 IntervalDictExp<Key, Val, Interval, Impl>::find(const Key& key,
                                                 Interval interval) const
 {
-    return find(key, {interval});
+    return find(std::vector{key}, interval);
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -756,6 +791,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
                                                   const ValRange& values_subset,
                                                   Interval query_interval) const
 {
+    if (boost::icl::is_empty(query_interval))
+    {
+        return {};
+    }
+
     return IntervalDictExp<Key, Val, Interval, Impl>().insert(
         detail::subset_inserts(
             *this, keys_subset, values_subset, query_interval));
@@ -767,6 +807,10 @@ IntervalDictExp<Key, Val, Interval, Impl>
 IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
                                                   Interval query_interval) const
 {
+    if (boost::icl::is_empty(query_interval))
+    {
+        return {};
+    }
     return IntervalDictExp<Key, Val, Interval, Impl>().insert(
         detail::subset_inserts(*this, keys_subset, query_interval));
 }
