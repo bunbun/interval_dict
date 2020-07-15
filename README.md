@@ -78,10 +78,12 @@ This reflects the requirements of the cppcoro library
   
 1. Abstract common traits for "implementing" `interval dict` using alternative data structures / algorithms
 
-1. Support intervals with 
+1. Support open/close etc intervals comprising 
     - int / double
     - [boost:gregorian::date](https://www.boost.org/doc/libs/release/doc/html/date_time/gregorian.html)
-    - [boost::posix_time::ptime](https://www.boost.org/doc/libs/release/doc/html/date_time/posix_time.html) 
+    - [boost::posix_time::ptime](https://www.boost.org/doc/libs/release/doc/html/date_time/posix_time.html)
+    
+    Empty intervals are ignored 
 
 
 ### In progress:
@@ -90,10 +92,10 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `fill_xxx()` 
    1. &#9745; `flattened()`
    1. &#9745; `intervals()`
-   1. `disjoint()`
+   1. &#9745; `disjoint()`
+   1. &#9745; `find()`
    1. `insert()`
    1. `delete()`
-   1. `find()`
    1. `subtract() / merge()`
    1. `join() / subset()`
    1. `functions`
