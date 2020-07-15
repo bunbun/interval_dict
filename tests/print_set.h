@@ -13,12 +13,11 @@
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
-#ifndef TESTS_SET_PRINT_H
-#define TESTS_SET_PRINT_H
+#ifndef TESTS_PRINT_SET_H
+#define TESTS_PRINT_SET_H
 
-
-#include <set>
 #include <iostream>
+#include <set>
 
 /*
  * To dump errors for debugging
@@ -33,7 +32,7 @@ std::ostream& operator<<(std::ostream& os, const std::set<T>& values)
         os << "( ";
         auto ii = values.begin();
         os << *ii;
-        while (std::next(ii) != values.end())
+        while (++ii != values.end())
         {
             os << ", " << *ii;
         }
@@ -41,6 +40,6 @@ std::ostream& operator<<(std::ostream& os, const std::set<T>& values)
     }
     return os;
 }
-}
+} // namespace std
 
-#endif //TESTS_SET_PRINT_H
+#endif // TESTS_PRINT_SET_H

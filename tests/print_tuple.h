@@ -13,11 +13,11 @@
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
-#ifndef TESTS_TUPLE_PRINT_H
-#define TESTS_TUPLE_PRINT_H
+#ifndef TESTS_PRINT_TUPLE_H
+#define TESTS_PRINT_TUPLE_H
 
-#include <tuple>
 #include <iostream>
+#include <tuple>
 
 /*
  * To dump errors for debugging
@@ -25,13 +25,15 @@
 namespace aux
 {
 template <class TupType, size_t... I>
-void print_tuple(const TupType& _tup, std::index_sequence<I...>, std::ostream& os)
+void print_tuple(const TupType& _tup,
+                 std::index_sequence<I...>,
+                 std::ostream& os)
 {
     os << "(";
     (..., (os << (I == 0 ? "" : ", ") << std::get<I>(_tup)));
     os << ")";
 }
-}
+} // namespace aux
 namespace std
 {
 template <typename... Types>
@@ -40,6 +42,6 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<Types...>& value)
     aux::print_tuple(value, std::make_index_sequence<sizeof...(Types)>(), os);
     return os;
 }
-}
+} // namespace std
 
-#endif //TESTS_TUPLE_PRINT_H
+#endif // TESTS_PRINT_TUPLE_H
