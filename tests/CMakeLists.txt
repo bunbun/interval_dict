@@ -14,8 +14,8 @@ add_executable (test_intervaldict
                 test_icl_intervals.cpp
                 test_icl_disjoint_intervals.cpp
                 test_icl_find.cpp
-                tuple_print.h
-                test_data.h)
+        print_tuple.h
+                test_data.h print_set.h print_vector.h)
 target_link_libraries (test_intervaldict  PRIVATE interval_dict)
 
 target_include_directories(test_intervaldict

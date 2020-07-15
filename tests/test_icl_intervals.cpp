@@ -14,9 +14,9 @@
 /// Contact intervaldict@llew.org.uk
 
 #include "catch.hpp"
-#include "test_icl.h"
+#include "print_tuple.h"
 #include "test_data.h"
-#include "tuple_print.h"
+#include "test_icl.h"
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
@@ -68,7 +68,7 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
         const auto expected = test_data.intervals();
         const auto query = test_data.query_interval();
 
-        WHEN ("All data is retrieved via intervals()")
+        WHEN("All data is retrieved via intervals()")
         {
             auto vec_intervals = interval_dict::intervals(test_dict, all_keys);
             ImportData intervals_data;
@@ -76,67 +76,72 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
             {
                 intervals_data.push_back({key, value, interval});
             }
-            THEN ("Expect")
+            THEN("Expect")
             {
                 REQUIRE(intervals_data == expected);
             }
         }
 
-        WHEN ("Only data within a query interval is retrieved via intervals()")
+        WHEN("Only data within a query interval is retrieved via intervals()")
         {
-            auto vec_intervals = interval_dict::intervals(test_dict, all_keys,
-                query);
+            auto vec_intervals =
+                interval_dict::intervals(test_dict, all_keys, query);
             ImportData intervals_data;
             for (const auto& [key, value, interval] : vec_intervals)
             {
                 intervals_data.push_back({key, value, interval});
             }
-            THEN ("Expect to match only a subset")
+            THEN("Expect to match only a subset")
             {
                 ImportData expected_subset;
                 for (const auto& [key, value, interval] : expected)
                 {
                     if (boost::icl::intersects(interval, query))
                     {
-                        expected_subset.push_back({key, value, interval & query});
+                        expected_subset.push_back(
+                            {key, value, interval & query});
                     }
                 }
                 REQUIRE(intervals_data == expected_subset);
             }
         }
-        WHEN ("Only data matching keys within a query interval is retrieved via intervals()")
+        WHEN("Only data matching keys within a query interval is retrieved via "
+             "intervals()")
         {
-            auto vec_intervals = interval_dict::intervals(test_dict, std::vector{"bb"s, "dd"s},
-                                                          query);
+            auto vec_intervals = interval_dict::intervals(
+                test_dict, std::vector{"bb"s, "dd"s}, query);
             ImportData intervals_data;
             for (const auto& [key, value, interval] : vec_intervals)
             {
                 intervals_data.push_back({key, value, interval});
             }
-            THEN ("Expect to match only a subset")
+            THEN("Expect to match only a subset")
             {
                 ImportData expected_subset;
                 auto keys = std::set{"bb"s, "dd"s};
                 for (const auto& [key, value, interval] : expected)
                 {
-                    if (keys.count(key) && boost::icl::intersects(interval, query))
+                    if (keys.count(key) &&
+                        boost::icl::intersects(interval, query))
                     {
-                        expected_subset.push_back({key, value, interval & query});
+                        expected_subset.push_back(
+                            {key, value, interval & query});
                     }
                 }
                 REQUIRE(intervals_data == expected_subset);
             }
         }
-        WHEN ("Only data matching a key within a query interval is retrieved via intervals()")
+        WHEN("Only data matching a key within a query interval is retrieved "
+             "via intervals()")
         {
-            auto vec_intervals = interval_dict::intervals(test_dict, "dd"s,
-                                                          query);
+            auto vec_intervals =
+                interval_dict::intervals(test_dict, "dd"s, query);
             ImportData intervals_data;
             for (const auto& [key, value, interval] : vec_intervals)
             {
                 intervals_data.push_back({key, value, interval});
             }
-            THEN ("Expect to match only a subset")
+            THEN("Expect to match only a subset")
             {
                 ImportData expected_subset;
                 auto keys = std::set{"bb"s, "dd"s};
@@ -144,13 +149,12 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
                 {
                     if (key == "dd"s && boost::icl::intersects(interval, query))
                     {
-                        expected_subset.push_back({key, value, interval & query});
+                        expected_subset.push_back(
+                            {key, value, interval & query});
                     }
                 }
                 REQUIRE(intervals_data == expected_subset);
             }
         }
-
-
     }
 }

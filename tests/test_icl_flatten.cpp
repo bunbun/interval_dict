@@ -14,8 +14,8 @@
 /// Contact intervaldict@llew.org.uk
 
 #include "catch.hpp"
-#include "test_icl.h"
 #include "test_data.h"
+#include "test_icl.h"
 #include <interval_dict/intervaldicticl.h>
 #include <vector>
 
@@ -62,10 +62,10 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                 REQUIRE(test_dict - flattened(test_dict) ==
                         IDict(ImportData{
                             // keep status_quo
-                            {"bb", 2, {20100501_dt, 20100531_dt}},
+                            {"bb", 2, {20100215_dt, 20100301_dt}},
                             // no status_quo: discard
-                            {"dd", 6, adjust.lower({20100301_dt, 20100315_dt})},
-                            {"dd", 7, adjust.lower({20100301_dt, 20100315_dt})},
+                            {"dd", 6, adjust.lower({20100315_dt, 20100401_dt})},
+                            {"dd", 7, adjust.lower({20100315_dt, 20100401_dt})},
                         }));
             }
         }
@@ -81,7 +81,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                 // everything is discarded
                 REQUIRE(flattened_preferring_status_quo - flattened_discard ==
                         IDict(ImportData{
-                            {"bb", 1, {20100501_dt, 20100531_dt}},
+                            {"bb", 1, {20100215_dt, 20100301_dt}},
                         }));
             }
         }
@@ -117,8 +117,8 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                 REQUIRE(
                     flattened_custom - flattened_discard ==
                     IDict(ImportData{
-                        {"bb", 11, {20100501_dt, 20100531_dt}},
-                        {"dd", 42, adjust.lower({20100301_dt, 20100315_dt})},
+                        {"bb", 11, {20100215_dt, 20100301_dt}},
+                        {"dd", 42, adjust.lower({20100315_dt, 20100401_dt})},
                     }));
             }
         }
@@ -138,9 +138,9 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                     IDict(ImportData{
                         // Note this is resolved by keeping the status quo
                         // so the value is 1 not 11
-                        {"bb", 1, {20100501_dt, 20100531_dt}},
+                        {"bb", 1, {20100215_dt, 20100301_dt}},
                         // this is resolved via our custom function
-                        {"dd", 42, adjust.lower({20100301_dt, 20100315_dt})},
+                        {"dd", 42, adjust.lower({20100315_dt, 20100401_dt})},
                     }));
             }
         }
@@ -194,16 +194,16 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                     test_dict - flattened(test_dict) ==
                     IDict(ImportData{
                         // keep status_quo
-                        {"bb", 2, {"20100501T180000"_pt, "20100531T180000"_pt}},
+                        {"bb", 2, {"20100215T180000"_pt, "20100301T180000"_pt}},
                         // no status_quo: discard
                         {"dd",
                          6,
                          adjust.lower(
-                             {"20100301T180000"_pt, "20100315T180000"_pt})},
+                             {"20100315T180000"_pt, "20100401T180000"_pt})},
                         {"dd",
                          7,
                          adjust.lower(
-                             {"20100301T180000"_pt, "20100315T180000"_pt})},
+                             {"20100315T180000"_pt, "20100401T180000"_pt})},
                     }));
             }
         }
@@ -220,7 +220,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                 REQUIRE(
                     flattened_preferring_status_quo - flattened_discard ==
                     IDict(ImportData{
-                        {"bb", 1, {"20100501T180000"_pt, "20100531T180000"_pt}},
+                        {"bb", 1, {"20100215T180000"_pt, "20100301T180000"_pt}},
                     }));
             }
         }
@@ -257,11 +257,11 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                         IDict(ImportData{
                             {"bb",
                              11,
-                             {"20100501T180000"_pt, "20100531T180000"_pt}},
+                             {"20100215T180000"_pt, "20100301T180000"_pt}},
                             {"dd",
                              42,
                              adjust.lower(
-                                 {"20100301T180000"_pt, "20100315T180000"_pt})},
+                                 {"20100315T180000"_pt, "20100401T180000"_pt})},
                         }));
             }
         }
@@ -281,12 +281,13 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                     IDict(ImportData{
                         // Note this is resolved by keeping the status quo
                         // so the value is 1 not 11
-                        {"bb", 1, {"20100501T180000"_pt, "20100531T180000"_pt}},
+                        {"bb", 1, {"20100215T180000"_pt, "20100301T180000"_pt}},
+
                         // this is resolved via our custom function
                         {"dd",
                          42,
                          adjust.lower(
-                             {"20100301T180000"_pt, "20100315T180000"_pt})},
+                             {"20100315T180000"_pt, "20100401T180000"_pt})},
                     }));
             }
         }

@@ -17,8 +17,8 @@
 #define TESTS_TEST_ICL_H
 
 #include <interval_dict/gregorian.h>
-#include <interval_dict/ptime.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/ptime.h>
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 interval_dict::IntervalDictExp<Key, Val, Interval, Impl>
@@ -109,6 +109,5 @@ struct Adjust<
         return {++l, --u};
     }
 };
-
 
 #endif // TESTS_TEST_ICL_H
