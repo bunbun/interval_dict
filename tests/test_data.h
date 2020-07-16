@@ -28,6 +28,21 @@
 #include <type_traits>
 #include <vector>
 
+// Take the upper value of an interval and construct an empty interval around it
+template<typename Interval>
+Interval empty_interval_from_upper(Interval orig_interval)
+{
+    const auto orig_pos = boost::icl::upper(orig_interval);
+    Interval interval {orig_pos, orig_pos};
+    if (boost::icl::is_empty(interval))
+    {
+        return interval;
+    }
+    using interval_dict::operator--;
+    auto pos = orig_pos;
+    return Interval{orig_pos, --pos};
+}
+
 /*
  * Normalised data for int/float
  */
@@ -111,6 +126,10 @@ struct TestData
     Interval query_interval() const
     {
         return {5, 50};
+    }
+    Interval empty_interval() const
+    {
+        return empty_interval_from_upper(query_interval());
     }
     Interval query_interval_for_find() const
     {
@@ -224,6 +243,10 @@ struct TestData<
         using namespace interval_dict::date_literals;
         return {20100215_dt, 20100515_dt};
     }
+    Interval empty_interval() const
+    {
+        return empty_interval_from_upper(query_interval());
+    }
     Interval query_interval_for_find() const
     {
         using namespace interval_dict::date_literals;
@@ -333,6 +356,11 @@ struct TestData<Val,
         using namespace interval_dict::ptime_literals;
         return {"20100215T180000"_pt, "20100515T180000"_pt};
     }
+    Interval empty_interval() const
+    {
+        return empty_interval_from_upper(query_interval());
+    }
+
     Interval query_interval_for_find() const
     {
         using namespace interval_dict::ptime_literals;
