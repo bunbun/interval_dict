@@ -69,6 +69,27 @@ public:
         Interval{lowest(), max()};
     }
 };
+
+// Increment and decrement operators should be either in the data type namespace for ADL
+// or in namespace "interval_dict"
+inline boost::posix_time::ptime operator ++(boost::posix_time::ptime& x)
+{
+    return x += boost::posix_time::ptime::time_duration_type::unit();
+}
+
+inline boost::posix_time::ptime operator --(boost::posix_time::ptime& x)
+{
+    return x -= boost::posix_time::ptime::time_duration_type::unit();
+}
 } // namespace interval_dict
+inline boost::posix_time::ptime operator ++(boost::posix_time::ptime& x)
+{
+    return x += boost::posix_time::ptime::time_duration_type::unit();
+}
+
+inline boost::posix_time::ptime operator --(boost::posix_time::ptime& x)
+{
+    return x -= boost::posix_time::ptime::time_duration_type::unit();
+}
 
 #endif // INCLUDE_INTERVAL_DICT_PTIME_H
