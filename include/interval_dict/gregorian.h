@@ -26,9 +26,9 @@ namespace interval_dict::date_literals
 /// Convenience function to make dates
 inline boost::gregorian::date operator"" _dt(unsigned long long int date_int)
 {
-    int year = date_int / 10000;
-    int month = date_int / 100 - year * 100;
-    int day = date_int - date_int / 100 * 100;
+    const auto year = date_int / 10000;
+    const auto month = date_int / 100 - year * 100;
+    const auto day = date_int - date_int / 100 * 100;
     return {year, month, day};
 }
 } // namespace interval_dict::date_literals
