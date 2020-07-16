@@ -69,7 +69,7 @@ public:
     IntervalDictExp& operator=(IntervalDictExp&& other) noexcept = default;
 
     /// Construct from key-value-intervals
-    IntervalDictExp(
+    explicit IntervalDictExp(
         const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals);
 
     /// Insert key-value pairs valid over interval
@@ -541,18 +541,38 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
 /*
  * Erase
  */
+namespace detail
+{
+template <typename Key, typename Impl>
+void cleanup_empty_keys(std::map<Key, Impl>& data,
+                        const std::set<Key>& keys_with_erases)
+{
+    for (const auto& key : keys_with_erases)
+    {
+        if (implementation::empty(data[key]))
+        {
+            data.erase(key);
+        }
+    }
+}
+}
+
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
     const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals)
 {
+    // cleanup keys without intervals afterwards
+    std::set<Key> keys_with_erases;
     for (const auto& [key, value, interval] : key_value_intervals)
     {
         if (!boost::icl::is_empty(interval))
         {
+            keys_with_erases.insert(key);
             implementation::erase(data[key], interval, value);
         }
     }
+    detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
 }
 
@@ -561,13 +581,17 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
     const std::vector<std::pair<Key, Val>>& key_value_pairs, Interval interval)
 {
+    // cleanup keys without intervals afterwards
+    std::set<Key> keys_with_erases;
     if (!boost::icl::is_empty(interval))
     {
         for (const auto& [key, value] : key_value_pairs)
         {
+            keys_with_erases.insert(key);
             implementation::erase(data[key], interval, value);
         }
     }
+    detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
 }
 
@@ -600,6 +624,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(const Key& key,
     }
 
     implementation::erase(data[key], query_interval);
+    if (implementation::empty(data[key]))
+    {
+        data.erase(key);
+    }
+
     return *this;
 }
 
@@ -626,19 +655,13 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
     }
 
     // cleanup keys without intervals afterwards
-    std::vector<Key> empty_keys;
+    std::set<Key> keys_with_erases;
     for (const auto& [key, interval_values] : data)
     {
         implementation::erase(data[key], query_interval);
-        if (implementation::empty(interval_values))
-        {
-            empty_keys.push_back(key);
-        }
+        keys_with_erases.insert(key);
     }
-    for (const auto& key : empty_keys)
-    {
-        data.erase(key);
-    }
+    detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
 }
 
@@ -660,13 +683,17 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     const std::vector<std::tuple<Val, Key, Interval>>& value_key_intervals)
 {
+    // cleanup keys without intervals afterwards
+    std::set<Key> keys_with_erases;
     for (const auto& [value, key, interval] : value_key_intervals)
     {
         if (!boost::icl::is_empty(interval))
         {
             implementation::erase(data[key], interval, value);
+            keys_with_erases.insert(key);
         }
     }
+    detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
 }
 
@@ -675,13 +702,17 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     const std::vector<std::pair<Val, Key>>& value_key_pairs, Interval interval)
 {
+    // cleanup keys without intervals afterwards
+    std::set<Key> keys_with_erases;
     if (!boost::icl::is_empty(interval))
     {
         for (const auto& [value, key] : value_key_pairs)
         {
             implementation::erase(data[key], interval, value);
+            keys_with_erases.insert(key);
         }
     }
+    detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
 }
 
