@@ -65,14 +65,14 @@ class IntervalDictExp;
 /// \return The asymmetrical difference between two interval dictionaries
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-subtract(const IntervalDictExp<Key, Val, Interval, Impl>& dict_a,
+subtract(IntervalDictExp<Key, Val, Interval, Impl> dict_a,
          const IntervalDictExp<Key, Val, Interval, Impl>& dict_b);
 
 /// merge()
 /// \return The union of two interval dictionaries
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-merge(const IntervalDictExp<Key, Val, Interval, Impl>& dict_a,
+merge(IntervalDictExp<Key, Val, Interval, Impl> dict_a,
       const IntervalDictExp<Key, Val, Interval, Impl>& dict_b);
 
 /// intervals()
