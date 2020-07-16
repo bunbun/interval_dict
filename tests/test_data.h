@@ -17,8 +17,9 @@
 #define TESTS_TEST_DATA_H
 
 #include <interval_dict/gregorian.h>
-#include <interval_dict/intervaldicticl.h>
 #include <interval_dict/ptime.h>
+
+#include <interval_dict/intervaldicticl.h>
 
 #include "test_icl.h"
 
@@ -33,20 +34,21 @@
 template <typename Val, typename Interval, typename enable = void>
 struct TestData
 {
+    //        0... 05.. 15.. 20.. 25.. 30.. 35.. 40.. 45.. 50.. 55.. 75.. 85..
+    // aa     0----0                             0------------------------0
+    // bb          1----1    1----1
+    // bb                    2---------2
+    // cc               3-------------------3
+    // cc                         3-----------------------------3
+    // dd                    5---------5              5--------------5
+    // dd                              6----6
+    // dd                              7----7
+    // Query        q--------------------------------------q
+    // fill to start <-|10
+    // fill to end                                       50|->
+    // fill_gaps(3)
     std::vector<std::tuple<std::string, Val, Interval>> initial()
     {
-        //                  0...
-        //                  05.. 15.. 20.. 25.. 30.. 35.. 40.. 45.. 50.. 55.. 75..
-        //                  85..
-        // aa               0----0 0------------------------0 bb 1----1 1----1
-        // bb                              2---------2
-        // cc                         3-------------------3
-        // cc                                   3-----------------------------3
-        // dd                              5---------5 5--------------5 dd
-        // 6----6 dd                                        7----7 Query
-        // q--------------------------------------q fill to start <-|10 fill to
-        // end                                                 50|->
-        // fill_gaps(3)
         using namespace std::string_literals;
         return {
             // aa-0 gap
@@ -141,16 +143,18 @@ struct TestData<
                       "Must be an interval of dates");
         using namespace std::string_literals;
         using namespace interval_dict::date_literals;
-        //                  0101 0115 0201 0215 0301 0315 0401 0415 0501 0515
-        //                  0601 0615 0701
-        // aa               0----0 0------------------------0 bb 1----1 1----1
-        // bb                              2---------2
-        // cc                         3-------------------3
-        // cc                                   3-----------------------------3
-        // dd                              5---------5 5--------------5 dd
-        // 6----6 dd                                        7----7 Query
-        // q--------------------------------------q fill to start <-|0120 fill
-        // to end                                               0515|->
+        //     0101 0115 0201 0215 0301 0315 0401 0415 0501 0515 0601 0615 0701
+        // aa  0----0                             0------------------------0
+        // bb       1----1    1----1
+        // bb                 2---------2
+        // cc            3-------------------3
+        // cc                      3-----------------------------3
+        // dd                 5---------5              5--------------5
+        // dd                           6----6
+        // dd                           7----7
+        // Query     q--------------------------------------q
+        // f to start <-|0120
+        // f to end                                     0515|->
         // fill_gaps(10)
         return {
             // aa-0 gap
