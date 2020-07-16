@@ -76,7 +76,7 @@ public:
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     insert(const std::vector<std::pair<Key, Val>>& key_value_pairs,
-           Interval interval);
+           Interval interval = interval_extent<Interval>);
 
     /// Insert key-value-intervals
     /// \return *this
@@ -98,7 +98,7 @@ public:
     /// Insert value-key pairs valid over interval
     IntervalDictExp<Key, Val, Interval, Impl>&
     inverse_insert(const std::vector<std::pair<Val, Key>>& value_key_pairs,
-                   Interval interval);
+                   Interval interval = interval_extent<Interval>);
 
     /// Insert value-key pairs valid from @p first to @p last
     /// \return *this
@@ -116,7 +116,7 @@ public:
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(const std::vector<std::pair<Key, Val>>& key_value_pairs,
-          Interval interval);
+          Interval interval = interval_extent<Interval>);
 
     /// Erase key-value pairs valid from @p first to @p last
     /// \return *this
@@ -128,7 +128,7 @@ public:
     /// Erase all values with the specified @p key over the given @p interval.
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& erase(const Key& key,
-                                                     Interval interval);
+                                                     Interval interval = interval_extent<Interval>);
 
     /// Erase all values with the specified @p key over the
     /// \return *this
@@ -155,7 +155,7 @@ public:
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     inverse_erase(const std::vector<std::pair<Val, Key>>& value_key_pairs,
-                  Interval interval);
+                  Interval interval = interval_extent<Interval>);
 
     /// Return all keys in sorted order
     [[nodiscard]] std::vector<Key> keys() const;
@@ -184,12 +184,12 @@ public:
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query interval
     [[nodiscard]] std::vector<Val> find(const Key& key,
-                                        Interval interval) const;
+                                        Interval interva = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p keys on
     /// the given query interval
     [[nodiscard]] std::vector<Val> find(const std::vector<Key>& keys,
-                                        Interval interval) const;
+                                        Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query intervals
@@ -200,13 +200,13 @@ public:
     /// the specified \p interval
     template <typename KeyRange>
     [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
-    subset(const KeyRange& keys, Interval interval) const;
+    subset(const KeyRange& keys, Interval interval = interval_extent<Interval>) const;
 
     /// Returns a new IntervalDict that contains only the specified \p keys and
     /// \p values for the specified \p interval
     template <typename KeyRange, typename ValRange>
     [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl> subset(
-        const KeyRange& keys, const ValRange& values, Interval interval) const;
+        const KeyRange& keys, const ValRange& values, Interval interval = interval_extent<Interval>) const;
 
     /// Returns a new Dictionary that contains the same intervals but with
     /// Values -> Keys
