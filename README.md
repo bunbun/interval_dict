@@ -96,8 +96,9 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `find()`
    1. &#9745; `erase()`
    1. &#9745; `insert()`
-   1. &#9744; `subtract() / merge()`
-   1. &#9744; `join() / subset()`
+   1. &#9745; `subset()`
+   1. &#9745; `subtract() / merge()`
+   1. &#9744; `join()`
    1. &#9744; `functions`
 
 ### Early days:
