@@ -96,15 +96,15 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `find()`
    1. &#9745; `erase()`
    1. &#9745; `insert()`
-   1. `subtract() / merge()`
-   1. `join() / subset()`
-   1. `functions`
+   1. &#9744; `subtract() / merge()`
+   1. &#9744; `join() / subset()`
+   1. &#9744; `functions`
 
 ### Early days:
 
-1. A bidirectional dictionary wrapper 
+1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+) A bidirectional dictionary wrapper 
    
-1. More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
+1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
    The leading candidate is the Augmented [Interval Tree](https://en.wikipedia.org/wiki/Interval_tree) 
    using the [tinloaf/ygg](https://github.com/tinloaf/ygg) library
    
@@ -122,9 +122,9 @@ This reflects the requirements of the cppcoro library
 
 ### Not yet started :bowtie:      
 
-1. Documentation
+1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=10)  Tutorial
 
-1. Cython / Python wrapper    
+1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=10)  Cython / Python wrapper    
 
 
 ## Build Status
