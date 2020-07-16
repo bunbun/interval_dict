@@ -94,8 +94,8 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `intervals()`
    1. &#9745; `disjoint()`
    1. &#9745; `find()`
-   1. `insert()`
-   1. `delete()`
+   1. &#9745; `erase()`
+   1. &#9745; `insert()`
    1. `subtract() / merge()`
    1. `join() / subset()`
    1. `functions`
