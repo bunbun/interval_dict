@@ -71,27 +71,28 @@ public:
     }
 };
 
-// Increment and decrement operators should be either in the data type namespace for ADL
-// or in namespace "interval_dict"
-inline boost::gregorian::date_duration operator ++(boost::gregorian::date_duration& x)
+// Increment and decrement operators should be either in the data type namespace
+// for ADL or in namespace "interval_dict"
+inline boost::gregorian::date_duration
+operator++(boost::gregorian::date_duration& x)
 {
     return x += boost::gregorian::date::duration_type::unit();
 }
 
-inline boost::gregorian::date_duration operator --(boost::gregorian::date_duration& x)
+inline boost::gregorian::date_duration
+operator--(boost::gregorian::date_duration& x)
 {
     return x -= boost::gregorian::date::duration_type::unit();
 }
-inline boost::gregorian::date operator ++(boost::gregorian::date& x)
+inline boost::gregorian::date operator++(boost::gregorian::date& x)
 {
     return x += boost::gregorian::date::duration_type::unit();
 }
 
-inline boost::gregorian::date operator --(boost::gregorian::date& x)
+inline boost::gregorian::date operator--(boost::gregorian::date& x)
 {
     return x -= boost::gregorian::date::duration_type::unit();
 }
-
 
 } // namespace interval_dict
 
