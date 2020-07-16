@@ -50,22 +50,22 @@ public:
         typename boost::icl::interval_traits<Interval>::domain_type;
     using BaseDifferenceType = boost::gregorian::date_duration;
 
-    static boost::gregorian::date lowest() throw()
+    static boost::gregorian::date lowest() noexcept
     {
         return boost::gregorian::date{boost::date_time::min_date_time};
     }
 
-    static boost::gregorian::date max() throw()
+    static boost::gregorian::date max() noexcept
     {
         return boost::gregorian::date{boost::date_time::max_date_time};
     }
 
-    static boost::gregorian::date_duration max_size() throw()
+    static boost::gregorian::date_duration max_size() noexcept
     {
         return boost::gregorian::date_duration{boost::date_time::max_date_time};
     }
 
-    static Interval max_range() throw()
+    static Interval max_range() noexcept
     {
         Interval{lowest(), max()};
     }

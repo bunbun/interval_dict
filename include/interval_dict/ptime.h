@@ -48,23 +48,23 @@ public:
         typename boost::icl::interval_traits<Interval>::domain_type;
     using BaseDifferenceType = boost::posix_time::time_duration;
 
-    static boost::posix_time::ptime lowest() throw()
+    static boost::posix_time::ptime lowest() noexcept
     {
         return boost::posix_time::ptime{boost::date_time::min_date_time};
     }
 
-    static boost::posix_time::ptime max() throw()
+    static boost::posix_time::ptime max() noexcept
     {
         return boost::posix_time::ptime{boost::date_time::max_date_time};
     }
 
-    static boost::posix_time::time_duration max_size() throw()
+    static boost::posix_time::time_duration max_size() noexcept
     {
         return boost::posix_time::time_duration{
             boost::date_time::max_date_time};
     }
 
-    static Interval max_range() throw()
+    static Interval max_range() noexcept
     {
         Interval{lowest(), max()};
     }
