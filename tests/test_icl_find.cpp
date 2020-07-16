@@ -23,7 +23,7 @@
 #include <vector>
 
 TEMPLATE_TEST_CASE("Test find() for different interval types",
-                   "[intervals]",
+                   "[find]",
                    boost::icl::interval<int>::type,
                    boost::icl::left_open_interval<int>,
                    boost::icl::right_open_interval<int>,
