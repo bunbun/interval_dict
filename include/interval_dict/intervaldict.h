@@ -555,7 +555,7 @@ void cleanup_empty_keys(std::map<Key, Impl>& data,
         }
     }
 }
-}
+} // namespace detail
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
