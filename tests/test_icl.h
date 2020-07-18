@@ -110,4 +110,35 @@ struct Adjust<
     }
 };
 
+// Return the results of identifier_dict::intervals() as a vector
+template <typename Key, typename Val, typename Interval, typename Impl>
+std::vector<std::tuple<Key, Val, Interval>>
+intervals_as_vec(interval_dict::IntervalDictExp<Key, Val, Interval, Impl> idict,
+                 Interval interval = interval_dict::interval_extent<Interval>)
+{
+    std::vector<std::tuple<Key, Val, Interval>> results;
+    for (const auto& [key, value, interval] :
+         interval_dict::intervals(idict, interval))
+    {
+        results.push_back(std::tuple{key, value, interval});
+    }
+    return results;
+}
+
+// Return the results of identifier_dict::intervals() as a vector of key /
+// values
+template <typename Key, typename Val, typename Interval, typename Impl>
+std::set<std::tuple<Key, Val>> intervals_as_key_values(
+    interval_dict::IntervalDictExp<Key, Val, Interval, Impl> idict,
+    Interval interval = interval_dict::interval_extent<Interval>)
+{
+    std::set<std::tuple<Key, Val>> results;
+    for (const auto& [key, value, _] :
+         interval_dict::intervals(idict, interval))
+    {
+        results.insert(std::tuple{key, value});
+    }
+    return results;
+}
+
 #endif // TESTS_TEST_ICL_H

@@ -44,7 +44,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
 
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
 
         WHEN("Should be equivalent to inserting resolved data")
@@ -175,7 +175,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
 
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
 
         WHEN("Should be equivalent to inserting resolved data")
@@ -318,7 +318,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
 
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
 
         WHEN("Should be equivalent to inserting resolved data")

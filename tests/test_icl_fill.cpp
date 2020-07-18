@@ -48,7 +48,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     GIVEN("An IntervalDict with overlapping intervals")
     {
         using namespace boost::gregorian;
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
         const auto test_pos = 20100120_dt;
@@ -112,7 +112,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -179,7 +179,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -245,7 +245,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     GIVEN("An IntervalDict with overlapping intervals")
     {
         using namespace boost::gregorian;
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -331,7 +331,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     GIVEN("An IntervalDict with overlapping intervals")
     {
         using namespace interval_dict::ptime_literals;
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
         const auto test_pos = "20100120T180000"_pt;
@@ -406,7 +406,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -488,7 +488,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -569,7 +569,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     GIVEN("An IntervalDict with overlapping intervals")
     {
         using namespace interval_dict::ptime_literals;
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto adjust = Adjust<Interval>{};
 
@@ -682,7 +682,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto adjust = Adjust<Interval>{};
@@ -747,7 +747,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto adjust = Adjust<Interval>{};
@@ -813,7 +813,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto adjust = Adjust<Interval>{};
@@ -874,7 +874,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         IDict test_dict(test_data.initial());
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto adjust = Adjust<Interval>{};

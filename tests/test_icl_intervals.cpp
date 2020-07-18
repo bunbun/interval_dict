@@ -61,7 +61,7 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        TestData<Val, Interval> test_data;
+        TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto adjust = Adjust<Interval>{};

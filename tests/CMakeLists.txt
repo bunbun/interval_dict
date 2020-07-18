@@ -4,18 +4,23 @@ include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name
 add_executable (test_intervaldict
-                test_intervaldict.cpp
-                test_icl_member_functions.cpp
-                test_icl_fill.cpp
+                print_set.h
+                print_tuple.h
+                print_vector.h
+                test_data.h
                 test_icl.h
+                test_icl_disjoint_intervals.cpp
+                test_icl_erase.cpp
+                test_icl_fill.cpp
+                test_icl_find.cpp
                 test_icl_flatten.cpp
                 test_icl_insert.cpp
-                test_icl_erase.cpp
                 test_icl_intervals.cpp
-                test_icl_disjoint_intervals.cpp
-                test_icl_find.cpp
-        print_tuple.h
-                test_data.h print_set.h print_vector.h test_icl_merge_subtract.cpp test_icl_join.cpp test_icl_subset.cpp)
+                test_icl_join.cpp
+                test_icl_member_functions.cpp
+                test_icl_merge_subtract.cpp
+                test_icl_subset.cpp
+                test_intervaldict.cpp test_data2.h)
 target_link_libraries (test_intervaldict  PRIVATE interval_dict)
 
 target_include_directories(test_intervaldict

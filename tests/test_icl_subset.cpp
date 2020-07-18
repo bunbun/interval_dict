@@ -22,43 +22,28 @@
 #include <tuple>
 #include <vector>
 
-template<typename Key, typename Val, typename Interval, typename Impl>
-std::vector<std::tuple<Key, Val, Interval>>
-intervals_as_vec(interval_dict::IntervalDictExp<Key, Val, Interval, Impl> idict,
-    Interval interval)
-{
-    std::vector<std::tuple<Key, Val, Interval>> results;
-    for (const auto& [key, value, interval] : interval_dict::intervals(idict, interval))
-    {
-        results.push_back(std::tuple{key, value, interval});
-    }
-    return results;
-}
-
-TEMPLATE_TEST_CASE(
-    "Test subsetting for different interval types"
-    , "[subset]"
-    , boost::icl::interval<int>::type
-    , boost::icl::left_open_interval<int>
-    , boost::icl::right_open_interval<int>
-    , boost::icl::closed_interval<int>
-    , boost::icl::open_interval<int>
-    , boost::icl::interval<float>::type
-    , boost::icl::left_open_interval<float>
-    , boost::icl::right_open_interval<float>
-    , boost::icl::interval<boost::posix_time::ptime>::type
-    , boost::icl::left_open_interval<boost::posix_time::ptime>
-    , boost::icl::right_open_interval<boost::posix_time::ptime>
-    , boost::icl::open_interval<boost::posix_time::ptime>
-    , boost::icl::closed_interval<boost::posix_time::ptime>
-    , boost::icl::discrete_interval<boost::posix_time::ptime>
-    , boost::icl::interval<boost::gregorian::date>::type
-    , boost::icl::left_open_interval<boost::gregorian::date>
-    , boost::icl::right_open_interval<boost::gregorian::date>
-    , boost::icl::open_interval<boost::gregorian::date>
-    , boost::icl::closed_interval<boost::gregorian::date>
-    , boost::icl::discrete_interval<boost::gregorian::date>
-)
+TEMPLATE_TEST_CASE("Test subsetting for different interval types",
+                   "[subset]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using namespace interval_dict::date_literals;
@@ -71,7 +56,7 @@ TEMPLATE_TEST_CASE(
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
-    TestData<Val, Interval> test_data;
+    TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
     /*
@@ -90,8 +75,9 @@ TEMPLATE_TEST_CASE(
             THEN("they should always give the same result.")
             {
                 const auto externity = interval_dict::interval_extent<Interval>;
-                REQUIRE(intervals_as_vec(test_dict, query)
-                == intervals_as_vec(test_dict.subset(all_keys, query), externity));
+                REQUIRE(intervals_as_vec(test_dict, query) ==
+                        intervals_as_vec(test_dict.subset(all_keys, query),
+                                         externity));
             }
         }
 
@@ -113,11 +99,13 @@ TEMPLATE_TEST_CASE(
             THEN("we can reassemble the original dict from subset by values")
             {
                 const auto values_subset1 = std::vector{0, 1, 2, 3};
-                const auto subset_dict1 = test_dict.subset(all_keys, values_subset1);
+                const auto subset_dict1 =
+                    test_dict.subset(all_keys, values_subset1);
                 REQUIRE(!subset_dict1.empty());
 
                 const auto values_subset2 = std::vector{5, 6, 7, 8};
-                const auto subset_dict2 = test_dict.subset(all_keys, values_subset2);
+                const auto subset_dict2 =
+                    test_dict.subset(all_keys, values_subset2);
                 REQUIRE(!subset_dict2.empty());
 
                 // check they are not the same but can be put together to
@@ -136,8 +124,10 @@ TEMPLATE_TEST_CASE(
                 REQUIRE(test_dict.subset(all_keys, std::vector<Val>{}).empty());
                 // Empty interval
                 REQUIRE(test_dict.subset(all_keys, empty_query) == IDict());
-                REQUIRE(test_dict.subset(all_keys, std::vector<Val>{0, 1, 2, 3, 4, 5, 6, 7, 8},
-                    empty_query) == IDict());
+                REQUIRE(test_dict.subset(
+                            all_keys,
+                            std::vector<Val>{0, 1, 2, 3, 4, 5, 6, 7, 8},
+                            empty_query) == IDict());
             }
         }
     }

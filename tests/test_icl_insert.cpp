@@ -55,7 +55,7 @@ TEMPLATE_TEST_CASE("Test inserting for different interval types",
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
-    TestData<Val, Interval> test_data;
+    TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
     /*

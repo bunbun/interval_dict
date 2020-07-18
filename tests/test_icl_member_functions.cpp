@@ -24,30 +24,28 @@
 #include <interval_dict/ptime.h>
 #include <vector>
 
-TEMPLATE_TEST_CASE(
-    "Test member functions for different interval types",
-    "[memberfunc]",
-    boost::icl::interval<int>::type,
-    boost::icl::left_open_interval<int>
-    // , boost::icl::right_open_interval<int>
-    // , boost::icl::closed_interval<int>
-    // , boost::icl::open_interval<int>
-    // , boost::icl::interval<float>::type
-    // , boost::icl::left_open_interval<float>
-    // , boost::icl::right_open_interval<float>
-    // , boost::icl::interval<boost::posix_time::ptime>::type
-    // , boost::icl::left_open_interval<boost::posix_time::ptime>
-    // , boost::icl::right_open_interval<boost::posix_time::ptime>
-    // , boost::icl::open_interval<boost::posix_time::ptime>
-    // , boost::icl::closed_interval<boost::posix_time::ptime>
-    // , boost::icl::discrete_interval<boost::posix_time::ptime>
-    // , boost::icl::interval<boost::gregorian::date>::type
-    // , boost::icl::left_open_interval<boost::gregorian::date>
-    // , boost::icl::right_open_interval<boost::gregorian::date>
-    // , boost::icl::open_interval<boost::gregorian::date>
-    // , boost::icl::closed_interval<boost::gregorian::date>
-    // , boost::icl::discrete_interval<boost::gregorian::date>
-)
+TEMPLATE_TEST_CASE("Test member functions different interval types",
+                   "[keys][empty][count][count][contains][clear][invert][size]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using namespace interval_dict::date_literals;
@@ -60,68 +58,84 @@ TEMPLATE_TEST_CASE(
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
-    TestData<Val, Interval> test_data;
+    TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
     /*
      * TestData
      */
-    GIVEN("An IntervalDict with overlapping intervals")
+    GIVEN("An IntervalDict divided into subsets by keys")
     {
-        using namespace boost::gregorian;
+        // keys
         const IDict test_dict(test_data.initial());
-        const auto adjust = Adjust<Interval>{};
-        const auto interval_min =
-            interval_dict::IntervalTraits<Interval>::lowest();
-        const auto interval_max =
-            interval_dict::IntervalTraits<Interval>::max();
-        const auto interval_maxsz =
-            interval_dict::IntervalTraits<Interval>::max_size();
-        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
-        const auto query = test_data.query_interval();
-        auto query_end =
-            Interval{boost::icl::upper(query), boost::icl::upper(query)};
-
-        if (!boost::icl::is_empty(query_end))
+        const auto all_keys = test_dict.keys();
+        WHEN("we look at the keys of each subset")
         {
-            auto u = boost::icl::upper(query);
-            using interval_dict::operator--;
-            query_end = Interval{boost::icl::upper(query), --u};
-            REQUIRE(boost::icl::is_empty(query_end));
-        }
-        const auto query_max = Interval{interval_max, interval_max};
-
-        // reverse key value order
-        std::vector<std::tuple<Val, Key, Interval>> inverse_import_data;
-        inverse_import_data.reserve(import_data.size());
-        for (const auto& [key, value, interval] : import_data)
-        {
-            inverse_import_data.push_back(std::tuple{value, key, interval});
-        }
-
-        WHEN("Inserting data in permuted order")
-        {
-            THEN("Should always give the same result.")
+            THEN("They need to have the keys they were subset() with")
             {
+                for (const auto& key : all_keys)
+                {
+                    const auto subset_dict = test_dict.subset(std::vector{key});
+                    // only has one key as keys()
+                    REQUIRE(subset_dict.keys() == std::vector{key});
+
+                    // check not empty but has size == 1
+                    REQUIRE(!subset_dict.empty());
+                    REQUIRE(subset_dict.size() == 1);
+
+                    // but is empty after removing that key
+                    REQUIRE(copy(subset_dict).erase(key).empty());
+
+                    for (const auto& check_key : all_keys)
+                    {
+                        // count () == 1 and contains() == true only for the
+                        // matching key
+                        REQUIRE(subset_dict.count(check_key) ==
+                                (key == check_key ? 1 : 0));
+                        REQUIRE(subset_dict.contains(check_key) ==
+                                (key == check_key));
+                    }
+                }
+            }
+        }
+
+        WHEN("we look at a cleared dictionary")
+        {
+            auto cleared_dict = copy(test_dict);
+            REQUIRE(!cleared_dict.empty());
+            REQUIRE(cleared_dict.size() != 0);
+            REQUIRE(cleared_dict.size() == all_keys.size());
+            cleared_dict.clear();
+            THEN("It should be empty")
+            {
+                REQUIRE(cleared_dict.empty());
+                REQUIRE(cleared_dict.size() == 0);
+                for (const auto& key : all_keys)
+                {
+                    REQUIRE(cleared_dict.contains(key) == false);
+                }
+            }
+        }
+
+        GIVEN("An inverted IntervalDict divided into subsets by inverted keys")
+        {
+            // keys
+            const auto inverted_dict = test_dict.invert();
+            const auto all_values = inverted_dict.keys();
+            WHEN("The examining each subset")
+            {
+                THEN("They need to match the subset divided by values")
+                {
+                    for (const auto& value : all_values)
+                    {
+                        const auto value_subset_dict1 =
+                            inverted_dict.subset(std::vector{value}).invert();
+                        const auto value_subset_dict2 =
+                            test_dict.subset(all_keys, std::vector{value});
+                        REQUIRE(value_subset_dict1 == value_subset_dict2);
+                    }
+                }
             }
         }
     }
 }
-
-// /*joined_to*/
-// template <typename OtherVal>
-// [[nodiscard]] IntervalDictExp<Key, OtherVal, Interval, Impl>
-// joined_to(
-//     const IntervalDictExp<Val, OtherVal, Interval, Impl>& b_to_c) const;
-//
-
-// [[nodiscard]] std::vector<Key> keys() const;
-// [[nodiscard]] bool empty() const;
-// [[nodiscard]] std::size_t count(const Key& key) const;
-// [[nodiscard]] bool contains(const Key& key) const;
-// void clear();
-// /*Invert*/
-// [[nodiscard]] IntervalDictExp<Val, Key, Interval, Impl>
-// invert() const;
-// /*size*/
-// [[nodiscard]] std::size_t size() const;

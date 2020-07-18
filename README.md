@@ -85,10 +85,9 @@ This reflects the requirements of the cppcoro library
     
     Empty intervals are ignored 
 
-
-### In progress:
-
-1. Tests / Benchmarks
+1. Tests
+   
+   with Catch2: 6903 assertions in 280 test cases                    
    1. &#9745; `fill_xxx()` 
    1. &#9745; `flattened()`
    1. &#9745; `intervals()`
@@ -98,12 +97,15 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `insert()`
    1. &#9745; `subset()`
    1. &#9745; `subtract() / merge()`
-   1. &#9744; `join()`
-   1. &#9744; `functions`
+   1. &#9745; `functions`
+   1. &#9745; `join()`
 
-### Early days:
+### In progress:
 
-1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+) A bidirectional dictionary wrapper 
+1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+) A bidirectional dictionary wrapper
+
+
+1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  Benchmarks for large number of values per keys etc. 
    
 1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
    The leading candidate is the Augmented [Interval Tree](https://en.wikipedia.org/wiki/Interval_tree) 
