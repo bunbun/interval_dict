@@ -53,14 +53,16 @@ include_directories(extern/catch2)
 #
 # Only public header files go here.
 set(HEADER_FILES
-        include/interval_dict/intervaldicticl.h
-        include/interval_dict/interval_traits.h
+        include/interval_dict/adaptor_traits.h
         include/interval_dict/bi_intervaldicticl.h
+        include/interval_dict/gregorian.h
         include/interval_dict/icl_interval_map_adaptor.h
+        include/interval_dict/interval_traits.h
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldict_forward.h
+        include/interval_dict/intervaldicticl.h
         include/interval_dict/ptime.h)
-set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/gregorian.h)
+set(SOURCE_FILES src/intervaldicticl.cpp)
 add_library(interval_dict
         ${HEADER_FILES}
         ${SOURCE_FILES})
