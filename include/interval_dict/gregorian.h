@@ -16,7 +16,6 @@
 #ifndef INCLUDE_INTERVAL_DICT_GREGORIAN_H
 #define INCLUDE_INTERVAL_DICT_GREGORIAN_H
 
-//#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/icl/gregorian.hpp>
 
 #include "interval_traits.h"

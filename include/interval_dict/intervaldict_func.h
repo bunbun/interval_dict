@@ -30,8 +30,6 @@
 
 #include "intervaldict.h"
 #include <range/v3/algorithm/sort.hpp>
-#include <range/v3/view/map.hpp>
-#include <range/v3/view/subrange.hpp>
 
 namespace interval_dict
 {
@@ -100,7 +98,8 @@ subset_inserts(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
             for (const auto& [interval, value] :
                  implementation::intervals(interval_values, query_interval))
             {
-                results.push_back({key, value, interval & query_interval});
+                results.push_back(
+                    std::tuple{key, value, interval & query_interval});
             }
         }
     }

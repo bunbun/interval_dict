@@ -51,6 +51,8 @@ public:
     bool operator!=(const IntervalDictExp& rhs) const;
 
 public:
+    template <typename K, typename V, typename I, typename Im>
+    friend class IntervalDictExp;
     using Interval = IntervalType;
     using BaseType = typename IntervalTraits<Interval>::BaseType;
     using KeyType = Key;
@@ -60,6 +62,10 @@ public:
     // boost icl interval_set of Intervals
     using Intervals = interval_dict::Intervals<Interval>;
     using ImplType = Impl;
+    using InvertImplType = typename Rebased<Val, Key, Interval, Impl>::type;
+    template <typename OtherVal>
+    using OtherImplType = typename Rebased<Val, OtherVal, Interval, Impl>::type;
+    using DataType = std::map<Key, Impl>;
 
     /// Default Constructors / assignment operators
     IntervalDictExp() = default;
@@ -71,6 +77,8 @@ public:
     /// Construct from key-value-intervals
     explicit IntervalDictExp(
         const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals);
+
+    explicit IntervalDictExp(DataType internal);
 
     /// Insert key-value pairs valid over interval
     /// \return *this
@@ -127,8 +135,8 @@ public:
 
     /// Erase all values with the specified @p key over the given @p interval.
     /// \return *this
-    IntervalDictExp<Key, Val, Interval, Impl>& erase(const Key& key,
-                                                     Interval interval = interval_extent<Interval>);
+    IntervalDictExp<Key, Val, Interval, Impl>&
+    erase(const Key& key, Interval interval = interval_extent<Interval>);
 
     /// Erase all values with the specified @p key over the
     /// \return *this
@@ -183,13 +191,14 @@ public:
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query interval
-    [[nodiscard]] std::vector<Val> find(const Key& key,
-                                        Interval interva = interval_extent<Interval>) const;
+    [[nodiscard]] std::vector<Val>
+    find(const Key& key, Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p keys on
     /// the given query interval
-    [[nodiscard]] std::vector<Val> find(const std::vector<Key>& keys,
-                                        Interval interval = interval_extent<Interval>) const;
+    [[nodiscard]] std::vector<Val>
+    find(const std::vector<Key>& keys,
+         Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query intervals
@@ -200,26 +209,34 @@ public:
     /// the specified \p interval
     template <typename KeyRange>
     [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
-    subset(const KeyRange& keys, Interval interval = interval_extent<Interval>) const;
+    subset(const KeyRange& keys,
+           Interval interval = interval_extent<Interval>) const;
 
     /// Returns a new IntervalDict that contains only the specified \p keys and
     /// \p values for the specified \p interval
     template <typename KeyRange, typename ValRange>
-    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl> subset(
-        const KeyRange& keys, const ValRange& values, Interval interval = interval_extent<Interval>) const;
+    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
+    subset(const KeyRange& keys,
+           const ValRange& values,
+           Interval interval = interval_extent<Interval>) const;
 
     /// Returns a new Dictionary that contains the same intervals but with
     /// Values -> Keys
-    [[nodiscard]] IntervalDictExp<Val, Key, Interval, Impl> invert() const;
+    [[nodiscard]] IntervalDictExp<Val, Key, Interval, InvertImplType>
+    invert() const;
 
     /// Returns the number of unique keys
     [[nodiscard]] std::size_t size() const;
 
     /// Returns a dictionary A -> C that spans A -> B -> C
     /// whenever there are A -> B and B -> C mapping over common intervals
-    template <typename OtherVal>
-    [[nodiscard]] IntervalDictExp<Key, OtherVal, Interval, Impl> joined_to(
-        const IntervalDictExp<Val, OtherVal, Interval, Impl>& b_to_c) const;
+    template <typename OtherVal, typename OtherImpl>
+    [[nodiscard]] IntervalDictExp<Key,
+                                  OtherVal,
+                                  Interval,
+                                  OtherImplType<OtherVal>>
+    joined_to(const IntervalDictExp<Val, OtherVal, Interval, OtherImpl>& b_to_c)
+        const;
 
     /// Supplement with entries from other only for missing keys or gaps where
     /// a key does not map to any values.
@@ -400,7 +417,6 @@ public:
                               FlattenPolicy<Key, Val, Interval> keep_one_value);
 
 private:
-    using DataType = std::map<Key, Impl>;
     DataType data;
 };
 
@@ -425,6 +441,13 @@ IntervalDictExp<Key, Val, Interval, Impl>::IntervalDictExp(
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
+IntervalDictExp<Key, Val, Interval, Impl>::IntervalDictExp(
+    IntervalDictExp::DataType internal)
+    : data(std::move(internal))
+{
+}
+
+template <typename Key, typename Val, typename Interval, typename Impl>
 bool IntervalDictExp<Key, Val, Interval, Impl>::empty() const
 {
     return data.size() == 0;
@@ -442,7 +465,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::count(const Key& key) const
 template <typename Key, typename Val, typename Interval, typename Impl>
 bool IntervalDictExp<Key, Val, Interval, Impl>::contains(const Key& key) const
 {
+#if __cplusplus > 201703L
     return data.contains(key);
+#else
+    return data.count(key) != 0;
+#endif
 }
 
 /// erase all keys
@@ -850,19 +877,25 @@ IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
  * invert
  */
 template <typename Key, typename Val, typename Interval, typename Impl>
-IntervalDictExp<Val, Key, Interval, Impl>
+IntervalDictExp<Val,
+                Key,
+                Interval,
+                typename Rebased<Val, Key, Interval, Impl>::type>
 IntervalDictExp<Key, Val, Interval, Impl>::invert() const
 {
-    IntervalDictExp<Val, Key, Interval, Impl> results;
+    using DataType =
+        typename IntervalDictExp<Val, Key, Interval, InvertImplType>::DataType;
+    DataType inverted_data;
     for (const auto& [key, interval_values] : data)
     {
         for (const auto& [interval, value] :
              implementation::intervals(interval_values))
         {
-            implementation::insert(results[value], interval, key);
+            implementation::insert<Key, Interval>(
+                inverted_data[value], interval, key);
         }
     }
-    return results;
+    return IntervalDictExp<Val, Key, Interval, InvertImplType>(inverted_data);
 }
 
 /*
@@ -913,22 +946,23 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator+=(
     }
     return *this;
 }
-
 template <typename A, typename B, typename Interval, typename Impl>
-template <typename C>
-IntervalDictExp<A, C, Interval, Impl>
+template <typename C, typename OtherImpl>
+IntervalDictExp<A, C, Interval, typename Rebased<B, C, Interval, Impl>::type>
 IntervalDictExp<A, B, Interval, Impl>::joined_to(
-    const IntervalDictExp<B, C, Interval, Impl>& b_to_c) const
+    const IntervalDictExp<B, C, Interval, OtherImpl>& b_to_c) const
 {
-    IntervalDictExp<A, C, Interval, Impl> results;
+    using ReturnType = IntervalDictExp<A, C, Interval, OtherImplType<C>>;
+    using DataType = typename ReturnType::DataType;
+    DataType other_data;
     for (const auto& [key_a, interval_values_ab] : data)
     {
         for (const auto& [interval_ab, value_b] :
              implementation::intervals(interval_values_ab))
         {
             // Ignore values that are missing from the other dictionary
-            const auto ii = b_to_c.find(value_b);
-            if (ii == b_to_c.end())
+            const auto ii = b_to_c.data.find(value_b);
+            if (ii == b_to_c.data.end())
             {
                 continue;
             }
@@ -939,11 +973,11 @@ IntervalDictExp<A, B, Interval, Impl>::joined_to(
                  implementation::intervals(interval_values_bc, interval_ab))
             {
                 implementation::insert(
-                    results[key_a], value_c, interval_ab & interval_bc);
+                    other_data[key_a], interval_ab & interval_bc, value_c);
             }
         }
     }
-    return results;
+    return ReturnType(other_data);
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>

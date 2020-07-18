@@ -21,13 +21,13 @@
 #ifndef INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H
 #define INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H
 
+#include "adaptor_traits.h"
 #include "interval_traits.h"
 #include "intervaldict_forward.h"
 
 #include <boost/icl/interval_map.hpp>
 #include <cppcoro/generator.hpp>
-#include <range/v3/range/conversion.hpp>
-#include <range/v3/view/map.hpp>
+#include <range/v3/view/subrange.hpp>
 
 namespace interval_dict
 {
@@ -51,22 +51,46 @@ using IntervalDictICLSubMap =
                              boost::icl::inplace_plus,
                              boost::icl::inplace_et,
                              Interval>;
+} // namespace implementation
+
+/// Type manipulating function for obtaining the same implementation underlying
+/// an IntervalDict (IntervalDictICLSubMap in this case) that is uses the same
+/// Interval type but "rebased" with a new Val type.
+/// The return type is ::type as per C++ convention.
+/// This is necessary for creating types to hold data in the "invert()"
+/// orientation or to hold data after joining with a compatible IntervalDict
+/// with possibly different Key / Value type. See "joined_to()".
+template <typename OldVal_,
+          typename NewVal_,
+          typename Interval_,
+          typename Impl_>
+struct Rebased<
+    OldVal_,
+    NewVal_,
+    Interval_,
+    Impl_,
+    typename std::enable_if<
+        std::is_same<
+            Impl_,
+            implementation::IntervalDictICLSubMap<OldVal_, Interval_>>::value,
+        void>::type>
+{
+    using Interval = Interval_;
+    using OldVal = OldVal_;
+    using Val = NewVal_;
+    using type = implementation::IntervalDictICLSubMap<NewVal_, Interval>;
+    using OldType = Impl_;
+};
+
+namespace implementation
+{
 
 /*
  * _____________________________________________________________________________
  *
- * Abstract functions to handle boost::icl::interval_map of std::set<Val>
+ * Functions to handle boost::icl::interval_map of std::set<Val>
  *
  */
-// Returns the gaps between intervals
-// template <typename Val, typename Interval>
-// auto overlapping(
-//     const IntervalDictICLSubMap<Val, Interval>& values_per_interval,
-//     Interval interval)
-// {
-//     const auto itpair = values_per_interval.equal_range(interval);
-//     return ranges::subrange(itpair.first, itpair.second);
-// }
 
 // Returns the gaps between intervals
 template <typename Val, typename Interval>
