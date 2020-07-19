@@ -17,7 +17,7 @@
 #include "print_tuple.h"
 #include "test_data.h"
 #include "test_data2.h"
-#include "test_icl.h"
+#include "test_utils.h"
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
 #include <interval_dict/ptime.h>
@@ -54,9 +54,9 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
     using Key = std::string;
     using Val = int;
     using Val2 = double;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
-    using IDict2 = interval_dict::IntervalDictICLExp<Val, Val2, Interval>;
-    using IDict3 = interval_dict::IntervalDictICLExp<Key, Val2, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
+    using IDict2 = interval_dict::INTERVALDICTTESTTYPE<Val, Val2, Interval>;
+    using IDict3 = interval_dict::INTERVALDICTTESTTYPE<Key, Val2, Interval>;
     using Interval = typename IDict::Interval;
     TestData<Interval> test_data;
     TestData2<Interval> test_data2;

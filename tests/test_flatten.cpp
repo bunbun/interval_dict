@@ -15,7 +15,7 @@
 
 #include "catch.hpp"
 #include "test_data.h"
-#include "test_icl.h"
+#include "test_utils.h"
 #include <interval_dict/intervaldicticl.h>
 #include <vector>
 
@@ -34,7 +34,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -165,7 +165,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -310,7 +310,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;

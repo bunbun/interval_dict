@@ -8,18 +8,18 @@ add_executable (test_intervaldict
                 print_tuple.h
                 print_vector.h
                 test_data.h
-                test_icl.h
-                test_icl_disjoint_intervals.cpp
-                test_icl_erase.cpp
-                test_icl_fill.cpp
-                test_icl_find.cpp
-                test_icl_flatten.cpp
-                test_icl_insert.cpp
-                test_icl_intervals.cpp
-                test_icl_join.cpp
-                test_icl_member_functions.cpp
-                test_icl_merge_subtract.cpp
-                test_icl_subset.cpp
+                test_utils.h
+                test_disjoint_intervals.cpp
+                test_erase.cpp
+                test_fill.cpp
+                test_find.cpp
+                test_flatten.cpp
+                test_insert.cpp
+                test_intervals.cpp
+                test_join.cpp
+                test_member_functions.cpp
+                test_merge_subtract.cpp
+                test_subset.cpp
                 test_intervaldict.cpp test_data2.h)
 target_link_libraries (test_intervaldict  PRIVATE interval_dict)
 

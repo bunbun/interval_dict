@@ -15,7 +15,7 @@
 
 #include "catch.hpp"
 #include "test_data.h"
-#include "test_icl.h"
+#include "test_utils.h"
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
@@ -50,7 +50,7 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -80,9 +80,18 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
             {
                 REQUIRE(test_dict.find(all_keys, max_ext) ==
                         std::vector{0, 1, 2, 3, 5, 6, 7});
+            }
+            THEN("a")
+            {
                 REQUIRE(test_dict.find({"bb"s, "dd"s}, max_ext) ==
                         std::vector{1, 2, 5, 6, 7});
+            }
+            THEN("b")
+            {
                 REQUIRE(test_dict.find("bb"s, max_ext) == std::vector{1, 2});
+            }
+            THEN("c")
+            {
                 REQUIRE(test_dict.find("bb"s,
                                        boost::icl::lower(max_ext),
                                        boost::icl::upper(max_ext)) ==

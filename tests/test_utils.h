@@ -13,8 +13,8 @@
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
-#ifndef TESTS_TEST_ICL_H
-#define TESTS_TEST_ICL_H
+#ifndef TESTS_TEST_UTILS_H
+#define TESTS_TEST_UTILS_H
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
@@ -23,6 +23,17 @@
 template <typename Key, typename Val, typename Interval, typename Impl>
 interval_dict::IntervalDictExp<Key, Val, Interval, Impl>
 copy(interval_dict::IntervalDictExp<Key, Val, Interval, Impl> data)
+{
+    return data;
+}
+template <typename Key,
+          typename Val,
+          typename Interval,
+          typename Impl,
+          typename InverseImpl>
+interval_dict::BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
+copy(interval_dict::BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
+         data)
 {
     return data;
 }
@@ -141,4 +152,45 @@ std::set<std::tuple<Key, Val>> intervals_as_key_values(
     return results;
 }
 
-#endif // TESTS_TEST_ICL_H
+// Return the results of identifier_dict::intervals() as a vector
+template <typename Key,
+          typename Val,
+          typename Interval,
+          typename Impl,
+          typename InverseImpl>
+std::vector<std::tuple<Key, Val, Interval>> intervals_as_vec(
+    interval_dict::BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
+        idict,
+    Interval interval = interval_dict::interval_extent<Interval>)
+{
+    std::vector<std::tuple<Key, Val, Interval>> results;
+    for (const auto& [key, value, interval] :
+         interval_dict::intervals(idict, interval))
+    {
+        results.push_back(std::tuple{key, value, interval});
+    }
+    return results;
+}
+
+// Return the results of identifier_dict::intervals() as a vector of key /
+// values
+template <typename Key,
+          typename Val,
+          typename Interval,
+          typename Impl,
+          typename InverseImpl>
+std::set<std::tuple<Key, Val>> intervals_as_key_values(
+    interval_dict::BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
+        idict,
+    Interval interval = interval_dict::interval_extent<Interval>)
+{
+    std::set<std::tuple<Key, Val>> results;
+    for (const auto& [key, value, _] :
+         interval_dict::intervals(idict, interval))
+    {
+        results.insert(std::tuple{key, value});
+    }
+    return results;
+}
+
+#endif // TESTS_TEST_UTILS_H

@@ -15,7 +15,7 @@
 
 #include "catch.hpp"
 #include "test_data.h"
-#include "test_icl.h"
+#include "test_utils.h"
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
 #include <interval_dict/ptime.h>
@@ -37,7 +37,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -102,7 +102,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -169,7 +169,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -234,7 +234,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -320,7 +320,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -396,7 +396,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -478,7 +478,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -558,7 +558,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -672,7 +672,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -737,7 +737,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -803,7 +803,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
@@ -864,7 +864,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
-    using IDict = interval_dict::IntervalDictICLExp<Key, Val, Interval>;
+    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
     using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;

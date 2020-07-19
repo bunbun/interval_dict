@@ -19,9 +19,10 @@
 #include <interval_dict/gregorian.h>
 #include <interval_dict/ptime.h>
 
+#include <interval_dict/bi_intervaldicticl.h>
 #include <interval_dict/intervaldicticl.h>
 
-#include "test_icl.h"
+#include "test_utils.h"
 
 #include <string>
 #include <tuple>

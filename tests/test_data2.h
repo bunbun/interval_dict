@@ -21,7 +21,7 @@
 
 #include <interval_dict/intervaldicticl.h>
 
-#include "test_icl.h"
+#include "test_utils.h"
 
 #include <string>
 #include <tuple>
