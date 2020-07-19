@@ -37,11 +37,10 @@ namespace interval_dict
 /// Typically used for time-varying dictionaries.
 /// Implemented as a std::map of Boost  interval_map
 ///
-/// \tparam typename IntervalTraits<Interval>::BaseType Type underlying
-/// intervals. E.g. Time, Date, Int
 /// \tparam Key Type of keys
 /// \tparam Val Type of Values
 /// \tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
+/// \tparam Impl Implementation type. E.g. boost::icl::interval_map...
 template <typename Key, typename Val, typename IntervalType, typename Impl>
 class IntervalDictExp
 {
@@ -51,8 +50,10 @@ public:
     bool operator!=(const IntervalDictExp& rhs) const;
 
 public:
+    // friend of all other IntervalDictExp
     template <typename K, typename V, typename I, typename Im>
     friend class IntervalDictExp;
+
     using Interval = IntervalType;
     using BaseType = typename IntervalTraits<Interval>::BaseType;
     using KeyType = Key;
@@ -420,6 +421,8 @@ private:
     DataType data;
 };
 
+// Template on underlying type e.g. dates, times
+// We use the default Interval for that date
 template <typename Key, typename Val, typename BaseType, typename Impl>
 using IntervalDict =
     IntervalDictExp<Key,
@@ -487,9 +490,9 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::insert(
     const std::vector<std::pair<Key, Val>>& key_value_pairs, Interval interval)
 {
-    for (const auto& [key, value] : key_value_pairs)
+    if (!boost::icl::is_empty(interval))
     {
-        if (!boost::icl::is_empty(interval))
+        for (const auto& [key, value] : key_value_pairs)
         {
             implementation::insert(data[key], interval, value);
         }
@@ -608,15 +611,17 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
     const std::vector<std::pair<Key, Val>>& key_value_pairs, Interval interval)
 {
+    if (boost::icl::is_empty(interval))
+    {
+        return *this;
+    }
+
     // cleanup keys without intervals afterwards
     std::set<Key> keys_with_erases;
-    if (!boost::icl::is_empty(interval))
+    for (const auto& [key, value] : key_value_pairs)
     {
-        for (const auto& [key, value] : key_value_pairs)
-        {
-            keys_with_erases.insert(key);
-            implementation::erase(data[key], interval, value);
-        }
+        keys_with_erases.insert(key);
+        implementation::erase(data[key], interval, value);
     }
     detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
@@ -729,15 +734,17 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     const std::vector<std::pair<Val, Key>>& value_key_pairs, Interval interval)
 {
+    if (boost::icl::is_empty(interval))
+    {
+        return *this;
+    }
+
     // cleanup keys without intervals afterwards
     std::set<Key> keys_with_erases;
-    if (!boost::icl::is_empty(interval))
+    for (const auto& [value, key] : value_key_pairs)
     {
-        for (const auto& [value, key] : value_key_pairs)
-        {
-            implementation::erase(data[key], interval, value);
-            keys_with_erases.insert(key);
-        }
+        implementation::erase(data[key], interval, value);
+        keys_with_erases.insert(key);
     }
     detail::cleanup_empty_keys(data, keys_with_erases);
     return *this;
