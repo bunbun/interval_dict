@@ -488,13 +488,9 @@ merge(IntervalDictExp<Key, Val, Interval, Impl> dict1,
 /*
  * stream output operator
  */
-template <typename Stream,
-          typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl>
-Stream&
-operator<<(Stream& ostream,
+template <typename Key, typename Val, typename Interval, typename Impl>
+std::ostream&
+operator<<(std::ostream& ostream,
            const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict)
 {
     for (const auto& [key, values, interval] :
