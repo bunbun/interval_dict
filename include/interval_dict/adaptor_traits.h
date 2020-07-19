@@ -35,7 +35,6 @@ struct Rebased
     using OldVal = OldVal_;
     using Val = NewVal_;
     using Impl = Impl_;
-    // using type = double;
 };
 
 } // namespace interval_dict
