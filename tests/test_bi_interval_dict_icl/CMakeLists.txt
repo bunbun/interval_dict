@@ -3,7 +3,7 @@ project(test_interval_dict LANGUAGES CXX DESCRIPTION "Boost test of interval_dic
 include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name
-add_executable (test_interval_dict_icl
+add_executable (test_bi_interval_dict_icl
         ../print_set.h
         ../print_tuple.h
         ../print_vector.h
@@ -16,16 +16,16 @@ add_executable (test_interval_dict_icl
         ../test_flatten.cpp
         ../test_insert.cpp
         ../test_intervals.cpp
-        ../test_join.cpp
         ../test_member_functions.cpp
         ../test_merge_subtract.cpp
         ../test_subset.cpp
+        ../test_join.cpp
         ../test_utils.h
         ../test_intervaldict.cpp
         )
-target_link_libraries (test_interval_dict_icl  PRIVATE interval_dict)
-target_compile_definitions(test_interval_dict_icl PRIVATE INTERVALDICTTESTTYPE=IntervalDictICLExp)
-target_include_directories(test_interval_dict_icl
+target_link_libraries (test_bi_interval_dict_icl  PRIVATE interval_dict)
+target_compile_definitions(test_bi_interval_dict_icl PRIVATE INTERVALDICTTESTTYPE=BiIntervalDictICLExp)
+target_include_directories(test_bi_interval_dict_icl
         PUBLIC
         # Used when building the library:
         $<BUILD_INTERFACE:${interval_dict_SOURCE_DIR}/include/interval_dict>
