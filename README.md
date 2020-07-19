@@ -99,11 +99,15 @@ This reflects the requirements of the cppcoro library
    1. &#9745; `subtract() / merge()`
    1. &#9745; `functions`
    1. &#9745; `join()`
+   
+1. bidirectional dictionary
+   This can be parameterised for different implementation in the two different directions!
 
 ### In progress:
 
-1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+) A bidirectional dictionary wrapper
-
+1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  Specific tests for bidirectional dictionaries
+   
+   (All tests pass in the "forward" direction.) 
 
 1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  Benchmarks for large number of values per keys etc. 
    
