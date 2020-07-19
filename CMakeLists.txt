@@ -61,7 +61,7 @@ set(HEADER_FILES
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldict_forward.h
         include/interval_dict/intervaldicticl.h
-        include/interval_dict/ptime.h)
+        include/interval_dict/ptime.h include/interval_dict/bi_intervaldict.h)
 set(SOURCE_FILES src/intervaldicticl.cpp)
 add_library(interval_dict
         ${HEADER_FILES}
@@ -151,7 +151,8 @@ export(PACKAGE interval_dict)
 
 #add_library(interval_dict SHARED STATIC ${SOURCE_FILES})
 #add_subdirectory(boost_tests)
-add_subdirectory(tests)
+add_subdirectory(tests/test_interval_dict_icl)
+add_subdirectory(tests/test_bi_interval_dict_icl)
 
 install(TARGETS interval_dict DESTINATION ${INTERVAL_DICT_INSTALL_LIB_DIR})
 
