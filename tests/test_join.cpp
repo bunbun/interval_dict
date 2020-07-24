@@ -16,7 +16,6 @@
 #include "catch.hpp"
 #include "print_tuple.h"
 #include "test_data.h"
-#include "test_data2.h"
 #include "test_utils.h"
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
@@ -24,27 +23,28 @@
 #include <vector>
 
 TEMPLATE_TEST_CASE("Test joining for different interval types",
-                   "[joined_to]",
-                   boost::icl::interval<int>::type,
-                   boost::icl::left_open_interval<int>,
-                   boost::icl::right_open_interval<int>,
-                   boost::icl::closed_interval<int>,
-                   boost::icl::open_interval<int>,
-                   boost::icl::interval<float>::type,
-                   boost::icl::left_open_interval<float>,
-                   boost::icl::right_open_interval<float>,
-                   boost::icl::interval<boost::posix_time::ptime>::type,
-                   boost::icl::left_open_interval<boost::posix_time::ptime>,
-                   boost::icl::right_open_interval<boost::posix_time::ptime>,
-                   boost::icl::open_interval<boost::posix_time::ptime>,
-                   boost::icl::closed_interval<boost::posix_time::ptime>,
-                   boost::icl::discrete_interval<boost::posix_time::ptime>,
-                   boost::icl::interval<boost::gregorian::date>::type,
-                   boost::icl::left_open_interval<boost::gregorian::date>,
-                   boost::icl::right_open_interval<boost::gregorian::date>,
-                   boost::icl::open_interval<boost::gregorian::date>,
-                   boost::icl::closed_interval<boost::gregorian::date>,
-                   boost::icl::discrete_interval<boost::gregorian::date>)
+                   "[joined_to]"
+                   , boost::icl::interval<int>::type
+                   , boost::icl::left_open_interval<int>
+                   , boost::icl::right_open_interval<int>
+                   , boost::icl::closed_interval<int>
+                   , boost::icl::open_interval<int>
+                   , boost::icl::interval<float>::type
+                   , boost::icl::left_open_interval<float>
+                   , boost::icl::right_open_interval<float>
+                   , boost::icl::interval<boost::posix_time::ptime>::type
+                   , boost::icl::left_open_interval<boost::posix_time::ptime>
+                   , boost::icl::right_open_interval<boost::posix_time::ptime>
+                   , boost::icl::open_interval<boost::posix_time::ptime>
+                   , boost::icl::closed_interval<boost::posix_time::ptime>
+                   , boost::icl::discrete_interval<boost::posix_time::ptime>
+                   , boost::icl::interval<boost::gregorian::date>::type
+                   , boost::icl::left_open_interval<boost::gregorian::date>
+                   , boost::icl::right_open_interval<boost::gregorian::date>
+                   , boost::icl::open_interval<boost::gregorian::date>
+                   , boost::icl::closed_interval<boost::gregorian::date>
+                   , boost::icl::discrete_interval<boost::gregorian::date>
+                       )
 {
     using namespace std::string_literals;
     using namespace interval_dict::date_literals;
@@ -56,10 +56,8 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
     using Val2 = double;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using IDict2 = interval_dict::INTERVALDICTTESTTYPE<Val, Val2, Interval>;
-    using IDict3 = interval_dict::INTERVALDICTTESTTYPE<Key, Val2, Interval>;
     using Interval = typename IDict::Interval;
     TestData<Interval> test_data;
-    TestData2<Interval> test_data2;
 
     /*
      * TestData
@@ -67,7 +65,7 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
     GIVEN("An IntervalDict")
     {
         const IDict test_dict(test_data.initial());
-        const IDict2 test_dict2(test_data2.initial());
+        const IDict2 test_dict2(test_data.initial2());
 
         const auto joined_dict = test_dict.joined_to(test_dict2);
         WHEN("we join up the subsets")
@@ -153,6 +151,17 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
                                                               {"dd"s, 8.1}});
             }
         }
+        WHEN("we join up the test data in the inverse direction")
+        {
+            const auto inv_test_dict = test_dict.invert();
+            const auto inv_test_dict2 = test_dict2.invert();
+            const auto inv_joined_dict = inv_test_dict2.joined_to(inv_test_dict);
+            THEN("you expect the same results as the inverse join:")
+            {
+                REQUIRE(inv_joined_dict == joined_dict.invert());
+            }
+        }
+
         WHEN("we join up a dictionary with itself inverted")
         {
             const auto joined_after_fill =

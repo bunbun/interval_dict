@@ -47,13 +47,10 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
 {
     using namespace std::string_literals;
     using Interval = TestType;
-    using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
-    using Impl = typename IDict::ImplType;
-    using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
      * TestData
@@ -62,7 +59,8 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
     {
         TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
-        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
+        // N.B. "ee" should be ignored
+        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s, "ee"s};
         const auto adjust = Adjust<Interval>{};
         const auto expected = test_data.intervals();
         const auto query = test_data.query_interval_for_find();
@@ -80,22 +78,17 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
             {
                 REQUIRE(test_dict.find(all_keys, max_ext) ==
                         std::vector{0, 1, 2, 3, 5, 6, 7});
-            }
-            THEN("a")
-            {
                 REQUIRE(test_dict.find({"bb"s, "dd"s}, max_ext) ==
                         std::vector{1, 2, 5, 6, 7});
-            }
-            THEN("b")
-            {
                 REQUIRE(test_dict.find("bb"s, max_ext) == std::vector{1, 2});
-            }
-            THEN("c")
-            {
                 REQUIRE(test_dict.find("bb"s,
                                        boost::icl::lower(max_ext),
                                        boost::icl::upper(max_ext)) ==
                         std::vector{1, 2});
+                REQUIRE(test_dict.find("not a key"s,
+                                       boost::icl::lower(max_ext),
+                                       boost::icl::upper(max_ext)) ==
+                        std::vector<Val>());
             }
         }
 
@@ -113,7 +106,8 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
                 REQUIRE(test_dict.find("aa"s, adjust.both(query)) ==
                         std::vector<Val>());
                 // not a key
-                REQUIRE(test_dict.find("zz"s, query) == std::vector<Val>());
+                REQUIRE(test_dict.find("not a key"s, query) ==
+                        std::vector<Val>());
             }
         }
 
@@ -142,19 +136,16 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
             THEN("Expect all corresponding values for those keys")
             {
                 REQUIRE(test_dict.find("aa"s, queries) == std::vector{0});
-            }
-            THEN("Expect all corresponding values for those keys")
-            {
                 REQUIRE(test_dict.find("bb"s, queries) == std::vector{1});
-            }
-            THEN("Expect all corresponding values for those keys")
-            {
                 REQUIRE(test_dict.find("dd"s, queries) == std::vector{6, 7});
-            }
-            THEN("Expect all corresponding values for those keys")
-            {
+                // not a key
+                REQUIRE(test_dict.find("not a key"s, queries) ==
+                        std::vector<Val>());
                 // Empty intervals
                 REQUIRE(test_dict.find("dd"s,
+                                       interval_dict::Intervals<Interval>()) ==
+                        std::vector<Val>{});
+                REQUIRE(test_dict.find("not a key"s,
                                        interval_dict::Intervals<Interval>()) ==
                         std::vector<Val>{});
             }

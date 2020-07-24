@@ -24,6 +24,8 @@
 
 #include "test_utils.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -44,90 +46,338 @@ Interval empty_interval_from_upper(Interval orig_interval)
     return Interval{orig_pos, --pos};
 }
 
+//        0....1....2....3....4....5....6....7....8....9...10...11...12...13...14...15...16...17
+// aa     0----0                                  0-------------------------------------------0
+// bb          1---------1    1----1
+// bb                         2---------2
+// cc                    3-------------------3
+// cc                              3-----------------------------3
+// dd                         5---------5              5----------------------------5
+// dd                                   6----6
+// dd                                   7----7
+// Query        q--------------------------------------q
+// fill to start <-|10
+// fill to end                                       50|->
+// fill_gaps(3)
+
+namespace test_detail
+{
+template <typename Interval>
+std::vector<std::tuple<std::string, int, Interval>> initial(
+    const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    return {
+        {"aa"s, 0, Interval{values[0], values[1]}},
+        {"aa"s, 0, Interval{values[8], values[17]}},
+        {"bb"s, 1, Interval{values[1], values[3]}},
+        {"bb"s, 1, Interval{values[4], values[5]}},
+        {"bb"s, 2, Interval{values[4], values[6]}},
+        {"cc"s, 3, Interval{values[3], values[7]}},
+        {"cc"s, 3, Interval{values[5], values[11]}},
+        {"dd"s, 5, Interval{values[4], values[6]}},
+        {"dd"s, 6, boost::icl::left_subtract(Interval{values[5], values[7]},
+                                             Interval{values[4], values[6]})},
+        {"dd"s, 7, boost::icl::left_subtract(Interval{values[5], values[7]},
+                                             Interval{values[4], values[6]})},
+        {"dd"s, 5, Interval{values[9], values[15]}},
+    };
+}
+
+template <typename Interval>
+std::vector<std::tuple<std::string, int, Interval>> fill_gaps_with_data(
+    const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    return {
+        {"aa"s, 25, Interval{values[0], values[17]}},
+        {"ff"s, 26, Interval{values[0], values[1]}},
+    };
+}
+
+template <typename Interval>
+std::vector<std::tuple<int, double, Interval>> initial2(
+    const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    return {
+        {0, 3.1, {values[0], values[5]}},
+        {0, 4.1, {values[9], values[17]}},
+        {1, 1.1, {values[1], values[3]}},
+        {1, 2.1, {values[4], values[7]}},
+        {2, 5.1, {values[1], values[6]}},
+        {2, 6.1, {values[8], values[17]}},
+        {3, 4.1, {values[3], values[8]}},
+        {3, 9.1, {values[9], values[11]}},
+        {4, 1.1, {values[5], values[12]}},
+        {5, 7.1, {values[0], values[7]}},
+        {5, 2.1, {values[8], values[11]}},
+        {6, 6.1, {values[0], values[8]}},
+        {6, 3.1, {values[9], values[17]}},
+        {7, 8.1, {values[0], values[7]}},
+        {7, 6.1, {values[9], values[17]}},
+        {8, 9.1, {values[6], values[7]}},
+    };
+}
+
+template <typename Interval>
+std::vector<std::tuple<std::string, int, Interval>> intervals(
+    const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    const auto adjust = Adjust<Interval>{};
+    return {
+        {"aa"s, 0, {values[0], values[1]}},
+        {"aa"s, 0, {values[8], values[17]}},
+        {"bb"s, 1, {values[1], values[3]}},
+        {"bb"s, 1, {values[4], values[5]}},
+        {"bb"s, 2, {values[4], values[6]}},
+        {"cc"s, 3, {values[3], values[11]}},
+        {"dd"s, 5, {values[4], values[6]}},
+        {"dd"s, 5, {values[9], values[15]}},
+        {"dd"s, 6, adjust.lower({values[6], values[7]})},
+        {"dd"s, 7, adjust.lower({values[6], values[7]})},
+    };
+}
+
+template <typename Interval>
+std::vector<std::tuple<std::string, std::set<int>, Interval>>
+disjoint_intervals(
+    const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    const auto adjust = Adjust<Interval>{};
+    return {
+        {"aa"s, {0},    {values[0], values[1]}},
+        {"aa"s, {0},    {values[8], values[17]}},
+        {"bb"s, {1},    {values[1], values[3]}},
+        {"bb"s, {1, 2}, {values[4], values[5]}},
+        {"bb"s, {2},    adjust.lower({values[5], values[6]})},
+        {"cc"s, {3},    {values[3], values[11]}},
+        {"dd"s, {5},    {values[4], values[6]}},
+        {"dd"s, {6, 7}, adjust.lower({values[6], values[7]})},
+        {"dd"s, {5},    {values[9], values[15]}},
+    };
+}
+
+template <typename Interval>
+std::string
+to_str(Interval interval)
+{
+    return boost::lexical_cast<std::string>(interval);
+}
+
+template <typename Interval>
+std::string
+to_str(const std::vector<typename Interval::domain_type>& values)
+{
+    using namespace std::string_literals;
+    const auto adjust = Adjust<Interval>{};
+    auto result =
+        "aa\t[0]\t"s +    to_str(Interval{values[0], values[1]}) + "\n"
+        "aa\t[0]\t"s +    to_str(Interval{values[8], values[17]}) + "\n"
+        "bb\t[1]\t"s +    to_str(Interval{values[1], values[3]}) + "\n"
+        "bb\t[1, 2]\t"s + to_str(Interval{values[4], values[5]}) + "\n"
+        "bb\t[2]\t"s +    to_str(adjust.lower({values[5], values[6]}))
+        + "\n"
+        "cc\t[3]\t"s +    to_str(Interval{values[3], values[11]}) + "\n"
+        "dd\t[5]\t"s +    to_str(Interval{values[4], values[6]}) + "\n"
+        "dd\t[6, 7]\t"s + to_str(adjust.lower({values[6], values[7]}))
+        + "\n"
+        "dd\t[5]\t"s +    to_str(Interval{values[9], values[15]}) + "\n";
+
+    // deliberately ignore open / closed notation for comparisons
+    std::replace(result.begin(), result.end(), ')', ']');
+    std::replace(result.begin(), result.end(), '(', '[');
+    return result;
+}
+
+
+
+}
+
+template <typename domain_type> struct TestDataValues
+{
+    static std::vector<domain_type> values()
+    {        // 0  1  2   3   4   5   6   7   8   9   10  11  12  13  14  15, 16, 17
+        return {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85};
+    }
+    static std::vector<domain_type> midvalues()
+    {
+        return {3, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53, 58, 63, 68, 73, 78, 83, 88};
+    }
+
+    static domain_type test_duration()
+    {
+        return 3;
+    }
+
+};
+
+template<> struct TestDataValues<boost::gregorian::date>
+{
+    static boost::gregorian::date_duration test_duration()
+    {
+        return boost::gregorian::days(10);
+    }
+
+    static std::vector<boost::gregorian::date> values()
+    {
+        //     0101 0115 0201 0215 0301 0315 0401 0415 0501 0515 0601 0615 0701
+        using namespace interval_dict::date_literals;
+        return{20100101_dt,
+               20100115_dt,
+               20100201_dt,
+               20100215_dt,
+               20100301_dt,
+               20100315_dt,
+               20100401_dt,
+               20100415_dt,
+               20100501_dt,
+               20100515_dt,
+               20100601_dt,
+               20100615_dt,
+               20100701_dt,
+               20100715_dt,
+               20100801_dt,
+               20100815_dt,
+               20100901_dt,
+               20100915_dt,
+        };
+    }
+
+    static std::vector<boost::gregorian::date> midvalues()
+    {
+        using namespace interval_dict::date_literals;
+        return{20100103_dt,
+               20100118_dt,
+               20100203_dt,
+               20100218_dt,
+               20100303_dt,
+               20100318_dt,
+               20100403_dt,
+               20100418_dt,
+               20100503_dt,
+               20100518_dt,
+               20100603_dt,
+               20100618_dt,
+               20100703_dt,
+               20100718_dt,
+               20100803_dt,
+               20100818_dt,
+               20100903_dt,
+               20100918_dt,
+        };
+    }
+};
+
+template<> struct TestDataValues<boost::posix_time::ptime>
+{
+    static std::vector<boost::posix_time::ptime> values()
+    {
+        //     0101 0115 0201 0215 0301 0315 0401 0415 0501 0515 0601 0615 0701
+        using namespace interval_dict::ptime_literals;
+        return{"20100101T180000"_pt,
+               "20100115T180000"_pt,
+               "20100201T180000"_pt,
+               "20100215T180000"_pt,
+               "20100301T180000"_pt,
+               "20100315T180000"_pt,
+               "20100401T180000"_pt,
+               "20100415T180000"_pt,
+               "20100501T180000"_pt,
+               "20100515T180000"_pt,
+               "20100601T180000"_pt,
+               "20100615T180000"_pt,
+               "20100701T180000"_pt,
+               "20100715T180000"_pt,
+               "20100801T180000"_pt,
+               "20100815T180000"_pt,
+               "20100901T180000"_pt,
+               "20100915T180000"_pt,
+        };
+    }
+
+    static std::vector<boost::posix_time::ptime> midvalues()
+    {
+        using namespace interval_dict::ptime_literals;
+        return{"20100103T180000"_pt,
+               "20100118T180000"_pt,
+               "20100203T180000"_pt,
+               "20100218T180000"_pt,
+               "20100303T180000"_pt,
+               "20100318T180000"_pt,
+               "20100403T180000"_pt,
+               "20100418T180000"_pt,
+               "20100503T180000"_pt,
+               "20100518T180000"_pt,
+               "20100603T180000"_pt,
+               "20100618T180000"_pt,
+               "20100703T180000"_pt,
+               "20100718T180000"_pt,
+               "20100803T180000"_pt,
+               "20100818T180000"_pt,
+               "20100903T180000"_pt,
+               "20100918T180000"_pt,
+        };
+    }
+
+    static boost::posix_time::time_duration test_duration()
+    {
+        return boost::posix_time::hours(10 * 24);
+    }
+};
+
+
 /*
  * Normalised data for int/float
  */
 template <typename Interval, typename enable = void> struct TestData
 {
-    //        0... 05.. 15.. 20.. 25.. 30.. 35.. 40.. 45.. 50.. 55.. 75.. 85..
-    // aa     0----0                             0------------------------0
-    // bb          1----1    1----1
-    // bb                    2---------2
-    // cc               3-------------------3
-    // cc                         3-----------------------------3
-    // dd                    5---------5              5--------------5
-    // dd                              6----6
-    // dd                              7----7
-    // Query        q--------------------------------------q
-    // fill to start <-|10
-    // fill to end                                       50|->
-    // fill_gaps(3)
+    std::vector<typename Interval::domain_type> values
+     = TestDataValues<typename Interval::domain_type>::values();
+        // 0  1  2   3   4   5   6   7   8   9   10  11  12  13  14  15, 16, 17
+        //{0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85};
+    std::vector<typename Interval::domain_type> midvalues
+    = TestDataValues<typename Interval::domain_type>::midvalues();
+        //{3, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53, 58, 63, 68, 73, 78, 83, 88};
+
+    typename interval_dict::IntervalTraits<Interval>::BaseDifferenceType test_duration
+     = TestDataValues<typename Interval::domain_type>::test_duration();
+
     std::vector<std::tuple<std::string, int, Interval>> initial()
     {
-        using namespace std::string_literals;
-        return {
-            // aa-0 gap
-            {"aa"s, 0, Interval{0, 5}},
-            {"aa"s, 0, Interval{40, 85}},
+        return test_detail::initial<Interval>(values);
+    }
 
-            // Gap of bb-1 {15-20}
-            {"bb"s, 1, Interval{5, 15}},
-            {"bb"s, 1, Interval{20, 25}},
-            {"bb"s, 2, Interval{20, 30}},
+    std::vector<std::tuple<int, double, Interval>> initial2()
+    {
+        return test_detail::initial2<Interval>(values);
+    }
 
-            // overlap ignored
-            {"cc"s, 3, Interval{15, 35}},
-            {"cc"s, 3, Interval{25, 55}},
-
-            // dd-6/7 over {30-35}
-            {"dd"s, 5, Interval{20, 30}},
-            {"dd"s,
-             6,
-             boost::icl::left_subtract(Interval{29, 35}, Interval{20, 30})},
-            {"dd"s,
-             7,
-             boost::icl::left_subtract(Interval{29, 35}, Interval{20, 30})},
-            {"dd"s, 5, Interval{45, 75}},
-        };
+    std::vector<std::tuple<std::string, int, Interval>> fill_gaps_with_data()
+    {
+        return test_detail::fill_gaps_with_data<Interval>(values);
     }
 
     std::vector<std::tuple<std::string, int, Interval>> intervals() const
     {
-        using namespace std::string_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, 0, {0, 5}},
-            {"aa"s, 0, {40, 85}},
-            {"bb"s, 1, {5, 15}},
-            {"bb"s, 1, {20, 25}},
-            {"bb"s, 2, {20, 30}},
-            {"cc"s, 3, {15, 55}},
-            {"dd"s, 5, {20, 30}},
-            {"dd"s, 5, {45, 75}},
-            {"dd"s, 6, adjust.lower({30, 35})},
-            {"dd"s, 7, adjust.lower({30, 35})},
-        };
+        return test_detail::intervals<Interval>(values);
     }
+    std::string str()
+    {
+        return test_detail::to_str<Interval>(values);
+    }
+
     std::vector<std::tuple<std::string, std::set<int>, Interval>>
     disjoint_intervals() const
     {
-        using namespace std::string_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, {0}, {0, 5}},
-            {"aa"s, {0}, {40, 85}},
-            {"bb"s, {1}, {5, 15}},
-            {"bb"s, {1, 2}, {20, 25}},
-            {"bb"s, {2}, adjust.lower({25, 30})},
-            {"cc"s, {3}, {15, 55}},
-            {"dd"s, {5}, {20, 30}},
-            {"dd"s, {6, 7}, adjust.lower({30, 35})},
-            {"dd"s, {5}, {45, 75}},
-        };
+        return test_detail::disjoint_intervals<Interval>(values);
     }
+
     Interval query_interval() const
     {
-        return {5, 50};
+        return {values[1], values[10]};
     }
     Interval empty_interval() const
     {
@@ -135,245 +385,13 @@ template <typename Interval, typename enable = void> struct TestData
     }
     Interval query_interval_for_find() const
     {
-        return {5, 22};
+        return {values[1], midvalues[4]};
     }
     interval_dict::Intervals<Interval> query_intervals_for_find() const
     {
         interval_dict::Intervals<Interval> intervals;
-        intervals.add({2, 8});
-        intervals.add({33, 36});
-        return intervals;
-    }
-};
-
-/*
- * Normalised data for date
- */
-template <typename Interval>
-struct TestData<
-    Interval,
-    typename std::enable_if<std::is_same<typename Interval::domain_type,
-                                         boost::gregorian::date>::value>::type>
-{
-    std::vector<std::tuple<std::string, int, Interval>> initial()
-    {
-        static_assert(std::is_same<typename Interval::domain_type,
-                                   boost::gregorian::date>::value,
-                      "Must be an interval of dates");
-        using namespace std::string_literals;
-        using namespace interval_dict::date_literals;
-        //     0101 0115 0201 0215 0301 0315 0401 0415 0501 0515 0601 0615 0701
-        // aa  0----0                             0------------------------0
-        // bb       1----1    1----1
-        // bb                 2---------2
-        // cc            3-------------------3
-        // cc                      3-----------------------------3
-        // dd                 5---------5              5--------------5
-        // dd                           6----6
-        // dd                           7----7
-        // Query     q--------------------------------------q
-        // f to start <-|0120
-        // f to end                                     0515|->
-        // fill_gaps(10)
-        return {
-            // aa-0 gap
-            {"aa"s, 0, {20100101_dt, 20100115_dt}},
-            {"aa"s, 0, {20100415_dt, 20100701_dt}},
-
-            // Gap of bb-1 {20100201-20100215}
-            {"bb"s, 1, {20100115_dt, 20100201_dt}},
-            {"bb"s, 1, {20100215_dt, 20100301_dt}},
-            {"bb"s, 2, {20100215_dt, 20100315_dt}},
-
-            // overlap merged
-            {"cc"s, 3, {20100201_dt, 20100401_dt}},
-            {"cc"s, 3, {20100301_dt, 20100601_dt}},
-
-            // dd-6/7 over {20100315-20100401}
-            {"dd"s, 5, {20100215_dt, 20100315_dt}},
-            {"dd"s,
-             6,
-             boost::icl::left_subtract(Interval{20100313_dt, 20100401_dt},
-                                       Interval{20100215_dt, 20100315_dt})},
-            {"dd"s,
-             7,
-             boost::icl::left_subtract(Interval{20100313_dt, 20100401_dt},
-                                       Interval{20100215_dt, 20100315_dt})},
-            {"dd"s, 5, {20100501_dt, 20100615_dt}},
-        };
-    }
-
-    std::vector<std::tuple<std::string, int, Interval>> intervals() const
-    {
-        using namespace std::string_literals;
-        using namespace interval_dict::date_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, 0, {20100101_dt, 20100115_dt}},
-            {"aa"s, 0, {20100415_dt, 20100701_dt}},
-            {"bb"s, 1, {20100115_dt, 20100201_dt}},
-            {"bb"s, 1, {20100215_dt, 20100301_dt}},
-            {"bb"s, 2, {20100215_dt, 20100315_dt}},
-            {"cc"s, 3, {20100201_dt, 20100601_dt}},
-            {"dd"s, 5, {20100215_dt, 20100315_dt}},
-            {"dd"s, 5, {20100501_dt, 20100615_dt}},
-            {"dd"s, 6, adjust.lower({20100315_dt, 20100401_dt})},
-            {"dd"s, 7, adjust.lower({20100315_dt, 20100401_dt})},
-        };
-    }
-
-    std::vector<std::tuple<std::string, std::set<int>, Interval>>
-    disjoint_intervals() const
-    {
-        using namespace std::string_literals;
-        using namespace interval_dict::date_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, {0}, {20100101_dt, 20100115_dt}},
-            {"aa"s, {0}, {20100415_dt, 20100701_dt}},
-            {"bb"s, {1}, {20100115_dt, 20100201_dt}},
-            {"bb"s, {1, 2}, {20100215_dt, 20100301_dt}},
-            {"bb"s, {2}, adjust.lower({20100301_dt, 20100315_dt})},
-            {"cc"s, {3}, {20100201_dt, 20100601_dt}},
-            {"dd"s, {5}, {20100215_dt, 20100315_dt}},
-            {"dd"s, {6, 7}, adjust.lower({20100315_dt, 20100401_dt})},
-            {"dd"s, {5}, {20100501_dt, 20100615_dt}},
-        };
-    }
-    Interval query_interval() const
-    {
-        using namespace interval_dict::date_literals;
-        return {20100215_dt, 20100515_dt};
-    }
-    Interval empty_interval() const
-    {
-        return empty_interval_from_upper(query_interval());
-    }
-    Interval query_interval_for_find() const
-    {
-        using namespace interval_dict::date_literals;
-        return {20100215_dt, 20100220_dt};
-    }
-    interval_dict::Intervals<Interval> query_intervals_for_find() const
-    {
-        using namespace interval_dict::date_literals;
-        interval_dict::Intervals<Interval> intervals;
-        intervals.add({20100110_dt, 20100120_dt});
-        intervals.add({20100325_dt, 20100405_dt});
-        return intervals;
-    }
-};
-
-/*
- * Normalised data for posix time
- */
-template <typename Interval>
-struct TestData<Interval,
-                typename std::enable_if<
-                    std::is_same<typename Interval::domain_type,
-                                 boost::posix_time::ptime>::value>::type>
-{
-    std::vector<std::tuple<std::string, int, Interval>> initial()
-    {
-        using namespace std::string_literals;
-        static_assert(std::is_same<typename Interval::domain_type,
-                                   boost::posix_time::ptime>::value,
-                      "Must be an interval of posix time");
-        using namespace interval_dict::ptime_literals;
-        return {
-            // aa-0 gap
-            {"aa"s, 0, {"20100101T180000"_pt, "20100115T180000"_pt}},
-            {"aa"s, 0, {"20100415T180000"_pt, "20100701T180000"_pt}},
-
-            // Gap of bb-1 {20100201-20100215}
-            {"bb"s, 1, {"20100115T180000"_pt, "20100201T180000"_pt}},
-            {"bb"s, 1, {"20100215T180000"_pt, "20100301T180000"_pt}},
-            {"bb"s, 2, {"20100215T180000"_pt, "20100315T180000"_pt}},
-
-            // overlap ignored
-            {"cc"s, 3, {"20100201T180000"_pt, "20100401T180000"_pt}},
-            {"cc"s, 3, {"20100301T180000"_pt, "20100601T180000"_pt}},
-
-            // dd-6/7 over {20100315-20100401}
-            {"dd"s, 5, {"20100215T180000"_pt, "20100315T180000"_pt}},
-            {"dd"s,
-             6,
-             boost::icl::left_subtract(
-                 Interval{"20100313T180000"_pt, "20100401T180000"_pt},
-                 Interval{"20100215T180000"_pt, "20100315T180000"_pt})},
-            {"dd"s,
-             7,
-             boost::icl::left_subtract(
-                 Interval{"20100313T180000"_pt, "20100401T180000"_pt},
-                 Interval{"20100215T180000"_pt, "20100315T180000"_pt})},
-            {"dd"s, 5, {"20100501T180000"_pt, "20100615T180000"_pt}},
-        };
-    }
-    std::vector<std::tuple<std::string, std::set<int>, Interval>>
-    disjoint_intervals() const
-    {
-        using namespace std::string_literals;
-        using namespace interval_dict::ptime_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, {0}, {"20100101T180000"_pt, "20100115T180000"_pt}},
-            {"aa"s, {0}, {"20100415T180000"_pt, "20100701T180000"_pt}},
-            {"bb"s, {1}, {"20100115T180000"_pt, "20100201T180000"_pt}},
-            {"bb"s, {1, 2}, {"20100215T180000"_pt, "20100301T180000"_pt}},
-            {"bb"s,
-             {2},
-             adjust.lower({"20100301T180000"_pt, "20100315T180000"_pt})},
-            {"cc"s, {3}, {"20100201T180000"_pt, "20100601T180000"_pt}},
-            {"dd"s, {5}, {"20100215T180000"_pt, "20100315T180000"_pt}},
-            {"dd"s,
-             {6, 7},
-             adjust.lower({"20100315T180000"_pt, "20100401T180000"_pt})},
-            {"dd"s, {5}, {"20100501T180000"_pt, "20100615T180000"_pt}},
-        };
-    }
-    std::vector<std::tuple<std::string, int, Interval>> intervals() const
-    {
-        using namespace std::string_literals;
-        using namespace interval_dict::ptime_literals;
-        const auto adjust = Adjust<Interval>{};
-        return {
-            {"aa"s, 0, {"20100101T180000"_pt, "20100115T180000"_pt}},
-            {"aa"s, 0, {"20100415T180000"_pt, "20100701T180000"_pt}},
-            {"bb"s, 1, {"20100115T180000"_pt, "20100201T180000"_pt}},
-            {"bb"s, 1, {"20100215T180000"_pt, "20100301T180000"_pt}},
-            {"bb"s, 2, {"20100215T180000"_pt, "20100315T180000"_pt}},
-            {"cc"s, 3, {"20100201T180000"_pt, "20100601T180000"_pt}},
-            {"dd"s, 5, {"20100215T180000"_pt, "20100315T180000"_pt}},
-            {"dd"s, 5, {"20100501T180000"_pt, "20100615T180000"_pt}},
-            {"dd"s,
-             6,
-             adjust.lower({"20100315T180000"_pt, "20100401T180000"_pt})},
-            {"dd"s,
-             7,
-             adjust.lower({"20100315T180000"_pt, "20100401T180000"_pt})},
-        };
-    }
-    Interval query_interval() const
-    {
-        using namespace interval_dict::ptime_literals;
-        return {"20100215T180000"_pt, "20100515T180000"_pt};
-    }
-    Interval empty_interval() const
-    {
-        return empty_interval_from_upper(query_interval());
-    }
-
-    Interval query_interval_for_find() const
-    {
-        using namespace interval_dict::ptime_literals;
-        return {"20100215T000000"_pt, "20100220T180000"_pt};
-    }
-    interval_dict::Intervals<Interval> query_intervals_for_find() const
-    {
-        using namespace interval_dict::ptime_literals;
-        interval_dict::Intervals<Interval> intervals;
-        intervals.add({"20100110T000000"_pt, "20100120T000000"_pt});
-        intervals.add({"20100325T000000"_pt, "20100405T000000"_pt});
+        intervals.add({midvalues[0], midvalues[1]});
+        intervals.add({midvalues[6], midvalues[7]});
         return intervals;
     }
 };

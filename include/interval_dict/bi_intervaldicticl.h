@@ -20,10 +20,13 @@
 #ifndef INCLUDE_INTERVAL_DICT_BI_INTERVALDICTICL_H
 #define INCLUDE_INTERVAL_DICT_BI_INTERVALDICTICL_H
 
-#include <interval_dict/bi_intervaldict.h>
 #include <interval_dict/icl_interval_map_adaptor.h>
+
 #include <interval_dict/intervaldict.h>
 #include <interval_dict/intervaldict_func.h>
+
+#include <interval_dict/bi_intervaldict.h>
+
 
 namespace interval_dict
 {

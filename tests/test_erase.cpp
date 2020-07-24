@@ -45,16 +45,10 @@ TEMPLATE_TEST_CASE("Test erasing for different interval types",
                    boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
-    using namespace interval_dict::date_literals;
-    using namespace boost::gregorian;
     using Interval = TestType;
-    using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
-    using Impl = typename IDict::ImplType;
-    using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
     TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
@@ -63,19 +57,12 @@ TEMPLATE_TEST_CASE("Test erasing for different interval types",
      */
     GIVEN("An IntervalDict with overlapping intervals")
     {
-        using namespace boost::gregorian;
         const IDict test_dict(test_data.initial());
-        const auto adjust = Adjust<Interval>{};
-        const auto interval_min =
-            interval_dict::IntervalTraits<Interval>::lowest();
         const auto interval_max =
             interval_dict::IntervalTraits<Interval>::max();
-        const auto interval_maxsz =
-            interval_dict::IntervalTraits<Interval>::max_size();
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
         const auto query = test_data.query_interval();
         const auto empty_query = test_data.empty_interval();
-        const auto query_max = Interval{interval_max, interval_max};
 
         // reverse key value order
         std::vector<std::tuple<Val, Key, Interval>> inverse_import_data;
@@ -221,28 +208,29 @@ TEMPLATE_TEST_CASE("Test erasing for different interval types",
 
         WHEN("An empty interval is erased")
         {
-            if (boost::icl::is_empty(empty_query))
+            auto test_dict_copy1 = test_dict;
+            auto test_dict_copy2 = test_dict;
+            for (const auto& [key, value, _] :
+                 interval_dict::intervals(test_dict))
             {
-                auto test_dict_unchanged1 =
-                    copy(test_dict).erase("aa", empty_query);
-                auto test_dict_unchanged2 = copy(test_dict).erase(empty_query);
-                THEN("Nothing changes")
-                {
-                    REQUIRE(test_dict_unchanged1 == test_dict);
-                    REQUIRE(test_dict_unchanged2 == test_dict);
-                }
+                test_dict_copy1.erase({std::pair{key, value}}, empty_query);
+                test_dict_copy2.inverse_erase({std::pair{value, key}},
+                                              empty_query);
             }
-            auto test_dict_unchanged1 = copy(test_dict).erase("aa", query_max);
-            auto test_dict_unchanged2 =
-                copy(test_dict).erase("aa", interval_max);
-            auto test_dict_unchanged3 = copy(test_dict).erase(query_max);
-            auto test_dict_unchanged4 = copy(test_dict).erase(interval_max);
             THEN("Nothing changes")
             {
-                REQUIRE(test_dict_unchanged1 == test_dict);
-                REQUIRE(test_dict_unchanged2 == test_dict);
-                REQUIRE(test_dict_unchanged3 == test_dict);
-                REQUIRE(test_dict_unchanged4 == test_dict);
+                // erase(vector<pair<key,value>>, empty_interval)
+                // inverse_erase(vector<pair<value, value>>, empty_interval)
+                REQUIRE(test_dict_copy1 == test_dict);
+                REQUIRE(test_dict_copy2 == test_dict);
+
+                // Empty query
+                REQUIRE(copy(test_dict).erase("aa", empty_query) == test_dict);
+                REQUIRE(copy(test_dict).erase(empty_query) == test_dict);
+
+                // query intersecting nothing
+                REQUIRE(copy(test_dict).erase("aa", interval_max) == test_dict);
+                REQUIRE(copy(test_dict).erase(interval_max) == test_dict);
             }
         }
 

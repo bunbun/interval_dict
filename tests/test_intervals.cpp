@@ -48,12 +48,10 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
 {
     using namespace std::string_literals;
     using Interval = TestType;
-    using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
-    using Impl = typename IDict::ImplType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
@@ -63,8 +61,8 @@ TEMPLATE_TEST_CASE("Test intervals for different interval types",
     {
         TestData<Interval> test_data;
         const IDict test_dict(test_data.initial());
-        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s};
-        const auto adjust = Adjust<Interval>{};
+        // N.B. "ee" should be ignored
+        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s, "ee"s};
         const auto expected = test_data.intervals();
         const auto query = test_data.query_interval();
 

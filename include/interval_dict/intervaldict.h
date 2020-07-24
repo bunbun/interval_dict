@@ -349,41 +349,6 @@ public:
     friend IntervalDictExp merge<>(IntervalDictExp dict1,
                                    const IntervalDictExp& dict2);
 
-    friend cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
-    intervals<>(const IntervalDictExp& interval_dict,
-                std::vector<Key> keys,
-                Interval query_interval);
-
-    friend cppcoro::generator<
-        std::tuple<const Key&, const std::set<Val>&, Interval>>
-    disjoint_intervals<>(const IntervalDictExp& interval_dict,
-                         std::vector<Key> keys,
-                         Interval query_interval);
-
-    template <typename Key_,
-              typename Val_,
-              typename Interval_,
-              typename Impl_,
-              typename KeyRange>
-    friend std::vector<std::tuple<Key_, Val_, Interval_>>
-    detail::subset_inserts(
-        const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
-        const KeyRange& keys_subset,
-        Interval_ query_interval);
-
-    template <typename Key_,
-              typename Val_,
-              typename Interval_,
-              typename Impl_,
-              typename KeyRange,
-              typename ValRange>
-    friend std::vector<std::tuple<Key_, Val_, Interval_>>
-    detail::subset_inserts(
-        const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
-        const KeyRange& keys_subset,
-        const ValRange& values_subset,
-        Interval_ query_interval);
-
     friend std::vector<std::tuple<Key, Val, Interval>>
     detail::fill_gaps_with_inserts<>(
         const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
@@ -413,9 +378,44 @@ public:
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
     friend std::tuple<Insertions<Key, Val, Interval>,
-                      Erasures<Key, Val, Interval>>
+    Erasures<Key, Val, Interval>>
     detail::flatten_actions<>(const IntervalDictExp& interval_dict,
-                              FlattenPolicy<Key, Val, Interval> keep_one_value);
+        FlattenPolicy<Key, Val, Interval> keep_one_value);
+
+    template <typename Key_,
+              typename Val_,
+              typename Interval_,
+              typename Impl_,
+              typename KeyRange>
+    friend std::vector<std::tuple<Key_, Val_, Interval_>>
+    detail::subset_inserts(
+        const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
+        const KeyRange& keys_subset,
+        Interval_ query_interval);
+
+    template <typename Key_,
+              typename Val_,
+              typename Interval_,
+              typename Impl_,
+              typename KeyRange,
+              typename ValRange>
+    friend std::vector<std::tuple<Key_, Val_, Interval_>>
+    detail::subset_inserts(
+        const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
+        const KeyRange& keys_subset,
+        const ValRange& values_subset,
+        Interval_ query_interval);
+
+    friend cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
+    intervals<>(const IntervalDictExp& interval_dict,
+                std::vector<Key> keys,
+                Interval query_interval);
+
+    friend cppcoro::generator<
+        std::tuple<const Key&, const std::set<Val>&, Interval>>
+    disjoint_intervals<>(const IntervalDictExp& interval_dict,
+                         std::vector<Key> keys,
+                         Interval query_interval);
 
 private:
     DataType data;
@@ -798,7 +798,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::find(const std::vector<Key>& keys,
         const auto ff = data.find(key);
         if (ff == data.end())
         {
-            return {};
+            continue;
         }
 
         for (const auto& [_, value] :
@@ -896,7 +896,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::invert() const
     for (const auto& [key, interval_values] : data)
     {
         for (const auto& [interval, value] :
-             implementation::intervals(interval_values))
+             implementation::intervals(interval_values, interval_extent<Interval>))
         {
             implementation::insert<Key, Interval>(
                 inverted_data[value], interval, key);
@@ -965,7 +965,7 @@ IntervalDictExp<A, B, Interval, Impl>::joined_to(
     for (const auto& [key_a, interval_values_ab] : data)
     {
         for (const auto& [interval_ab, value_b] :
-             implementation::intervals(interval_values_ab))
+             implementation::intervals(interval_values_ab, interval_extent<Interval>))
         {
             // Ignore values that are missing from the other dictionary
             const auto ii = b_to_c.data.find(value_b);
@@ -1036,15 +1036,15 @@ IntervalDictExp<Key, Val, Interval, Impl>::fill_gaps(
     return insert(detail::fill_gaps_inserts(*this, max_extension));
 }
 
-template <typename Key, typename Val, typename IntervalType, typename Impl>
-bool IntervalDictExp<Key, Val, IntervalType, Impl>::operator==(
+template <typename Key, typename Val, typename Interval, typename Impl>
+bool IntervalDictExp<Key, Val, Interval, Impl>::operator==(
     const IntervalDictExp& rhs) const
 {
     return data == rhs.data;
 }
 
-template <typename Key, typename Val, typename IntervalType, typename Impl>
-bool IntervalDictExp<Key, Val, IntervalType, Impl>::operator!=(
+template <typename Key, typename Val, typename Interval, typename Impl>
+bool IntervalDictExp<Key, Val, Interval, Impl>::operator!=(
     const IntervalDictExp& rhs) const
 {
     return !(rhs == *this);

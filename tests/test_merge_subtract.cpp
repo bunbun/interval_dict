@@ -48,13 +48,10 @@ TEMPLATE_TEST_CASE("Test merging for different interval types",
     using namespace interval_dict::date_literals;
     using namespace boost::gregorian;
     using Interval = TestType;
-    using BaseType = typename Interval::domain_type;
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Interval = typename IDict::Interval;
-    using Impl = typename IDict::ImplType;
-    using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
     TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
@@ -77,7 +74,10 @@ TEMPLATE_TEST_CASE("Test merging for different interval types",
             IDict new_dict2;
             for (const auto& key : all_keys)
             {
+                // add twice for good measure
                 new_dict1 += dict_by_keys[key];
+                new_dict1 += dict_by_keys[key];
+                new_dict2 = merge(new_dict2, dict_by_keys[key]);
                 new_dict2 = merge(new_dict2, dict_by_keys[key]);
             }
             THEN("we get the original.")
@@ -93,7 +93,10 @@ TEMPLATE_TEST_CASE("Test merging for different interval types",
             IDict new_dict2 = test_dict;
             for (const auto& key : all_keys)
             {
+                // subtract twice for good measure
                 new_dict1 = subtract(new_dict1, dict_by_keys[key]);
+                new_dict1 = subtract(new_dict1, dict_by_keys[key]);
+                new_dict2 -= dict_by_keys[key];
                 new_dict2 -= dict_by_keys[key];
             }
             THEN("we get an empty dictionary.")

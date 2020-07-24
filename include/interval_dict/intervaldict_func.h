@@ -159,7 +159,7 @@ Insertions<Key, Val, Interval> fill_gaps_with_inserts(
         if (f == data.end())
         {
             for (const auto& [interval, value] :
-                 implementation::intervals(interval_values_other))
+                 implementation::intervals(interval_values_other, interval_extent<Interval>))
             {
                 results.push_back({key_other, value, interval});
             }
@@ -560,7 +560,7 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         Interval status_quo_interval;
         std::optional<Val> status_quo;
         for (const auto& [interval, values] :
-             implementation::disjoint_intervals(interval_values))
+             implementation::disjoint_intervals(interval_values, interval_extent<Interval>))
         {
             // Save as status_quo if key-value 1:1
             if (values.size() == 1)

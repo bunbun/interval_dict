@@ -165,7 +165,7 @@ void insert(IntervalDictICLSubMap<Val, Interval>& interval_values,
 template <typename Val, typename Interval>
 cppcoro::generator<std::tuple<const Interval&, const Val&>>
 intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
-          const Interval query_interval = interval_extent<Interval>)
+          const Interval query_interval)
 {
     // Underlying storage is disjoint and must be combined
     std::map<Val, Intervals<Interval>> intervals_per_value;
@@ -192,7 +192,7 @@ intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
 template <typename Val, typename Interval>
 cppcoro::generator<std::tuple<const Interval&, const std::set<Val>&>>
 disjoint_intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
-                   const Interval query_interval = interval_extent<Interval>)
+                   const Interval query_interval)
 {
     // Naturally sorted by interval then value
     const auto itpair = interval_values.equal_range(query_interval);

@@ -86,19 +86,7 @@ This reflects the requirements of the cppcoro library
     Empty intervals are ignored 
 
 1. Tests
-   
-   with Catch2: 6903 assertions in 280 test cases                    
-   1. &#9745; `fill_xxx()` 
-   1. &#9745; `flattened()`
-   1. &#9745; `intervals()`
-   1. &#9745; `disjoint()`
-   1. &#9745; `find()`
-   1. &#9745; `erase()`
-   1. &#9745; `insert()`
-   1. &#9745; `subset()`
-   1. &#9745; `subtract() / merge()`
-   1. &#9745; `functions`
-   1. &#9745; `join()`
+   100% coverage
    
 1. bidirectional dictionary
    This can be parameterised for different implementation in the two different directions!
