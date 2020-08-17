@@ -54,7 +54,7 @@ TEMPLATE_TEST_CASE("Test member functions different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
@@ -77,11 +77,11 @@ TEMPLATE_TEST_CASE("Test member functions different interval types",
                     REQUIRE(subset_dict.keys() == std::vector{key});
 
                     // check not empty but has size == 1
-                    REQUIRE(!subset_dict.empty());
+                    REQUIRE(!subset_dict.is_empty());
                     REQUIRE(subset_dict.size() == 1);
 
                     // but is empty after removing that key
-                    REQUIRE(copy(subset_dict).erase(key).empty());
+                    REQUIRE(copy(subset_dict).erase(key).is_empty());
 
                     for (const auto& check_key : all_keys)
                     {
@@ -99,13 +99,13 @@ TEMPLATE_TEST_CASE("Test member functions different interval types",
         WHEN("we look at a cleared dictionary")
         {
             auto cleared_dict = copy(test_dict);
-            REQUIRE(!cleared_dict.empty());
+            REQUIRE(!cleared_dict.is_empty());
             REQUIRE(cleared_dict.size() != 0);
             REQUIRE(cleared_dict.size() == all_keys.size());
             cleared_dict.clear();
             THEN("It should be empty")
             {
-                REQUIRE(cleared_dict.empty());
+                REQUIRE(cleared_dict.is_empty());
                 REQUIRE(cleared_dict.size() == 0);
                 for (const auto& key : all_keys)
                 {

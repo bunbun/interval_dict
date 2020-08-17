@@ -27,15 +27,17 @@
 namespace interval_dict
 {
 
+/// \brief Provide lowest(), max(), max_size(), and BaseType and
+//  BaseDifferenceType for each type that can be used to build intervals
+/// \tparam Interval
+/// \tparam Enabled For controlling specialisation
 template <typename Interval, typename Enabled = void> class IntervalTraits
 {
-public:
-    using BaseType =
-        typename boost::icl::interval_traits<Interval>::domain_type;
-    using BaseSizeType =
-        typename boost::icl::difference_type_of<Interval>::type;
 };
 
+/// \brief Provide lowest(), max(), max_size(), and BaseType and
+//  BaseDifferenceType for value types such as int and float so they
+//  can be used to build intervals
 template <typename Interval>
 class IntervalTraits<
     Interval,
@@ -45,25 +47,31 @@ class IntervalTraits<
         void>::type>
 {
 public:
+    /// Get underlying type for the interval. Eg. Date or Time
     using BaseType =
         typename boost::icl::interval_traits<Interval>::domain_type;
+
+    /// Get the type for interval differences.
+    /// This is often different from BaseType. E.g. Data or Time durations
     using BaseDifferenceType =
         typename boost::icl::difference_type_of<BaseType>::type;
+
+    /// The minimum value for an interval start
     static constexpr BaseType lowest() throw()
     {
         return std::numeric_limits<BaseType>::lowest();
     }
+
+    /// The maximum value for an interval end
     static constexpr BaseType max() throw()
     {
         return std::numeric_limits<BaseType>::max();
     }
+
+    /// The maximum size of an interval
     static constexpr BaseDifferenceType max_size() throw()
     {
         return std::numeric_limits<BaseDifferenceType>::max();
-    }
-    static constexpr Interval max_range() throw()
-    {
-        Interval{lowest(), max()};
     }
 };
 

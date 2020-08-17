@@ -8,7 +8,7 @@
 //
 //  Project home: https://github.com/goodstadt/intervaldict
 //
-/// \file biintervaldict.h
+/// \file bi_intervaldict.h
 /// \brief Declaration of the BiIntervalDictExp class
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
@@ -17,129 +17,33 @@
 #define INCLUDE_INTERVAL_DICT_BI_INTERVALDICT_H
 
 #include "adaptor_traits.h"
+#include "bi_intervaldict_forward.h"
 #include "intervaldict.h"
-#include <interval_dict/intervaldict_func.h>
+#include "intervaldict_func.h"
 
 namespace interval_dict
 {
-/*
- * Forward declaration of associated functions (friends)
- */
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-class BiIntervalDictExp;
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-merge(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-      const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
-intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-              interval_dict,
-          std::vector<Key> keys,
-          Interval query_interval = interval_extent<Interval>);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-cppcoro::generator<std::tuple<const Key&, const std::set<Val>&, Interval>>
-disjoint_intervals(
-    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-        interval_dict,
-    std::vector<Key> keys,
-    Interval query_interval = interval_extent<Interval>);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> operator-(
-    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> operator+(
-    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-merge(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-      const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2);
-
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> flattened(
-    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> interval_dict,
-    FlattenPolicy<typename detail::identity<Key>::type,
-                  typename detail::identity<Val>::type,
-                  typename detail::identity<Interval>::type> keep_one_value =
-        flatten_policy_prefer_status_quo());
-
-template <typename Key,
-          typename Val,
-          typename Interval,
-          typename Impl,
-          typename InverseImpl>
-std::ostream&
-operator<<(std::ostream& ostream,
-           const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-               interval_dict);
-
 /// \brief bidirectional one-to-many dictionary where key-values vary over
 /// intervals.
 ///
 /// Typically used for time-varying dictionaries.
 /// \tparam Key Type of keys
 /// \tparam Val Type of Values
-/// \tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
+/// \tparam IntervalType Interval Type. E.g. boost::icl::right_open_interval<Date>
+/// \tparam Impl Implementation of the interval dictionary in the forwards direction per key
+/// \tparam InverseImpl Implementation of the interval dictionary in the inverse direction per value
 template <typename Key,
           typename Val,
-          typename IntervalType,
+          typename Interval,
           typename Impl,
           typename InverseImpl>
 class BiIntervalDictExp
 {
 public:
+    /// equality operator
     bool operator==(const BiIntervalDictExp& rhs) const;
 
+    /// inequality operator
     bool operator!=(const BiIntervalDictExp& rhs) const;
 
 public:
@@ -147,7 +51,8 @@ public:
     template <typename K, typename V, typename I, typename Im, typename InvIm>
     friend class BiIntervalDictExp;
 
-    using Interval = IntervalType;
+    /// @cond Suppress_Doxygen_Warning
+    using IntervalType = Interval;
     using BaseType = typename IntervalTraits<Interval>::BaseType;
     using KeyType = Key;
     using ValType = Val;
@@ -155,8 +60,8 @@ public:
         typename IntervalTraits<Interval>::BaseDifferenceType;
     // boost icl interval_set of Intervals
     using Intervals = interval_dict::Intervals<Interval>;
-    using ForwardDict = IntervalDictExp<Key, Val, IntervalType, Impl>;
-    using InverseDict = IntervalDictExp<Val, Key, IntervalType, InverseImpl>;
+    using ForwardDict = IntervalDictExp<Key, Val, Interval, Impl>;
+    using InverseDict = IntervalDictExp<Val, Key, Interval, InverseImpl>;
 
     using ImplType = Impl;
     using InverseImplType = InverseImpl;
@@ -165,12 +70,17 @@ public:
     using OtherImplType = typename Rebased<Val, OtherVal, Interval, Impl>::type;
     using DataType = std::map<Key, Impl>;
     using InverseDataType = std::map<Key, InverseImpl>;
+/// @endcond
 
-    /// Default Constructors / assignment operators
+    /// Default Constructor
     BiIntervalDictExp() = default;
+    /// Default copy constructor
     BiIntervalDictExp(const BiIntervalDictExp&) = default;
+    /// Default move constructor
     BiIntervalDictExp(BiIntervalDictExp&& other) noexcept = default;
+    /// Default copy assignment operator
     BiIntervalDictExp& operator=(const BiIntervalDictExp& other) = default;
+    /// Default move assignment operator
     BiIntervalDictExp& operator=(BiIntervalDictExp&& other) noexcept = default;
 
     /// Explicit initialise from underlying data
@@ -275,7 +185,7 @@ public:
     [[nodiscard]] std::vector<Val> values() const;
 
     /// Return whether there are no keys
-    [[nodiscard]] bool empty() const;
+    [[nodiscard]] bool is_empty() const;
 
     /// Return whether the specified key is in the dictionary
     [[nodiscard]] std::size_t count(const Key& key) const;
@@ -492,17 +402,18 @@ public:
         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& other);
 
     // friends
+    /// @cond Suppress_Doxygen_Warning
     friend BiIntervalDictExp operator-
-        <>(BiIntervalDictExp dict1, const BiIntervalDictExp& dict2);
+        <>(BiIntervalDictExp dict_1, const BiIntervalDictExp& dict_2);
 
     friend BiIntervalDictExp operator+
-        <>(BiIntervalDictExp dict1, const BiIntervalDictExp& dict2);
+        <>(BiIntervalDictExp dict_1, const BiIntervalDictExp& dict_2);
 
-    friend BiIntervalDictExp subtract<>(BiIntervalDictExp dict1,
-                                        const BiIntervalDictExp& dict2);
+    friend BiIntervalDictExp subtract<>(BiIntervalDictExp dict_1,
+                                        const BiIntervalDictExp& dict_2);
 
-    friend BiIntervalDictExp merge<>(BiIntervalDictExp dict1,
-                                     const BiIntervalDictExp& dict2);
+    friend BiIntervalDictExp merge<>(BiIntervalDictExp dict_1,
+                                     const BiIntervalDictExp& dict_2);
 
     friend cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
     intervals<>(const BiIntervalDictExp& interval_dict,
@@ -524,12 +435,15 @@ public:
                               typename detail::identity<Val>::type,
                               typename detail::identity<Interval>::type>
                     keep_one_value);
+    /// @endcond
 
 private:
     ForwardDict m_forward;
     InverseDict m_inverse;
 };
 
+/// Template on underlying start/end type for intervals e.g. dates, times
+/// We use the appropriate, default Interval Type
 template <typename Key,
           typename Val,
           typename BaseType,
@@ -575,9 +489,9 @@ template <typename Key,
           typename Interval,
           typename Impl,
           typename InverseImpl>
-bool BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::empty() const
+bool BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::is_empty() const
 {
-    return m_forward.empty();
+    return m_forward.is_empty();
 }
 
 template <typename Key,
@@ -670,6 +584,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::insert(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -683,6 +598,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::insert(
 {
     return insert(key_value_pairs, Interval{first, last});
 }
+/// @endcond
 
 /*
  * Inverse insert
@@ -718,6 +634,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::inverse_insert(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -731,6 +648,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::inverse_insert(
 {
     return inverse_insert(value_key_pairs, Interval{first, last});
 }
+/// @endcond
 
 /*
  * Erase
@@ -768,6 +686,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -781,8 +700,8 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
 {
     return erase(key_value_pairs, Interval{first, last});
 }
+/// @endcond
 
-/// Erase all values with the specified @p key over the given @p interval.
 template <typename Key,
           typename Val,
           typename Interval,
@@ -806,8 +725,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
     return *this;
 }
 
-/// Erase all values with the specified @p key over the
-/// given query interval from @p first to @p last
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -821,8 +739,8 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
 {
     return erase(key, Interval{first, last});
 }
+/// @endcond
 
-/// Erase all values over the given @p interval.
 template <typename Key,
           typename Val,
           typename Interval,
@@ -841,7 +759,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
     return *this;
 }
 
-/// Erase all values over the given @p interval.
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -854,6 +772,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::erase(
 {
     return erase(Interval{first, last});
 }
+/// @endcond
 
 /*
  * inverse_erase
@@ -917,6 +836,7 @@ std::vector<Val> BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::find(
     return m_forward.find(keys, query_interval);
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -927,7 +847,9 @@ std::vector<Val> BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::find(
 {
     return find(key, Interval{query, query});
 }
+/// @endcond
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -940,6 +862,7 @@ std::vector<Val> BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::find(
 {
     return find(std::vector{key}, Interval{first, last});
 }
+/// @endcond
 
 template <typename Key,
           typename Val,
@@ -979,6 +902,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::inverse_find(
     return m_inverse.find(values, query_interval);
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -990,7 +914,9 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::inverse_find(
 {
     return inverse_find(std::vector{value}, Interval{query, query});
 }
+/// @endcond
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -1004,6 +930,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::inverse_find(
 {
     return inverse_find(std::vector{value}, Interval{first, last});
 }
+/// @endcond
 
 template <typename Key,
           typename Val,
@@ -1185,6 +1112,8 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::operator+=(
     return *this;
 }
 
+// Doxygen has problems matching this with the declaration
+/// @cond Suppress_Doxygen_Warning
 template <typename A,
           typename B,
           typename Interval,
@@ -1208,6 +1137,7 @@ BiIntervalDictExp<A, B, Interval, Impl, InverseImpl>::joined_to(
     return BiIntervalDictExp<A, C, Interval, OtherImplType<C>, InverseImpl>{
         std::move(forward), std::move(inverse)};
 }
+/// @endcond
 
 template <typename Key,
           typename Val,
@@ -1228,6 +1158,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_gaps_with(
 /*
  * Gap filling
  */
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -1244,7 +1175,9 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_to_start(
     m_inverse.inverse_insert(insertions);
     return *this;
 }
+/// @endcond
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key,
           typename Val,
           typename Interval,
@@ -1261,6 +1194,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_to_end(
     m_inverse.inverse_insert(insertions);
     return *this;
 }
+/// @endcond
 
 template <typename Key,
           typename Val,
@@ -1346,9 +1280,10 @@ template <typename Key,
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
               interval_dict,
-          const Interval query_interval = interval_extent<Interval>)
+          const Key& key,
+          const Interval query_interval)
 {
-    return intervals(interval_dict, interval_dict.keys(), query_interval);
+    return intervals(interval_dict, std::vector{key}, query_interval);
 }
 
 template <typename Key,
@@ -1359,10 +1294,9 @@ template <typename Key,
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
               interval_dict,
-          const Key& key,
-          const Interval query_interval = interval_extent<Interval>)
+          const Interval query_interval)
 {
-    return intervals(interval_dict, std::vector{key}, query_interval);
+    return intervals(interval_dict, interval_dict.keys(), query_interval);
 }
 
 /*
@@ -1394,7 +1328,7 @@ disjoint_intervals(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
         interval_dict,
     const Key& key,
-    const Interval query_interval = interval_extent<Interval>)
+    const Interval query_interval)
 {
     return disjoint_intervals(interval_dict, std::vector{key}, query_interval);
 }
@@ -1408,7 +1342,7 @@ cppcoro::generator<std::tuple<const Key&, const std::set<Val>&, Interval>>
 disjoint_intervals(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
         interval_dict,
-    const Interval query_interval = interval_extent<Interval>)
+    const Interval query_interval)
 {
     return disjoint_intervals(
         interval_dict, interval_dict.keys(), query_interval);
@@ -1420,11 +1354,11 @@ template <typename Key,
           typename Impl,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2)
+subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
-    dict1 -= dict2;
-    return dict1;
+    dict_1 -= dict_2;
+    return dict_1;
 }
 
 template <typename Key,
@@ -1433,11 +1367,11 @@ template <typename Key,
           typename Impl,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-operator-(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2)
+operator-(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
-    dict1 -= dict2;
-    return dict1;
+    dict_1 -= dict_2;
+    return dict_1;
 }
 
 template <typename Key,
@@ -1446,11 +1380,11 @@ template <typename Key,
           typename Impl,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-operator+(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2)
+operator+(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
-    dict1 += dict2;
-    return dict1;
+    dict_1 += dict_2;
+    return dict_1;
 }
 
 template <typename Key,
@@ -1459,11 +1393,11 @@ template <typename Key,
           typename Impl,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-merge(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict1,
-      const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict2)
+merge(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+      const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
-    dict1 += dict2;
-    return dict1;
+    dict_1 += dict_2;
+    return dict_1;
 }
 
 /*

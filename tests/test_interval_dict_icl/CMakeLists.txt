@@ -46,8 +46,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "coverage" OR CODE_COVERAGE)
         #endif()
 
         # set Flags
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+
 
     elseif(CMAKE_COMPILER_IS_GNUCXX)
         message("Building with lcov Code Coverage Tools")

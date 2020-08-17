@@ -33,9 +33,8 @@ inline boost::posix_time::ptime operator"" _pt(const char* time_str,
 
 namespace interval_dict
 {
-/*
- * For all intervals domain_type == boost::posix_time::ptime
- */
+/// Traits specialised to adapt boost::posix_time::ptime for use with
+/// IntervalDict
 template <typename Interval>
 class IntervalTraits<
     Interval,
@@ -44,35 +43,35 @@ class IntervalTraits<
         boost::posix_time::ptime>::value>::type>
 {
 public:
-    using BaseType =
-        typename boost::icl::interval_traits<Interval>::domain_type;
+    /// The underlying type for the interval
+    using BaseType = boost::posix_time::ptime;
+
+    /// The type for interval differences.
     using BaseDifferenceType = boost::posix_time::time_duration;
 
+    /// The earliest time
     static boost::posix_time::ptime lowest() noexcept
     {
         return boost::posix_time::ptime{boost::date_time::min_date_time};
     }
 
+    /// The latest possible time
     static boost::posix_time::ptime max() noexcept
     {
         return boost::posix_time::ptime{boost::date_time::max_date_time};
     }
 
+    /// The maximum size of a time interval
     static boost::posix_time::time_duration max_size() noexcept
     {
         return boost::posix_time::time_duration{
             boost::date_time::max_date_time};
     }
-
-    static Interval max_range() noexcept
-    {
-        Interval{lowest(), max()};
-    }
 };
 
 // Decrement operator should be either in the data type namespace
 // for ADL or in namespace "interval_dict"
-// Needed for adjusting open/closed intervals
+/// operator--() for adjusting open/closed intervals
 inline boost::posix_time::ptime operator--(boost::posix_time::ptime& x)
 {
     return x -= boost::posix_time::ptime::time_duration_type::unit();

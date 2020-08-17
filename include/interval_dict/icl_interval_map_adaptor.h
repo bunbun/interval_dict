@@ -41,7 +41,7 @@ namespace interval_dict
 namespace implementation
 {
 
-// boost icl interval_map associating each Interval with a std::set of values
+/// boost icl interval_map associating each Interval with a std::set of values
 template <typename Val, typename Interval>
 using IntervalDictICLSubMap =
     boost::icl::interval_map<typename IntervalTraits<Interval>::BaseType,
@@ -75,23 +75,27 @@ struct Rebased<
             implementation::IntervalDictICLSubMap<OldVal_, Interval_>>::value,
         void>::type>
 {
+    // For convenience
+    /// @cond Suppress_Doxygen_Warning
     using Interval = Interval_;
     using OldVal = OldVal_;
     using Val = NewVal_;
-    using type = implementation::IntervalDictICLSubMap<NewVal_, Interval>;
     using OldType = Impl_;
+    /// @endcond
+
+    /// Holds type of the implementation in the inverse() direction
+    using type = implementation::IntervalDictICLSubMap<NewVal_, Interval>;
 };
 
-namespace implementation
-{
-
+/// @cond Suppress_Doxygen_Warning
 /*
  * _____________________________________________________________________________
  *
  * Functions to handle boost::icl::interval_map of std::set<Val>
  *
  */
-
+namespace implementation
+{
 // Returns the gaps between intervals
 template <typename Val, typename Interval>
 cppcoro::generator<Interval>
@@ -250,6 +254,7 @@ std::tuple<const Interval&, const std::set<Val>&> last_disjoint_interval(
 }
 
 } // namespace implementation
+/// @endcond
 
 } // namespace interval_dict
 #endif // INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H

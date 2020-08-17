@@ -34,9 +34,8 @@ inline boost::gregorian::date operator"" _dt(unsigned long long int date_int)
 
 namespace interval_dict
 {
-/*
- * For all intervals domain_type == boost::gregorian::date
- */
+/// Traits specialised to adapt boost::gregorian::date for use with
+/// IntervalDict
 template <typename Interval>
 class IntervalTraits<
     Interval,
@@ -45,34 +44,34 @@ class IntervalTraits<
         boost::gregorian::date>::value>::type>
 {
 public:
-    using BaseType =
-        typename boost::icl::interval_traits<Interval>::domain_type;
+    /// The underlying type for the interval
+    using BaseType = boost::gregorian::date;
+
+    /// The type for interval differences.
     using BaseDifferenceType = boost::gregorian::date_duration;
 
+    /// The earliest possible date
     static boost::gregorian::date lowest() noexcept
     {
         return boost::gregorian::date{boost::date_time::min_date_time};
     }
 
+    /// The latest possible date
     static boost::gregorian::date max() noexcept
     {
         return boost::gregorian::date{boost::date_time::max_date_time};
     }
 
+    /// The maximum size of a date interval
     static boost::gregorian::date_duration max_size() noexcept
     {
         return boost::gregorian::date_duration{boost::date_time::max_date_time};
-    }
-
-    static Interval max_range() noexcept
-    {
-        Interval{lowest(), max()};
     }
 };
 
 // Decrement operator should be either in the data type namespace
 // for ADL or in namespace "interval_dict"
-// Needed for adjusting open/closed intervals
+/// operator--() for adjusting open/closed intervals
 inline boost::gregorian::date operator--(boost::gregorian::date& x)
 {
     return x -= boost::gregorian::date::duration_type::unit();

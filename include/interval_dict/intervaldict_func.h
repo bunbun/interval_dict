@@ -25,14 +25,14 @@
 #ifndef INCLUDE_INTERVAL_DICT_INTERVALDICT_FUNC_H
 #define INCLUDE_INTERVAL_DICT_INTERVALDICT_FUNC_H
 
-#include <cppcoro/generator.hpp>
-#include <tuple>
-
 #include "intervaldict.h"
+#include <cppcoro/generator.hpp>
 #include <range/v3/algorithm/sort.hpp>
+#include <tuple>
 
 namespace interval_dict
 {
+/// @cond Suppress_Doxygen_Warning
 namespace detail
 {
 // Helper function for subset()
@@ -158,8 +158,8 @@ Insertions<Key, Val, Interval> fill_gaps_with_inserts(
         auto f = data.find(key_other);
         if (f == data.end())
         {
-            for (const auto& [interval, value] :
-                 implementation::intervals(interval_values_other, interval_extent<Interval>))
+            for (const auto& [interval, value] : implementation::intervals(
+                     interval_values_other, interval_extent<Interval>))
             {
                 results.push_back({key_other, value, interval});
             }
@@ -356,6 +356,7 @@ Insertions<Key, Val, Interval> extend_into_gaps_inserts(
 }
 
 } // namespace detail
+/// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
@@ -386,19 +387,19 @@ intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
 template <typename Key, typename Val, typename Interval, typename Impl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
+          const Key& key,
           const Interval query_interval)
 {
-    const auto keys = interval_dict.keys();
-    return intervals(interval_dict, keys, query_interval);
+    return intervals(interval_dict, std::vector{key}, query_interval);
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
-          const Key& key,
           const Interval query_interval)
 {
-    return intervals(interval_dict, std::vector{key}, query_interval);
+    const auto keys = interval_dict.keys();
+    return intervals(interval_dict, keys, query_interval);
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -451,38 +452,38 @@ disjoint_intervals(
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-subtract(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-         const IntervalDictExp<Key, Val, Interval, Impl>& dict2)
+subtract(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+         const IntervalDictExp<Key, Val, Interval, Impl>& dict_2)
 {
-    dict1 -= dict2;
-    return dict1;
+    dict_1 -= dict_2;
+    return dict_1;
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-operator-(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-          const IntervalDictExp<Key, Val, Interval, Impl>& dict2)
+operator-(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+          const IntervalDictExp<Key, Val, Interval, Impl>& dict_2)
 {
-    dict1 -= dict2;
-    return dict1;
+    dict_1 -= dict_2;
+    return dict_1;
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-operator+(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-          const IntervalDictExp<Key, Val, Interval, Impl>& dict2)
+operator+(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+          const IntervalDictExp<Key, Val, Interval, Impl>& dict_2)
 {
-    dict1 += dict2;
-    return dict1;
+    dict_1 += dict_2;
+    return dict_1;
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-merge(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-      const IntervalDictExp<Key, Val, Interval, Impl>& dict2)
+merge(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+      const IntervalDictExp<Key, Val, Interval, Impl>& dict_2)
 {
-    dict1 += dict2;
-    return dict1;
+    dict_1 += dict_2;
+    return dict_1;
 }
 
 /*
@@ -543,6 +544,7 @@ flatten_policy_prefer_status_quo(FlattenPolicy fallback_policy)
     return FlattenPolicyPreferStatusQuo(fallback_policy);
 }
 
+/// @cond Suppress_Doxygen_Warning
 namespace detail
 {
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -560,7 +562,8 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         Interval status_quo_interval;
         std::optional<Val> status_quo;
         for (const auto& [interval, values] :
-             implementation::disjoint_intervals(interval_values, interval_extent<Interval>))
+             implementation::disjoint_intervals(interval_values,
+                                                interval_extent<Interval>))
         {
             // Save as status_quo if key-value 1:1
             if (values.size() == 1)
@@ -619,6 +622,7 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
 }
 
 } // namespace detail
+/// @endcond
 
 template <typename FlattenPolicy>
 template <typename Key, typename Val, typename Interval>

@@ -50,7 +50,7 @@ TEMPLATE_TEST_CASE("Test find() for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
 
     /*
      * TestData

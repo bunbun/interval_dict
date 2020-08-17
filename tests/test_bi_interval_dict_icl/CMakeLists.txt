@@ -25,7 +25,7 @@ add_executable (${TARGET_NAME}
         ../test_subset.cpp
         ../test_utils.h
         ../test_intervaldict.cpp
-        )
+        ../../include/interval_dict/config.h.in)
 
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"

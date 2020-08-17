@@ -49,7 +49,7 @@ TEMPLATE_TEST_CASE("Test stream output for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     TestData<Interval> test_data;
     // Unadjusted disjoint intervals
     const auto import_data = test_data.disjoint_intervals();

@@ -26,6 +26,18 @@
 
 namespace interval_dict
 {
+/// IntervalDictICLExp
+/// \brief one-to-many interval dictionary powered by boost::icl::interval_map
+///
+/// Usually, it is more convenient to use a default interval of Time or
+/// Date etc. (See `IntervalDictICL`).
+///
+/// IntervalDictICLExp allows you to specify the exact interval type,
+/// be that inclusive/exclusive.
+///
+/// \tparam Key Type of keys
+/// \tparam Val Type of Values
+/// \tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
 template <typename Key, typename Val, typename Interval>
 using IntervalDictICLExp =
     IntervalDictExp<Key,
@@ -33,6 +45,12 @@ using IntervalDictICLExp =
                     Interval,
                     implementation::IntervalDictICLSubMap<Val, Interval>>;
 
+/// IntervalDictICL
+/// \brief one-to-many interval dictionary powered by boost::icl::interval_map
+///
+/// \tparam Key Type of keys
+/// \tparam Val Type of Values
+/// \tparam BaseType The base type of the iterval: Date or Posix Time etc.
 template <typename Key, typename Val, typename BaseType>
 using IntervalDictICL =
     IntervalDictICLExp<Key, Val, typename boost::icl::interval<BaseType>::type>;

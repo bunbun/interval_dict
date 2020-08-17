@@ -48,7 +48,7 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     GIVEN("An IntervalDict with overlapping intervals")

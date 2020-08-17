@@ -4,17 +4,22 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-# This include defines standard install locations.
-# https://cmake.org/cmake/help/v3.11/module/GNUInstallDirs.html
-include(GNUInstallDirs)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fcoroutines-ts -D_FORTIFY_SOURCE=2 -Wall ")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 
-project(interval_dict VERSION 0.0.1 LANGUAGES CXX DESCRIPTION "An interval dict library.")
+# This include defines standard install locations.
+# https://cmake.org/cmake/help/v3.11/module/GNUInstallDirs.html
+include(GNUInstallDirs)
+
+project(interval_dict VERSION "0.1.0" LANGUAGES CXX DESCRIPTION "An interval dict library.")
+set(INTERVAL_DICT_VER ${PROJECT_VERSION})
+
+# make config.h to include version, and include it throughout the project
+configure_file(include/interval_dict/config.h.in config.h)
+include_directories(${PROJECT_BINARY_BIN})
 
 # This include provides some helper functions that simplify packaging.
 # https://cmake.org/cmake/help/v3.11/module/CMakePackageConfigHelpers.html
@@ -54,6 +59,8 @@ include_directories(extern/catch2)
 # Only public header files go here.
 set(HEADER_FILES
         include/interval_dict/adaptor_traits.h
+        include/interval_dict/bi_intervaldict.h
+        include/interval_dict/bi_intervaldict_forward.h
         include/interval_dict/bi_intervaldicticl.h
         include/interval_dict/gregorian.h
         include/interval_dict/icl_interval_map_adaptor.h
@@ -61,8 +68,8 @@ set(HEADER_FILES
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldict_forward.h
         include/interval_dict/intervaldicticl.h
-        include/interval_dict/ptime.h include/interval_dict/bi_intervaldict.h)
-set(SOURCE_FILES src/intervaldicticl.cpp)
+        include/interval_dict/ptime.h)
+set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/bi_intervaldict_forward.h)
 add_library(interval_dict
         ${HEADER_FILES}
         ${SOURCE_FILES})

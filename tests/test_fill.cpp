@@ -57,7 +57,7 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
@@ -136,7 +136,7 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
@@ -218,7 +218,7 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
@@ -296,7 +296,7 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*
@@ -405,7 +405,7 @@ TEMPLATE_TEST_CASE("Test gap filling by using another dictionary as a backstop",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
 
     /*

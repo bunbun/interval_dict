@@ -18,6 +18,7 @@
 #ifndef INCLUDE_INTERVAL_DICT_INTERVALDICT_H
 #define INCLUDE_INTERVAL_DICT_INTERVALDICT_H
 
+#include "adaptor_traits.h"
 #include "interval_traits.h"
 #include "intervaldict_forward.h"
 
@@ -32,29 +33,33 @@
 namespace interval_dict
 {
 
-/// \brief one-to-many dictionary where key-values vary over intervals.
+/// \brief One-to-many dictionary where key-values vary over intervals.
 ///
 /// Typically used for time-varying dictionaries.
-/// Implemented as a std::map of Boost  interval_map
+///
+/// Most of the time, IntervalDict should be sufficient.
+/// IntervalDictExp is useful when you need to specify the exact
+/// boost::icl interval type, such as
+///
+/// - `left_open_interval<BaseType>`
+/// - `right_open_interval<BaseType>`
+/// - `open_interval<BaseType>`
+/// - `closed_interval<BaseType>`
 ///
 /// \tparam Key Type of keys
 /// \tparam Val Type of Values
 /// \tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
 /// \tparam Impl Implementation type. E.g. boost::icl::interval_map...
-template <typename Key, typename Val, typename IntervalType, typename Impl>
+template <typename Key, typename Val, typename Interval, typename Impl>
 class IntervalDictExp
 {
-public:
-    bool operator==(const IntervalDictExp& rhs) const;
-
-    bool operator!=(const IntervalDictExp& rhs) const;
-
 public:
     // friend of all other IntervalDictExp
     template <typename K, typename V, typename I, typename Im>
     friend class IntervalDictExp;
 
-    using Interval = IntervalType;
+    /// @cond Suppress_Doxygen_Warning
+    using IntervalType = Interval;
     using BaseType = typename IntervalTraits<Interval>::BaseType;
     using KeyType = Key;
     using ValType = Val;
@@ -63,53 +68,111 @@ public:
     // boost icl interval_set of Intervals
     using Intervals = interval_dict::Intervals<Interval>;
     using ImplType = Impl;
-    using InvertImplType = typename Rebased<Val, Key, Interval, Impl>::type;
+    using InverseImplType = typename Rebased<Val, Key, Interval, Impl>::type;
     template <typename OtherVal>
     using OtherImplType = typename Rebased<Val, OtherVal, Interval, Impl>::type;
     using DataType = std::map<Key, Impl>;
+    /// @endcond
 
-    /// Default Constructors / assignment operators
+    /// @name Constructors
+    /// @{
+    /// Constructors and assignment operators
+
+    /// Default Constructor
     IntervalDictExp() = default;
+    /// Default copy constructor
     IntervalDictExp(const IntervalDictExp&) = default;
+    /// Default move constructor
     IntervalDictExp(IntervalDictExp&& other) noexcept = default;
+    /// Default copy assignment operator
     IntervalDictExp& operator=(const IntervalDictExp& other) = default;
+    /// Default move assignment operator
     IntervalDictExp& operator=(IntervalDictExp&& other) noexcept = default;
 
-    /// Construct from key-value-intervals
+    /// Construct from a vector of [key-value-interval]s
     explicit IntervalDictExp(
         const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals);
 
-    explicit IntervalDictExp(DataType internal);
+    /// Construct from underlying data type
+    explicit IntervalDictExp(IntervalDictExp::DataType internal);
 
-    /// Insert key-value pairs valid over interval
+    /// @}
+    /// @name Insert and Erase
+    /// Inserting into and removing from the dictionary
+    /// @{
+
+    /// Insert key-value pairs valid over the specified interval
+    ///
+    /// For batch inserting multiple key-value for a single interval.
+    /// \param key_value_pairs is a vector of key-value
+    /// \param interval defaults to `interval_extent`, i.e. The key values associations are
+    /// always valid
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     insert(const std::vector<std::pair<Key, Val>>& key_value_pairs,
            Interval interval = interval_extent<Interval>);
 
     /// Insert key-value-intervals
+    ///
+    /// For batch inserting key-values each for a different interval.
+    /// \param key_value_intervals is a vector of Key-Val-Interval
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& insert(
         const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals);
 
     /// Insert key-value pairs valid from @p first to @p last
+    ///
+    /// For batch inserting multiple key-value over a time or date span.
+    /// \param key_value_pairs is a vector of key-value
+    /// \param first is the first point from which the data will be valid
+    /// \param last is the last point for which the data will be valid. Defaults to `max()` i.e.
+    /// the mapping will always be valid from first onwards.
+    ///
+    /// The exact interpretation of first and last depends on whether the underlying interval
+    /// type is open/close etc.
+    ///
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     insert(const std::vector<std::pair<Key, Val>>& key_value_pairs,
            BaseType first,
            BaseType last = IntervalTraits<Interval>::max());
 
-    /// Insert key-value-intervals
+    /// Insert value-key-intervals
+    ///
+    /// N.B. key/values are specified in swapped order
+    ///
+    /// For batch inserting values-keys each for a different interval.
+    /// \param value_key_intervals is a vector of Val-Key-Interval
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& inverse_insert(
         const std::vector<std::tuple<Val, Key, Interval>>& value_key_intervals);
 
-    /// Insert value-key pairs valid over interval
+    /// Insert value-key pairs valid over the specified interval
+    ///
+    /// N.B. key/values are specified in swapped order
+    ///
+    /// For batch inserting multiple value-key for a single interval.
+    /// \param value_key_pairs is a vector of value-key
+    /// \param interval defaults to `interval_extent`, i.e. The key values associations are
+    /// always valid
+    /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     inverse_insert(const std::vector<std::pair<Val, Key>>& value_key_pairs,
                    Interval interval = interval_extent<Interval>);
 
     /// Insert value-key pairs valid from @p first to @p last
+    ///
+    /// N.B. key/values are specified in swapped order
+    ///
+    /// For batch inserting multiple value-key over a time or date span.
+    /// \param value_key_pairs is a vector of value-key
+    /// \param first is the first point from which the data will be valid
+    /// \param last is the last point for which the data will be valid. Defaults to `max()` i.e.
+    /// the mapping will always be valid from first onwards.
+    ///
+    /// The exact interpretation of first and last depends on whether the underlying interval
+    /// type is open/close etc.
+    ///
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     inverse_insert(const std::vector<std::pair<Val, Key>>& value_key_pairs,
@@ -117,129 +180,155 @@ public:
                    BaseType last = IntervalTraits<Interval>::max());
 
     /// Erase key-value-intervals
+    ///
+    /// For batch erasing key-values each for a different interval.
+    /// \param key_value_intervals is a vector of Key-Val-Interval
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& erase(
         const std::vector<std::tuple<Key, Val, Interval>>& key_value_intervals);
 
-    /// Erase key-value pairs valid over interval
+    /// Erase key-value pairs over the specified interval
+    ///
+    /// For batch erasing multiple key-value for a single interval.
+    /// \param key_value_pairs is a vector of key-value
+    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
+    /// associations are removed over all intervals
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(const std::vector<std::pair<Key, Val>>& key_value_pairs,
           Interval interval = interval_extent<Interval>);
 
-    /// Erase key-value pairs valid from @p first to @p last
-    /// \return *this
+    /// Erase key-value pairs from @p first to @p last
+    ///
+    /// For batch erasing multiple key-value over a time or date span.
+    /// \param key_value_pairs is a vector of key-value
+    /// \param first is the first point from which the data will be erased
+    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
+    /// all data matching key-value will be erased from first onwards.
+    ///
+    /// The exact interpretation of first and last depends on whether the underlying interval
+    /// type is open/close etc.
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(const std::vector<std::pair<Key, Val>>& key_value_pairs,
           BaseType first,
           BaseType last = IntervalTraits<Interval>::max());
 
-    /// Erase all values with the specified @p key over the given @p interval.
-    /// \return *this
+    /// Erase all values for @p key over the specified @p interval
+    ///
+    /// \param key
+    /// \param interval defaults to `interval_extent`, i.e. All data for @p key
+    /// are removed over all intervals
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(const Key& key, Interval interval = interval_extent<Interval>);
 
-    /// Erase all values with the specified @p key over the
-    /// \return *this
+    /// Erase all values for @p key from @p first to @p last
+    ///
+    /// \param key
+    /// \param first is the first point from which the data will be erased
+    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
+    /// all data matching key-value will be erased from first onwards.
+    ///
+    /// The exact interpretation of first and last depends on whether the underlying interval
+    /// type is open/close etc.
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(const Key& key,
           BaseType first,
           BaseType last = IntervalTraits<Interval>::max());
 
     /// Erase all values over the given @p interval.
+    ///
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& erase(Interval interval);
 
-    /// Erase all values over the given @p interval.
-    /// \return *this
+    /// Erase all values from @p first to @p last
+    ///
+    /// \param first is the first point from which the data will be erased
+    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
+    /// all data matching key-value will be erased from first onwards.
+    ///
+    /// The exact interpretation of first and last depends on whether the underlying interval
+    /// type is open/close etc.
     IntervalDictExp<Key, Val, Interval, Impl>&
     erase(BaseType first, BaseType last = IntervalTraits<Interval>::max());
 
     /// Erase value-key-intervals
+    ///
+    /// N.B. key/values are specified in swapped order
+    ///
+    /// For batch erasing key-values each for a different interval.
+    /// \param value_key_intervals is a vector of Val-Key-Interval
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& inverse_erase(
         const std::vector<std::tuple<Val, Key, Interval>>& value_key_intervals);
 
-    /// Erase value-key pairs valid over interval
-    /// \return *this
+    /// Erase all values-keys over the specified @p interval
+    ///
+    /// N.B. key/values are specified in swapped order
+    ///
+    /// \param value_key_pairs is a vector of value-key
+    /// \param interval defaults to `interval_extent`, i.e. All data for @p key
+    /// are removed over all intervals
     IntervalDictExp<Key, Val, Interval, Impl>&
     inverse_erase(const std::vector<std::pair<Val, Key>>& value_key_pairs,
                   Interval interval = interval_extent<Interval>);
 
-    /// Return all keys in sorted order
-    [[nodiscard]] std::vector<Key> keys() const;
-
-    /// Return whether there are no keys
-    [[nodiscard]] bool empty() const;
-
-    /// Return whether the specified key is in the dictionary
-    [[nodiscard]] std::size_t count(const Key& key) const;
-
-    /// Return whether the specified key is in the dictionary
-    [[nodiscard]] bool contains(const Key& key) const;
-
-    /// erase all keys
+    /// Erase all data for all keys
     void clear();
+
+    /// @}
+
+    /// @name find
+    /// @{
+    /// find data for specified key(s)
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query start. Only really makes sense for closed intervals
+    /// \param key
+    /// \param query The point at which values match @p key
+    /// \return std::vector of matching values
     [[nodiscard]] std::vector<Val> find(const Key& key, BaseType query) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
-    /// the given query interval from first to last
+    /// the given query interval from @p first to @p last
+    /// \param key
+    /// \param first The first point at which values may match @p key
+    /// \param last The last point at which values may match @p key
+    /// \return std::vector of matching values
     [[nodiscard]] std::vector<Val>
     find(const Key& key, BaseType first, BaseType last) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query interval
+    /// \param key
+    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
+    /// associations are removed over all intervals
     [[nodiscard]] std::vector<Val>
     find(const Key& key, Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p keys on
     /// the given query interval
+    /// \param keys A std::vector of keys
+    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
+    /// associations are removed over all intervals
     [[nodiscard]] std::vector<Val>
     find(const std::vector<Key>& keys,
          Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped values in a sorted list for the specified @p key on
     /// the given query intervals
+    /// \param key
+    /// \param query_intervals boost::icl interval_set<Interval>
     [[nodiscard]] std::vector<Val> find(const Key& key,
                                         const Intervals& query_intervals) const;
 
-    /// Returns a new IntervalDict that contains only the specified \p keys for
-    /// the specified \p interval
-    template <typename KeyRange>
-    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
-    subset(const KeyRange& keys,
-           Interval interval = interval_extent<Interval>) const;
+    /// @}
 
-    /// Returns a new IntervalDict that contains only the specified \p keys and
-    /// \p values for the specified \p interval
-    template <typename KeyRange, typename ValRange>
-    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
-    subset(const KeyRange& keys,
-           const ValRange& values,
-           Interval interval = interval_extent<Interval>) const;
+    /// @name GapFilling
+    /// @{
+    /// Filling gaps in the mapping from key to value
+    /// This is usually necessary to remedy data errors or dropouts
 
-    /// Returns a new Dictionary that contains the same intervals but with
-    /// Values -> Keys
-    [[nodiscard]] IntervalDictExp<Val, Key, Interval, InvertImplType>
-    invert() const;
-
-    /// Returns the number of unique keys
-    [[nodiscard]] std::size_t size() const;
-
-    /// Returns a dictionary A -> C that spans A -> B -> C
-    /// whenever there are A -> B and B -> C mapping over common intervals
-    template <typename OtherVal, typename OtherImpl>
-    [[nodiscard]] IntervalDictExp<Key,
-                                  OtherVal,
-                                  Interval,
-                                  OtherImplType<OtherVal>>
-    joined_to(const IntervalDictExp<Val, OtherVal, Interval, OtherImpl>& b_to_c)
-        const;
-
-    /// Supplement with entries from other only for missing keys or gaps where
+    /// Supplement with entries from @p other only for missing keys or gaps where
     /// a key does not map to any values.
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>&
@@ -263,7 +352,7 @@ public:
     IntervalDictExp<Key, Val, Interval, Impl>& fill_to_start(
         BaseType starting_point = IntervalTraits<Interval>::max(),
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-            IntervalTraits<Interval>::max_size());
+        IntervalTraits<Interval>::max_size());
 
     /// fill_to_end()
     /// Forward fill the final gaps from a specified starting_point.
@@ -282,7 +371,7 @@ public:
     IntervalDictExp<Key, Val, Interval, Impl>& fill_to_end(
         BaseType starting_point = IntervalTraits<Interval>::lowest(),
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-            IntervalTraits<Interval>::max_size());
+        IntervalTraits<Interval>::max_size());
 
     /// extend_into_gaps()
     /// Fill gaps (the key maps to no values) by extending values
@@ -303,9 +392,9 @@ public:
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& extend_into_gaps(
         GapExtensionDirection gap_extension_direction =
-            GapExtensionDirection::Both,
+        GapExtensionDirection::Both,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-            IntervalTraits<Interval>::max_size());
+        IntervalTraits<Interval>::max_size());
 
     /// fill_gaps()
     /// Fill gaps (where the key maps to no values) by looking for common
@@ -326,9 +415,66 @@ public:
     /// \return *this
     IntervalDictExp<Key, Val, Interval, Impl>& fill_gaps(
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-            IntervalTraits<Interval>::max_size());
+        IntervalTraits<Interval>::max_size());
 
-    /// Returns the asymmetrical difference with another interval dictionary
+    /// @}
+
+    /// Return all keys in sorted order
+    [[nodiscard]] std::vector<Key> keys() const;
+
+    /// Returns the number of unique keys
+    [[nodiscard]] std::size_t size() const;
+
+    /// Return whether there are no keys
+    [[nodiscard]] bool is_empty() const;
+
+    /// Return whether the specified key is in the dictionary
+    [[nodiscard]] std::size_t count(const Key& key) const;
+
+    /// Return whether the specified key is in the dictionary
+    [[nodiscard]] bool contains(const Key& key) const;
+
+    /// Returns a new IntervalDict that contains only the specified \p keys for
+    /// the specified \p interval
+    /// \param keys Any sequence of Key (suitable for range-based for loop)
+    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
+    /// associations are removed over all intervals
+    template <typename KeyRange>
+    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
+    subset(const KeyRange& keys,
+           Interval interval = interval_extent<Interval>) const;
+
+    /// Returns a new IntervalDict that contains only the specified \p keys and
+    /// \p values for the specified \p interval
+    /// \param keys Any sequence of Key (suitable for range-based for loop)
+    /// \param values Any sequence of Value (suitable for range-based for loop)
+    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
+    /// associations are removed over all intervals
+    template <typename KeyRange, typename ValRange>
+    [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl>
+    subset(const KeyRange& keys,
+           const ValRange& values,
+           Interval interval = interval_extent<Interval>) const;
+
+    /// Returns a new Dictionary that contains the same intervals but with
+    /// Values and Keys swapped. Note that unless Value and Key are identical
+    /// types, the resulting IntervalDict will also have a new type.
+    [[nodiscard]] IntervalDictExp<Val, Key, Interval, InverseImplType>
+    invert() const;
+
+    /// Joins to a second dictionary with matching values so that if
+    /// *this and the parameter have key-value types of
+    /// A -> B and B -> C respectively, returns a dictionary A -> C that
+    /// spans A -> B -> C over common intervals
+    template <typename OtherVal, typename OtherImpl>
+    [[nodiscard]] IntervalDictExp<Key,
+                                  OtherVal,
+                                  Interval,
+                                  OtherImplType<OtherVal>>
+    joined_to(const IntervalDictExp<Val, OtherVal, Interval, OtherImpl>& b_to_c)
+        const;
+
+    /// Returns the asymmetrical differences with another interval dictionary
     IntervalDictExp<Key, Val, Interval, Impl>&
     operator-=(const IntervalDictExp<Key, Val, Interval, Impl>& other);
 
@@ -336,18 +482,25 @@ public:
     IntervalDictExp<Key, Val, Interval, Impl>&
     operator+=(const IntervalDictExp<Key, Val, Interval, Impl>& other);
 
+    /// Equality operator
+    bool operator==(const IntervalDictExp& rhs) const;
+
+    /// Inequality operator
+    bool operator!=(const IntervalDictExp& rhs) const;
+
     // friends
+    /// @cond Suppress_Doxygen_Warning
     friend IntervalDictExp operator-
-        <>(IntervalDictExp dict1, const IntervalDictExp& dict2);
+        <>(IntervalDictExp dict_1, const IntervalDictExp& dict_2);
 
     friend IntervalDictExp operator+
-        <>(IntervalDictExp dict1, const IntervalDictExp& dict2);
+        <>(IntervalDictExp dict_1, const IntervalDictExp& dict_2);
 
-    friend IntervalDictExp subtract<>(IntervalDictExp dict1,
-                                      const IntervalDictExp& dict2);
+    friend IntervalDictExp subtract<>(IntervalDictExp dict_1,
+                                      const IntervalDictExp& dict_2);
 
-    friend IntervalDictExp merge<>(IntervalDictExp dict1,
-                                   const IntervalDictExp& dict2);
+    friend IntervalDictExp merge<>(IntervalDictExp dict_1,
+                                   const IntervalDictExp& dict_2);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
     detail::fill_gaps_with_inserts<>(
@@ -377,10 +530,10 @@ public:
         GapExtensionDirection gap_extension_direction,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
-    friend std::tuple<Insertions<Key, Val, Interval>,
-    Erasures<Key, Val, Interval>>
+    friend std::tuple<detail::Insertions<Key, Val, Interval>,
+                      detail::Erasures<Key, Val, Interval>>
     detail::flatten_actions<>(const IntervalDictExp& interval_dict,
-        FlattenPolicy<Key, Val, Interval> keep_one_value);
+                              FlattenPolicy<Key, Val, Interval> keep_one_value);
 
     template <typename Key_,
               typename Val_,
@@ -416,13 +569,19 @@ public:
     disjoint_intervals<>(const IntervalDictExp& interval_dict,
                          std::vector<Key> keys,
                          Interval query_interval);
+    /// @endcond
 
 private:
     DataType data;
 };
 
-// Template on underlying type e.g. dates, times
-// We use the default Interval for that date
+/// \brief One-to-many dictionary where key-values vary over intervals.
+/// Typically used for time-varying dictionaries.
+///
+/// \tparam Key Type of keys
+/// \tparam Val Type of Values
+/// \tparam BaseType E.g. Time/Date: The type for intervals begin/ends
+/// \tparam Impl Implementation type. E.g. boost::icl::interval_map...
 template <typename Key, typename Val, typename BaseType, typename Impl>
 using IntervalDict =
     IntervalDictExp<Key,
@@ -451,7 +610,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::IntervalDictExp(
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
-bool IntervalDictExp<Key, Val, Interval, Impl>::empty() const
+bool IntervalDictExp<Key, Val, Interval, Impl>::is_empty() const
 {
     return data.size() == 0;
 }
@@ -515,6 +674,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::insert(
@@ -524,6 +684,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
 {
     return insert(key_value_pairs, Interval{first, last});
 }
+/// @endcond
 
 /*
  * Inverse insert
@@ -558,6 +719,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
@@ -567,10 +729,12 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
 {
     return inverse_insert(value_key_pairs, Interval{first, last});
 }
+/// @endcond
 
 /*
  * Erase
  */
+/// @cond Suppress_Doxygen_Warning
 namespace detail
 {
 template <typename Key, typename Impl>
@@ -586,6 +750,7 @@ void cleanup_empty_keys(std::map<Key, Impl>& data,
     }
 }
 } // namespace detail
+/// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
@@ -627,6 +792,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
     return *this;
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
@@ -636,8 +802,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
 {
     return erase(key_value_pairs, Interval{first, last});
 }
+/// @endcond
 
-/// Erase all values with the specified @p key over the given @p interval.
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(const Key& key,
@@ -664,8 +830,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(const Key& key,
     return *this;
 }
 
-/// Erase all values with the specified @p key over the
-/// given query interval from @p first to @p last
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
@@ -675,8 +840,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
 {
     return erase(key, Interval{first, last});
 }
+/// @endcond
 
-/// Erase all values over the given @p interval.
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
@@ -697,7 +862,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
     return *this;
 }
 
-/// Erase all values over the given @p interval.
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::erase(
@@ -706,6 +871,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
 {
     return erase(Interval{first, last});
 }
+/// @endcond
 
 /*
  * inverse_erase
@@ -810,13 +976,16 @@ IntervalDictExp<Key, Val, Interval, Impl>::find(const std::vector<Key>& keys,
     return {unique_results.begin(), unique_results.end()};
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
     const Key& key, typename IntervalTraits<Interval>::BaseType query) const
 {
     return find(key, Interval{query, query});
 }
+/// @endcond
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
     const Key& key,
@@ -825,6 +994,7 @@ std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
 {
     return find(std::vector{key}, Interval{first, last});
 }
+/// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 std::vector<Val>
@@ -890,19 +1060,19 @@ IntervalDictExp<Val,
                 typename Rebased<Val, Key, Interval, Impl>::type>
 IntervalDictExp<Key, Val, Interval, Impl>::invert() const
 {
-    using DataType =
-        typename IntervalDictExp<Val, Key, Interval, InvertImplType>::DataType;
-    DataType inverted_data;
+    using InverseDataType =
+        typename IntervalDictExp<Val, Key, Interval, InverseImplType>::DataType;
+    InverseDataType inverted_data;
     for (const auto& [key, interval_values] : data)
     {
-        for (const auto& [interval, value] :
-             implementation::intervals(interval_values, interval_extent<Interval>))
+        for (const auto& [interval, value] : implementation::intervals(
+                 interval_values, interval_extent<Interval>))
         {
             implementation::insert<Key, Interval>(
                 inverted_data[value], interval, key);
         }
     }
-    return IntervalDictExp<Val, Key, Interval, InvertImplType>(inverted_data);
+    return IntervalDictExp<Val, Key, Interval, InverseImplType>(inverted_data);
 }
 
 /*
@@ -933,7 +1103,6 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator-=(
     return *this;
 }
 
-/// Returns the union with another interval dictionary
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::operator+=(
@@ -953,6 +1122,9 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator+=(
     }
     return *this;
 }
+
+// Doxygen has problems matching this with the declaration
+/// @cond Suppress_Doxygen_Warning
 template <typename A, typename B, typename Interval, typename Impl>
 template <typename C, typename OtherImpl>
 IntervalDictExp<A, C, Interval, typename Rebased<B, C, Interval, Impl>::type>
@@ -960,12 +1132,12 @@ IntervalDictExp<A, B, Interval, Impl>::joined_to(
     const IntervalDictExp<B, C, Interval, OtherImpl>& b_to_c) const
 {
     using ReturnType = IntervalDictExp<A, C, Interval, OtherImplType<C>>;
-    using DataType = typename ReturnType::DataType;
-    DataType other_data;
+    using OtherDataType = typename ReturnType::DataType;
+    OtherDataType other_data;
     for (const auto& [key_a, interval_values_ab] : data)
     {
-        for (const auto& [interval_ab, value_b] :
-             implementation::intervals(interval_values_ab, interval_extent<Interval>))
+        for (const auto& [interval_ab, value_b] : implementation::intervals(
+                 interval_values_ab, interval_extent<Interval>))
         {
             // Ignore values that are missing from the other dictionary
             const auto ii = b_to_c.data.find(value_b);
@@ -986,6 +1158,7 @@ IntervalDictExp<A, B, Interval, Impl>::joined_to(
     }
     return ReturnType(other_data);
 }
+/// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
@@ -1008,6 +1181,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::fill_to_start(
         detail::fill_to_start_inserts(*this, starting_point, max_extension));
 }
 
+/// @cond Suppress_Doxygen_Warning
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::fill_to_end(
@@ -1017,6 +1191,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::fill_to_end(
     return insert(
         detail::fill_to_end_inserts(*this, starting_point, max_extension));
 }
+/// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>&

@@ -8,7 +8,7 @@
 //
 //  Project home: https://github.com/goodstadt/intervaldict
 //
-/// \file intervaldict_func.h
+/// \file intervaldict_forward.h
 /// \brief Forward declarations of functions / associated types of IntervalDict
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
@@ -16,11 +16,18 @@
 #ifndef INCLUDE_INTERVAL_DICT_INTERVALDICT_FORWARD_H
 #define INCLUDE_INTERVAL_DICT_INTERVALDICT_FORWARD_H
 
-#include <boost/icl/interval_map.hpp>
+#include "interval_traits.h"
+
+#include <boost/icl/interval_set.hpp>
 #include <cppcoro/generator.hpp>
 
-#include "interval_traits.h"
 #include <tuple>
+
+/// Code for different internal implementations of interval associative
+/// dictionaries live in this namespace
+namespace implementation
+{
+}
 
 namespace interval_dict
 {
@@ -31,14 +38,6 @@ using Intervals = boost::icl::interval_set<
     typename boost::icl::interval_traits<Interval>::domain_type,
     std::less,
     Interval>;
-
-/*
- * Insertion and Erasure types
- */
-template <typename Key, typename Val, typename Interval>
-using Insertions = std::vector<std::tuple<Key, Val, Interval>>;
-template <typename Key, typename Val, typename Interval>
-using Erasures = std::vector<std::tuple<Key, Val, Interval>>;
 
 /// \brief Whether to use values from one side or another to fill in gaps
 /// (Forward fill, or backward fill or both).
@@ -61,19 +60,17 @@ class IntervalDictExp;
  *
  */
 
-/// subtract()
-/// \return The asymmetrical difference between two interval dictionaries
+/// \return The union of two interval dictionaries The asymmetrical difference between two interval dictionaries
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-subtract(IntervalDictExp<Key, Val, Interval, Impl> dict_a,
-         const IntervalDictExp<Key, Val, Interval, Impl>& dict_b);
+subtract(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+         const IntervalDictExp<Key, Val, Interval, Impl>& dict_2);
 
-/// merge()
-/// \return The union of two interval dictionaries
+/// \return The union of two interval dictionaries in a new IntervalDict
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-merge(IntervalDictExp<Key, Val, Interval, Impl> dict_a,
-      const IntervalDictExp<Key, Val, Interval, Impl>& dict_b);
+merge(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+      const IntervalDictExp<Key, Val, Interval, Impl>& dict_2);
 
 /// intervals()
 ///
@@ -87,7 +84,7 @@ merge(IntervalDictExp<Key, Val, Interval, Impl> dict_a,
 template <typename Key, typename Val, typename Interval, typename Impl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
-          std::vector<Key> keys,
+          const Key& key,
           Interval query_interval = interval_extent<Interval>);
 
 /// intervals()
@@ -101,7 +98,7 @@ intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
 template <typename Key, typename Val, typename Interval, typename Impl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
-          const Key& key,
+          std::vector<Key> keys,
           Interval query_interval = interval_extent<Interval>);
 
 /// intervals()
@@ -160,44 +157,33 @@ disjoint_intervals(
     const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
     Interval query_interval = interval_extent<Interval>);
 
-/// binary operator - asymmeterical difference from dict1 to dict2
+/// binary operator - asymmeterical difference from dict_1 to dict_2
 /// \return a new IntervalDict
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-operator-(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-          const IntervalDictExp<Key, Val, Interval, Impl>& dict2);
+operator-(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+          const IntervalDictExp<Key, Val, Interval, Impl>& dict_2);
 
-/// binary operator + merges key values in dict1 with dict2
+/// binary operator + merges key values in dict_1 with dict_2
 /// \return a new IntervalDict
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl>
-operator+(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-          const IntervalDictExp<Key, Val, Interval, Impl>& dict2);
-
-/// subtract()
-/// asymmeterical difference from dict1 to dict2
-/// \return a new IntervalDict
-template <typename Key, typename Val, typename Interval, typename Impl>
-IntervalDictExp<Key, Val, Interval, Impl>
-subtract(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-         const IntervalDictExp<Key, Val, Interval, Impl>& dict2);
-
-/// merge() key values in dict1 with dict2
-/// \return a new IntervalDict
-template <typename Key, typename Val, typename Interval, typename Impl>
-IntervalDictExp<Key, Val, Interval, Impl>
-merge(IntervalDictExp<Key, Val, Interval, Impl> dict1,
-      const IntervalDictExp<Key, Val, Interval, Impl>& dict2);
+operator+(IntervalDictExp<Key, Val, Interval, Impl> dict_1,
+          const IntervalDictExp<Key, Val, Interval, Impl>& dict_2);
 
 /// \brief Policy for flattening dictionaries used by flatten()
 template <typename Key, typename Val, typename Interval>
 using FlattenPolicy = std::function<std::optional<Val>(
     const std::optional<Val>&, Interval, const Key&, const std::vector<Val>&)>;
 
-// Use template member function of struct so we don't have to
-// explicitly specify type parameters
+/// \brief Policy that simply discards data for intervals where a key maps to
+/// multiple values
 struct FlattenPolicyDiscard
 {
+    /// \brief Policy that simply discards data for intervals where a key maps to
+    /// multiple values. Implemented as non-template function objects with
+    /// templated operator() function call operators.
+    /// This can be passed without (re-)specifying template arguments
     template <typename Key, typename Val, typename Interval>
     std::optional<Val> operator()(const std::optional<Val>&,
                                   Interval,
@@ -205,46 +191,46 @@ struct FlattenPolicyDiscard
                                   const std::vector<Val>&);
 };
 
-/// \brief Policy that simple discards data for intervals where a key maps to
+/// \brief Policy that simply discards data for intervals where a key maps to
 /// multiple values
-// template <typename Key, typename Val, typename Interval>
-// FlattenPolicy<Key, Val, Interval> flatten_policy_discard();
 FlattenPolicyDiscard flatten_policy_discard();
 
-// Use template member function of struct so we don't have to
-// explicitly specify type parameters
+/// \brief Policy that prefers to extend the preceding interval if possible.
 template <typename FlattenPolicy> struct FlattenPolicyPreferStatusQuo
 {
+    /// \brief Policy that prefers to extend the preceding interval if possible.
+    /// Otherwise, uses the supplied (nested) fallback policy. Implemented as
+    /// non-template function objects with templated operator() function call
+    /// operators so can be passed without (re-)specifying template arguments.
+    /// The templated type is only for the nested fallback policy.
     template <typename Key, typename Val, typename Interval>
     std::optional<Val> operator()(const std::optional<Val>&,
                                   Interval,
                                   const Key&,
                                   const std::vector<Val>&);
+
+    /// Constructor for a flattening policy that prefers to extend the
+    /// preceding interval if possible. Otherwise, uses a nested fallback
+    /// parameter
     FlattenPolicyPreferStatusQuo(FlattenPolicy fallback_policy)
         : fallback_policy(fallback_policy)
     {
     }
-    FlattenPolicy fallback_policy;
-};
 
-/// \brief Policy that simple discards data for intervals where a key maps to
-/// multiple values
-// template <typename Key, typename Val, typename Interval>
-// FlattenPolicy<Key, Val, Interval> flatten_policy_discard();
-FlattenPolicyDiscard flatten_policy_discard();
+    /// @cond Suppress_Doxygen_Warning
+    FlattenPolicy fallback_policy;
+    /// @endcond
+};
 
 /// \brief Policy that prefers to extend the preceding interval if possible.
 /// Otherwise, uses the supplied (nested) fallback policy
-// template <typename Key, typename Val, typename Interval>
-// FlattenPolicy<Key, Val, Interval> flatten_policy_prefer_status_quo(
-//     FlattenPolicy<Key, Val, Interval> fallback_policy =
-//         flatten_policy_discard());
 template <typename FlattenPolicy = FlattenPolicyDiscard>
 FlattenPolicyPreferStatusQuo<FlattenPolicy> flatten_policy_prefer_status_quo(
     FlattenPolicy fallback_policy = flatten_policy_discard());
 
 namespace detail
 {
+/// @cond Suppress_Doxygen_Warning
 // Exclude specific arguments from deduction for flattened()
 // (available as std::type_identity as of C++20)
 // Otherwise, we would, for example, have to use a cast from lambda to
@@ -253,6 +239,7 @@ template <typename T> struct identity
 {
     typedef T type;
 };
+/// @endcond
 } // namespace detail
 
 /// flatten()
@@ -290,8 +277,23 @@ template <typename Key, typename Val, typename Interval, typename Impl>
         // flatten_policy_prefer_status_quo<Key, Val, Interval>());
     flatten_policy_prefer_status_quo());
 
+/// output streaming operator: prints disjoint intervals
+template <typename Key, typename Val, typename Interval, typename Impl>
+std::ostream&
+operator<<(std::ostream& ostream,
+           const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict);
+
+/// @cond Suppress_Doxygen_Warning
 namespace detail
 {
+
+/*
+ * Insertion and Erasure types
+ */
+template <typename Key, typename Val, typename Interval>
+using Insertions = std::vector<std::tuple<Key, Val, Interval>>;
+template <typename Key, typename Val, typename Interval>
+using Erasures = std::vector<std::tuple<Key, Val, Interval>>;
 
 // Helper function for subset()
 // returns a vector for passing to insert()
@@ -376,6 +378,7 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
                 FlattenPolicy<Key, Val, Interval> keep_one_value);
 
 } // namespace detail
+/// @endcond
 
 } // namespace interval_dict
 

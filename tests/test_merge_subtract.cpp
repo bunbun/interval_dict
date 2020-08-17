@@ -51,7 +51,7 @@ TEMPLATE_TEST_CASE("Test merging for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 
@@ -126,12 +126,12 @@ TEMPLATE_TEST_CASE("Test merging for different interval types",
                 const auto values_subset1 = std::vector{0, 1, 2, 3};
                 const auto subset_dict1 =
                     test_dict.subset(all_keys, values_subset1);
-                REQUIRE(!subset_dict1.empty());
+                REQUIRE(!subset_dict1.is_empty());
 
                 const auto values_subset2 = std::vector{5, 6, 7, 8};
                 const auto subset_dict2 =
                     test_dict.subset(all_keys, values_subset2);
-                REQUIRE(!subset_dict2.empty());
+                REQUIRE(!subset_dict2.is_empty());
 
                 // check they are not the same but can be put together to
                 // the original

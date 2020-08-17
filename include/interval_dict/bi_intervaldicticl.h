@@ -8,7 +8,7 @@
 //
 //  Project home: https://github.com/goodstadt/intervaldict
 //
-/// \file biintervaldicticl.h
+/// \file bi_intervaldicticl.h
 /// \brief Declaration of the BiIntervalDictICLExp / BiIntervalDictICL classes
 //
 // Provides bidirectional interval associative dictionaries implemented using
@@ -27,9 +27,21 @@
 
 #include <interval_dict/bi_intervaldict.h>
 
-
 namespace interval_dict
 {
+/// BiIntervalDictICLExp
+/// \brief Bidirectional interval dictionary powered by boost::icl::interval_map
+/// in both directions
+///
+/// Usually, it is more convenient to use a default interval of Time or
+/// Date etc. (See `BiIntervalDictICL`).
+///
+/// BiIntervalDictICLExp allows you to specify the exact interval type,
+/// be that inclusive/exclusive.
+///
+/// \tparam Key Type of keys
+/// \tparam Val Type of Values
+/// \tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
 template <typename Key, typename Val, typename Interval>
 using BiIntervalDictICLExp =
     BiIntervalDictExp<Key,
@@ -38,6 +50,13 @@ using BiIntervalDictICLExp =
                       implementation::IntervalDictICLSubMap<Val, Interval>,
                       implementation::IntervalDictICLSubMap<Key, Interval>>;
 
+/// BiIntervalDictICL
+/// \brief Bidirectional interval dictionary powered by boost::icl::interval_map
+/// in both directions
+///
+/// \tparam Key Type of keys
+/// \tparam Val Type of Values
+/// \tparam BaseType The base type of the iterval: Date or Posix Time etc.
 template <typename Key, typename Val, typename BaseType>
 using BiIntervalDictICL =
     BiIntervalDictICLExp<Key,

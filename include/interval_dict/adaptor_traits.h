@@ -31,10 +31,16 @@ template <typename OldVal_,
           typename enabled = void>
 struct Rebased
 {
+    // Convenience types
+    /// @cond Suppress_Doxygen_Warning
     using Interval = Interval_;
     using OldVal = OldVal_;
     using Val = NewVal_;
     using Impl = Impl_;
+    /// @endcond
+
+    /// type will be the "rebased" type in a specialised struct
+    using type = void;
 };
 
 } // namespace interval_dict

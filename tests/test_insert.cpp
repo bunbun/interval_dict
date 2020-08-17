@@ -51,7 +51,7 @@ TEMPLATE_TEST_CASE("Test inserting for different interval types",
     using Key = std::string;
     using Val = int;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     TestData<Interval> test_data;
     auto import_data = test_data.intervals();
 

@@ -56,7 +56,7 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
     using Val2 = double;
     using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using IDict2 = interval_dict::INTERVALDICTTESTTYPE<Val, Val2, Interval>;
-    using Interval = typename IDict::Interval;
+    using Interval = typename IDict::IntervalType;
     TestData<Interval> test_data;
 
     /*
