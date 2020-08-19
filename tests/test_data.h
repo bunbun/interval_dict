@@ -41,9 +41,10 @@ Interval empty_interval_from_upper(Interval orig_interval)
     {
         return interval;
     }
-    using interval_dict::operator--;
     auto pos = orig_pos;
-    return Interval{orig_pos, --pos};
+    //using boost::icl::operator--;
+    --pos;
+    return Interval{orig_pos, pos};
 }
 
 //        0....1....2....3....4....5....6....7....8....9...10...11...12...13...14...15...16...17

@@ -69,14 +69,11 @@ public:
     }
 };
 
-// Decrement operator should be either in the data type namespace
-// for ADL or in namespace "interval_dict"
-/// operator--() for adjusting open/closed intervals
-inline boost::gregorian::date operator--(boost::gregorian::date& x)
-{
-    return x -= boost::gregorian::date::duration_type::unit();
-}
-
 } // namespace interval_dict
+
+namespace boost::gregorian{
+using boost::icl::operator--;
+using boost::icl::operator++;
+}
 
 #endif // INCLUDE_INTERVAL_DICT_GREGORIAN_H

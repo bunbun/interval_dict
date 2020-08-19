@@ -21,9 +21,8 @@
 #ifndef INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H
 #define INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H
 
-#include "adaptor_traits.h"
+#include "rebase_implementation.h"
 #include "interval_traits.h"
-#include "intervaldict_forward.h"
 
 #include <boost/icl/interval_map.hpp>
 #include <cppcoro/generator.hpp>
@@ -54,12 +53,14 @@ using IntervalDictICLSubMap =
 } // namespace implementation
 
 /// Type manipulating function for obtaining the same implementation underlying
-/// an IntervalDict (IntervalDictICLSubMap in this case) that is uses the same
-/// Interval type but "rebased" with a new Val type.
-/// The return type is ::type as per C++ convention.
-/// This is necessary for creating types to hold data in the "invert()"
-/// orientation or to hold data after joining with a compatible IntervalDict
-/// with possibly different Key / Value type. See "joined_to()".
+/// an IntervalDict (IntervalDictICLSubMap in this case) that uses the same
+/// Interval but "rebased" with a new Val type.
+///
+/// The return type is `::type` as per C++ convention.
+///
+/// This is used to create types to hold data in the `invert()`
+/// orientation or after joining with a compatible IntervalDict
+/// with possibly different Key / Value types. See `joined_to()`.
 template <typename OldVal_,
           typename NewVal_,
           typename Interval_,
@@ -87,7 +88,6 @@ struct Rebased<
     using type = implementation::IntervalDictICLSubMap<NewVal_, Interval>;
 };
 
-/// @cond Suppress_Doxygen_Warning
 /*
  * _____________________________________________________________________________
  *
@@ -96,7 +96,7 @@ struct Rebased<
  */
 namespace implementation
 {
-// Returns the gaps between intervals
+/// Returns the gaps between intervals
 template <typename Val, typename Interval>
 cppcoro::generator<Interval>
 gaps(const IntervalDictICLSubMap<Val, Interval>& interval_values)
@@ -113,7 +113,7 @@ gaps(const IntervalDictICLSubMap<Val, Interval>& interval_values)
     }
 }
 
-// Returns the gaps between intervals and the values on either side
+/// Returns the gaps between intervals and the values on either side
 template <typename Val, typename Interval>
 cppcoro::generator<std::tuple<const std::vector<Val>&,
                               const Interval&,
@@ -139,6 +139,7 @@ sandwiched_gaps(const IntervalDictICLSubMap<Val, Interval>& interval_values)
     }
 }
 
+/// erase @p value for @p query_interval
 template <typename Val, typename Interval>
 void erase(IntervalDictICLSubMap<Val, Interval>& interval_values,
            const Interval& query_interval,
@@ -149,6 +150,7 @@ void erase(IntervalDictICLSubMap<Val, Interval>& interval_values,
     interval_values -= std::pair(query_interval, ValueSet{value});
 }
 
+/// erase all values for @p query_interval
 template <typename Val, typename Interval>
 void erase(IntervalDictICLSubMap<Val, Interval>& interval_values,
            const Interval& query_interval)
@@ -156,6 +158,7 @@ void erase(IntervalDictICLSubMap<Val, Interval>& interval_values,
     interval_values.set({query_interval, {}});
 }
 
+/// insert @p value for @p query_interval
 template <typename Val, typename Interval>
 void insert(IntervalDictICLSubMap<Val, Interval>& interval_values,
             const Interval& query_interval,
@@ -166,13 +169,18 @@ void insert(IntervalDictICLSubMap<Val, Interval>& interval_values,
     interval_values += std::pair(query_interval, ValueSet{value});
 }
 
+/// @return coroutine enumerating all interval/values over @p query_interval
 template <typename Val, typename Interval>
 cppcoro::generator<std::tuple<const Interval&, const Val&>>
 intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
           const Interval query_interval)
 {
+    using Intervals = boost::icl::interval_set<
+        typename boost::icl::interval_traits<Interval>::domain_type,
+        std::less, Interval>;
+
     // Underlying storage is disjoint and must be combined
-    std::map<Val, Intervals<Interval>> intervals_per_value;
+    std::map<Val, Intervals> intervals_per_value;
     const auto itpair = interval_values.equal_range(query_interval);
     for (const auto& [interval, values] :
          ranges::subrange(itpair.first, itpair.second))
@@ -193,6 +201,7 @@ intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
     }
 }
 
+/// @return coroutine enumerating all disjoint interval/values over @p query_interval
 template <typename Val, typename Interval>
 cppcoro::generator<std::tuple<const Interval&, const std::set<Val>&>>
 disjoint_intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
@@ -208,6 +217,7 @@ disjoint_intervals(const IntervalDictICLSubMap<Val, Interval>& interval_values,
     }
 }
 
+/// @return whether there are no values
 template <typename Val, typename Interval>
 bool empty(const IntervalDictICLSubMap<Val, Interval>& interval_values)
 {
@@ -215,7 +225,7 @@ bool empty(const IntervalDictICLSubMap<Val, Interval>& interval_values)
     return interval_values.empty();
 }
 
-/// Returns the union
+/// Returns the union with another set of implementation dependent interval-values
 template <typename Val, typename Interval>
 IntervalDictICLSubMap<Val, Interval>&
 merged_with(IntervalDictICLSubMap<Val, Interval>& interval_values,
@@ -225,7 +235,8 @@ merged_with(IntervalDictICLSubMap<Val, Interval>& interval_values,
     return interval_values;
 }
 
-/// Returns the asymmetrical difference
+/// Returns the asymmetrical difference with another set of
+/// implementation-dependent interval-values
 template <typename Val, typename Interval>
 IntervalDictICLSubMap<Val, Interval>&
 subtract_by(IntervalDictICLSubMap<Val, Interval>& interval_values,
@@ -235,6 +246,7 @@ subtract_by(IntervalDictICLSubMap<Val, Interval>& interval_values,
     return interval_values;
 }
 
+/// Returns the first disjoint interval (possibly containing multiple values)
 template <typename Val, typename Interval>
 std::tuple<const Interval&, const std::set<Val>&> first_disjoint_interval(
     const IntervalDictICLSubMap<Val, Interval>& interval_values)
@@ -244,6 +256,7 @@ std::tuple<const Interval&, const std::set<Val>&> first_disjoint_interval(
     return {it->first, it->second};
 }
 
+/// Returns the last disjoint interval (possibly containing multiple values)
 template <typename Val, typename Interval>
 std::tuple<const Interval&, const std::set<Val>&> last_disjoint_interval(
     const IntervalDictICLSubMap<Val, Interval>& interval_values)
@@ -254,7 +267,6 @@ std::tuple<const Interval&, const std::set<Val>&> last_disjoint_interval(
 }
 
 } // namespace implementation
-/// @endcond
 
 } // namespace interval_dict
 #endif // INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H

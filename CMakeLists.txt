@@ -14,7 +14,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 # https://cmake.org/cmake/help/v3.11/module/GNUInstallDirs.html
 include(GNUInstallDirs)
 
-project(interval_dict VERSION "0.1.0" LANGUAGES CXX DESCRIPTION "An interval dict library.")
+project(interval_dict VERSION "0.2.0" LANGUAGES CXX DESCRIPTION "An interval dict library.")
 set(INTERVAL_DICT_VER ${PROJECT_VERSION})
 
 # make config.h to include version, and include it throughout the project
@@ -58,18 +58,16 @@ include_directories(extern/catch2)
 #
 # Only public header files go here.
 set(HEADER_FILES
-        include/interval_dict/adaptor_traits.h
+        include/interval_dict/rebase_implementation.h
         include/interval_dict/bi_intervaldict.h
-        include/interval_dict/bi_intervaldict_forward.h
         include/interval_dict/bi_intervaldicticl.h
         include/interval_dict/gregorian.h
         include/interval_dict/icl_interval_map_adaptor.h
         include/interval_dict/interval_traits.h
         include/interval_dict/intervaldict.h
-        include/interval_dict/intervaldict_forward.h
         include/interval_dict/intervaldicticl.h
         include/interval_dict/ptime.h)
-set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/bi_intervaldict_forward.h)
+set(SOURCE_FILES src/intervaldicticl.cpp)
 add_library(interval_dict
         ${HEADER_FILES}
         ${SOURCE_FILES})
@@ -163,3 +161,9 @@ add_subdirectory(tests/test_bi_interval_dict_icl)
 
 install(TARGETS interval_dict DESTINATION ${INTERVAL_DICT_INSTALL_LIB_DIR})
 
+add_subdirectory(examples)
+
+# Enable Doxygen
+set(${PROJECT_NAME}_ENABLE_DOXYGEN ON)
+include(cmake/Doxygen.cmake)
+add_subdirectory(doc)

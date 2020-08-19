@@ -28,7 +28,7 @@ namespace interval_dict
 {
 
 /// \brief Provide lowest(), max(), max_size(), and BaseType and
-//  BaseDifferenceType for each type that can be used to build intervals
+///  BaseDifferenceType for each type that can be used to build intervals
 /// \tparam Interval
 /// \tparam Enabled For controlling specialisation
 template <typename Interval, typename Enabled = void> class IntervalTraits
@@ -36,8 +36,8 @@ template <typename Interval, typename Enabled = void> class IntervalTraits
 };
 
 /// \brief Provide lowest(), max(), max_size(), and BaseType and
-//  BaseDifferenceType for value types such as int and float so they
-//  can be used to build intervals
+/// BaseDifferenceType for value types such as int and float so they
+/// can be used to build intervals
 template <typename Interval>
 class IntervalTraits<
     Interval,

@@ -68,14 +68,11 @@ public:
             boost::date_time::max_date_time};
     }
 };
-
-// Decrement operator should be either in the data type namespace
-// for ADL or in namespace "interval_dict"
-/// operator--() for adjusting open/closed intervals
-inline boost::posix_time::ptime operator--(boost::posix_time::ptime& x)
-{
-    return x -= boost::posix_time::ptime::time_duration_type::unit();
-}
 } // namespace interval_dict
+
+namespace boost::posix_time{
+using boost::icl::operator--;
+using boost::icl::operator++;
+}
 
 #endif // INCLUDE_INTERVAL_DICT_PTIME_H
