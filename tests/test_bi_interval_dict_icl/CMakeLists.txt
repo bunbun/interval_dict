@@ -18,6 +18,8 @@ add_executable (${TARGET_NAME}
         ../test_flatten.cpp
         ../test_insert.cpp
         ../test_intervals.cpp
+        ../test_inverse_find.cpp
+        ../test_inverse_member_functions.cpp
         ../test_ostream.cpp
         ../test_join.cpp
         ../test_member_functions.cpp
