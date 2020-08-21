@@ -10,16 +10,17 @@
 //
 /// \file bi_intervaldict.h
 /// \brief Declaration of the BiIntervalDict/BiIntervalDictExp classes
-/// Bidirectional interval associative dictionaries that can be templated on different
-/// key, value, interval and implementations
+/// Bidirectional interval associative dictionaries that can be templated on
+/// different key, value, interval and implementations
+///
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
 #ifndef INCLUDE_INTERVAL_DICT_BI_INTERVALDICT_H
 #define INCLUDE_INTERVAL_DICT_BI_INTERVALDICT_H
 
-#include "rebase_implementation.h"
 #include "intervaldict.h"
+#include "rebase_implementation.h"
 
 namespace interval_dict
 {
@@ -44,9 +45,9 @@ template <typename Key,
           typename Interval,
           typename Impl,
           typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
-         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2);
+BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> subtract(
+    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2);
 
 /// merge()
 /// \return The union of two interval dictionaries
@@ -74,7 +75,7 @@ template <typename Key,
           typename InverseImpl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-interval_dict,
+              interval_dict,
           std::vector<Key> keys,
           Interval query_interval = interval_extent<Interval>);
 
@@ -94,7 +95,7 @@ template <typename Key,
           typename InverseImpl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-interval_dict,
+              interval_dict,
           const Key& key,
           Interval query_interval = interval_extent<Interval>);
 
@@ -111,7 +112,7 @@ template <typename Key,
           typename InverseImpl>
 cppcoro::generator<std::tuple<const Key&, const Val&, Interval>>
 intervals(const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-interval_dict,
+              interval_dict,
           Interval query_interval = interval_extent<Interval>);
 
 /// disjoint_intervals()
@@ -131,7 +132,7 @@ template <typename Key,
 cppcoro::generator<std::tuple<const Key&, const std::set<Val>&, Interval>>
 disjoint_intervals(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-    interval_dict,
+        interval_dict,
     std::vector<Key> keys,
     Interval query_interval = interval_extent<Interval>);
 
@@ -152,7 +153,7 @@ template <typename Key,
 cppcoro::generator<std::tuple<const Key&, const std::set<Val>&, Interval>>
 disjoint_intervals(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-    interval_dict,
+        interval_dict,
     const Key& key,
     Interval query_interval = interval_extent<Interval>);
 
@@ -171,7 +172,7 @@ template <typename Key,
 cppcoro::generator<std::tuple<const Key&, const std::set<Val>&, Interval>>
 disjoint_intervals(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-    interval_dict,
+        interval_dict,
     Interval query_interval = interval_extent<Interval>);
 
 /// binary operator - asymmeterical difference from dict_1 to dict_2
@@ -204,9 +205,9 @@ template <typename Key,
           typename Interval,
           typename Impl,
           typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-subtract(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
-         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2);
+BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> subtract(
+    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2);
 
 /// merge() key values in dict_1 with dict_2
 /// \return a new BiIntervalDict
@@ -255,7 +256,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> flattened(
     FlattenPolicy<typename detail::identity<Key>::type,
                   typename detail::identity<Val>::type,
                   typename detail::identity<Interval>::type> keep_one_value =
-    flatten_policy_prefer_status_quo());
+        flatten_policy_prefer_status_quo());
 
 /// output streaming operator: prints disjoint intervals
 template <typename Key,
@@ -266,18 +267,20 @@ template <typename Key,
 std::ostream&
 operator<<(std::ostream& ostream,
            const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
-           interval_dict);
-
+               interval_dict);
 
 /**
- * @brief Bidirectional one-to-many dictionary where key-values vary over intervals.
+ * @brief Bidirectional one-to-many dictionary where key-values vary over
+ * intervals.
  *
  *  Typically used for time-varying dictionaries.
  *
- *  `BiIntervalDictExp` is useful for specifying the exact inclusive or exclusive interval type.
+ *  `BiIntervalDictExp` is useful for specifying the exact inclusive or
+ * exclusive interval type.
  *
  * Choices are [boost::icl intervals
- * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates) :
+ * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates)
+ * :
  *
  *  - `left_open_interval<BaseType>`
  *  - `right_open_interval<BaseType>`
@@ -289,8 +292,10 @@ operator<<(std::ostream& ostream,
  * @tparam Key Type of keys
  * @tparam Val Type of Values
  * @tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
- * @tparam Impl Implementation of the interval dictionary in the forwards direction per key
- * @tparam InverseImpl Implementation of the interval dictionary in the inverse direction per value
+ * @tparam Impl Implementation of the interval dictionary in the forwards
+ * direction per key
+ * @tparam InverseImpl Implementation of the interval dictionary in the inverse
+ * direction per value
  */
 template <typename Key,
           typename Val,
@@ -324,7 +329,7 @@ public:
     using DataType = std::map<Key, Impl>;
     using InverseDataType = std::map<Key, InverseImpl>;
     using KeyValueIntervals = std::vector<std::tuple<Key, Val, Interval>>;
-/// @endcond
+    /// @endcond
 
     /// @name Constructors
     /// @{
@@ -359,9 +364,8 @@ public:
     ///
     /// For batch inserting multiple key-value for a single interval.
     /// \param key_value_pairs is a vector of key-value
-    /// \param interval defaults to `interval_extent`, i.e. The key values associations are
-    /// always valid
-    /// \return *this
+    /// \param interval defaults to `interval_extent`, i.e. The key values
+    /// associations are always valid \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     insert(const std::vector<std::pair<Key, Val>>& key_value_pairs,
            Interval interval = interval_extent<Interval>);
@@ -379,11 +383,11 @@ public:
     /// For batch inserting multiple key-value over a time or date span.
     /// \param key_value_pairs is a vector of key-value
     /// \param first is the first point from which the data will be valid
-    /// \param last is the last point for which the data will be valid. Defaults to `max()` i.e.
-    /// the mapping will always be valid from first onwards.
+    /// \param last is the last point for which the data will be valid. Defaults
+    /// to `max()` i.e. the mapping will always be valid from first onwards.
     ///
-    /// The exact interpretation of first and last depends on whether the underlying interval
-    /// type is open/close etc.
+    /// The exact interpretation of first and last depends on whether the
+    /// underlying interval type is open/close etc.
     ///
     /// \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
@@ -407,9 +411,8 @@ public:
     ///
     /// For batch inserting multiple value-key for a single interval.
     /// \param value_key_pairs is a vector of value-key
-    /// \param interval defaults to `interval_extent`, i.e. The key values associations are
-    /// always valid
-    /// \return *this
+    /// \param interval defaults to `interval_extent`, i.e. The key values
+    /// associations are always valid \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     inverse_insert(const std::vector<std::pair<Val, Key>>& value_key_pairs,
                    Interval interval = interval_extent<Interval>);
@@ -421,11 +424,11 @@ public:
     /// For batch inserting multiple value-key over a time or date span.
     /// \param value_key_pairs is a vector of value-key
     /// \param first is the first point from which the data will be valid
-    /// \param last is the last point for which the data will be valid. Defaults to `max()` i.e.
-    /// the mapping will always be valid from first onwards.
+    /// \param last is the last point for which the data will be valid. Defaults
+    /// to `max()` i.e. the mapping will always be valid from first onwards.
     ///
-    /// The exact interpretation of first and last depends on whether the underlying interval
-    /// type is open/close etc.
+    /// The exact interpretation of first and last depends on whether the
+    /// underlying interval type is open/close etc.
     ///
     /// \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
@@ -445,9 +448,8 @@ public:
     ///
     /// For batch erasing multiple key-value for a single interval.
     /// \param key_value_pairs is a vector of key-value
-    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
-    /// associations are removed over all intervals
-    /// \return *this
+    /// \param interval defaults to `interval_extent`, i.e. All the specified
+    /// key values associations are removed over all intervals \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     erase(const std::vector<std::pair<Key, Val>>& key_value_pairs,
           Interval interval = interval_extent<Interval>);
@@ -457,13 +459,13 @@ public:
     /// For batch erasing multiple key-value over a time or date span.
     /// \param key_value_pairs is a vector of key-value
     /// \param first is the first point from which the data will be erased
-    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
-    /// all data matching key-value will be erased from first onwards.
+    /// \param last is the last point for which the data will be erased.
+    /// Defaults to `max()` i.e. all data matching key-value will be erased from
+    /// first onwards.
     ///
-    /// The exact interpretation of first and last depends on whether the underlying interval
-    /// type is open/close etc.
-    /// \return *this
-   BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
+    /// The exact interpretation of first and last depends on whether the
+    /// underlying interval type is open/close etc. \return *this
+    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     erase(const std::vector<std::pair<Key, Val>>& key_value_pairs,
           BaseType first,
           BaseType last = IntervalTraits<Interval>::max());
@@ -481,12 +483,12 @@ public:
     ///
     /// \param key
     /// \param first is the first point from which the data will be erased
-    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
-    /// all data matching key-value will be erased from first onwards.
+    /// \param last is the last point for which the data will be erased.
+    /// Defaults to `max()` i.e. all data matching key-value will be erased from
+    /// first onwards.
     ///
-    /// The exact interpretation of first and last depends on whether the underlying interval
-    /// type is open/close etc.
-    /// \return *this
+    /// The exact interpretation of first and last depends on whether the
+    /// underlying interval type is open/close etc. \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     erase(const Key& key,
           BaseType first,
@@ -501,12 +503,12 @@ public:
     /// Erase all values from @p first to @p last
     ///
     /// \param first is the first point from which the data will be erased
-    /// \param last is the last point for which the data will be erased. Defaults to `max()` i.e.
-    /// all data matching key-value will be erased from first onwards.
+    /// \param last is the last point for which the data will be erased.
+    /// Defaults to `max()` i.e. all data matching key-value will be erased from
+    /// first onwards.
     ///
-    /// The exact interpretation of first and last depends on whether the underlying interval
-    /// type is open/close etc.
-    /// \return *this
+    /// The exact interpretation of first and last depends on whether the
+    /// underlying interval type is open/close etc. \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
     erase(BaseType first, BaseType last = IntervalTraits<Interval>::max());
 
@@ -568,8 +570,8 @@ public:
     /// Returns all mapped values in a sorted list for the specified @p keys on
     /// the given query interval
     /// \param keys A std::vector of keys
-    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
-    /// associations are removed over all intervals
+    /// \param interval defaults to `interval_extent`, i.e. All the specified
+    /// key values associations are removed over all intervals
     [[nodiscard]] std::vector<Val>
     find(const std::vector<Key>& keys,
          Interval interval = interval_extent<Interval>) const;
@@ -603,16 +605,18 @@ public:
     /// \param value
     /// \param interval defaults to `interval_extent`, i.e. All
     /// associations for this value are removed over all intervals
-    [[nodiscard]] std::vector<Key> inverse_find(const Val& value,
-                                                Interval interval = interval_extent<Interval>) const;
+    [[nodiscard]] std::vector<Key>
+    inverse_find(const Val& value,
+                 Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped keys in a sorted list for the specified @p values
     /// on the given query interval
     /// \param values A std::vector of values
     /// \param interval defaults to `interval_extent`, i.e. All
     /// associations for these values are removed over all intervals
-    [[nodiscard]] std::vector<Key> inverse_find(const std::vector<Val>& values,
-                                                Interval interval = interval_extent<Interval>) const;
+    [[nodiscard]] std::vector<Key>
+    inverse_find(const std::vector<Val>& values,
+                 Interval interval = interval_extent<Interval>) const;
 
     /// Returns all mapped keys in a sorted list for the specified @p value on
     /// the given query intervals
@@ -628,9 +632,8 @@ public:
     /// Filling gaps in the mapping from key to value
     /// This is usually necessary to remedy data errors or dropouts
 
-    /// Supplement with entries from @p other only for missing keys or gaps where
-    /// a key does not map to any values.
-    /// \return *this
+    /// Supplement with entries from @p other only for missing keys or gaps
+    /// where a key does not map to any values. \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& fill_gaps_with(
         const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& other);
 
@@ -652,7 +655,7 @@ public:
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& fill_to_start(
         BaseType starting_point = IntervalTraits<Interval>::max(),
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-        IntervalTraits<Interval>::max_size());
+            IntervalTraits<Interval>::max_size());
 
     /// fill_to_end()
     /// Forward fill the final gaps from a specified starting_point.
@@ -671,7 +674,7 @@ public:
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& fill_to_end(
         BaseType starting_point = IntervalTraits<Interval>::lowest(),
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-        IntervalTraits<Interval>::max_size());
+            IntervalTraits<Interval>::max_size());
 
     /// extend_into_gaps()
     /// Fill gaps (the key maps to no values) by extending values
@@ -692,9 +695,9 @@ public:
     /// \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& extend_into_gaps(
         GapExtensionDirection gap_extension_direction =
-        GapExtensionDirection::Both,
+            GapExtensionDirection::Both,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-        IntervalTraits<Interval>::max_size());
+            IntervalTraits<Interval>::max_size());
 
     /// fill_gaps()
     /// Fill gaps (where the key maps to no values) by looking for common
@@ -715,7 +718,7 @@ public:
     /// \return *this
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& fill_gaps(
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension =
-        IntervalTraits<Interval>::max_size());
+            IntervalTraits<Interval>::max_size());
     /// @}
 
     /// Return all keys in sorted order
@@ -748,8 +751,8 @@ public:
     /// Returns a new IntervalDict that contains only the specified \p keys for
     /// the specified \p interval
     /// \param keys Any sequence of Key (suitable for range-based for loop)
-    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
-    /// associations are removed over all intervals
+    /// \param interval defaults to `interval_extent`, i.e. All the specified
+    /// key values associations are removed over all intervals
     template <typename KeyRange>
     [[nodiscard]] BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
     subset(const KeyRange& keys,
@@ -758,8 +761,8 @@ public:
     /// Returns a new IntervalDict that contains only the specified \p keys for
     /// the specified \p interval
     /// \param values Any sequence of Val (suitable for range-based for loop)
-    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
-    /// associations are removed over all intervals
+    /// \param interval defaults to `interval_extent`, i.e. All the specified
+    /// key values associations are removed over all intervals
     template <typename ValRange>
     [[nodiscard]] BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
     subset_values(const ValRange& values,
@@ -769,8 +772,8 @@ public:
     /// \p values for the specified \p interval
     /// \param keys Any sequence of Key (suitable for range-based for loop)
     /// \param values Any sequence of Value (suitable for range-based for loop)
-    /// \param interval defaults to `interval_extent`, i.e. All the specified key values
-    /// associations are removed over all intervals
+    /// \param interval defaults to `interval_extent`, i.e. All the specified
+    /// key values associations are removed over all intervals
     template <typename KeyRange, typename ValRange>
     [[nodiscard]] BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
     subset(const KeyRange& keys,
@@ -821,7 +824,6 @@ public:
     /// Inequality operator
     bool operator!=(const BiIntervalDictExp& rhs) const;
 
-
     // friends
     /// @cond Suppress_Doxygen_Warning
     friend BiIntervalDictExp operator-
@@ -863,14 +865,15 @@ private:
     InverseDict m_inverse;
 };
 
-/// \brief Bidirectional one-to-many dictionary where key-values vary over intervals.
-/// Typically used for time-varying dictionaries.
+/// \brief Bidirectional one-to-many dictionary where key-values vary over
+/// intervals. Typically used for time-varying dictionaries.
 ///
 /// \tparam Key Type of keys
 /// \tparam Val Type of Values
 /// \tparam BaseType E.g. Time/Date: The type for intervals begin/ends
 /// \tparam Impl Implementation type. E.g. boost::icl::interval_map...
-/// \tparam InverseImpl Implementation of the interval dictionary in the inverse direction per value
+/// \tparam InverseImpl Implementation of the interval dictionary in the inverse
+/// direction per value
 template <typename Key,
           typename Val,
           typename BaseType,
@@ -1793,9 +1796,9 @@ template <typename Key,
           typename Interval,
           typename Impl,
           typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-operator-(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
-          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
+BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> operator-(
+    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
     dict_1 -= dict_2;
     return dict_1;
@@ -1806,9 +1809,9 @@ template <typename Key,
           typename Interval,
           typename Impl,
           typename InverseImpl>
-BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>
-operator+(BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
-          const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
+BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> operator+(
+    BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> dict_1,
+    const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& dict_2)
 {
     dict_1 += dict_2;
     return dict_1;

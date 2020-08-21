@@ -8,14 +8,14 @@
 //
 //  Project home: https://github.com/goodstadt/intervaldict
 //
-/// \file icl_interval_map_adaptor.h
+/// \file ygg_interval_tree_adaptor.h
 /// \brief Definitions of functions to implement IntervalDict with
-/// boost::icl::interval_map
-//
-// This allows interval_map storing values as disjoint intervals to be used to
-// implement interval associative dictionaries
-//
-/// \author Leo Goodstadt
+/// tinloaf/ygg
+///
+/// This stores values as non-disjoint intervals to be used to
+/// implement interval associative dictionaries
+///
+//// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
 #ifndef INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H

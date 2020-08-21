@@ -70,9 +70,10 @@ public:
 };
 } // namespace interval_dict
 
-namespace boost::posix_time{
+namespace boost::posix_time
+{
 using boost::icl::operator--;
 using boost::icl::operator++;
-}
+} // namespace boost::posix_time
 
 #endif // INCLUDE_INTERVAL_DICT_PTIME_H

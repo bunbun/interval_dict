@@ -26,14 +26,17 @@
 namespace interval_dict
 {
 /**
- * @brief \brief one-to-many interval dictionary powered by boost::icl::interval_map
+ * @brief \brief one-to-many interval dictionary powered by
+ * boost::icl::interval_map
  *
  *  Typically used for time-varying dictionaries.
  *
- *  `IntervalDictICLExp` is useful for specifying the exact inclusive or exclusive interval type.
+ *  `IntervalDictICLExp` is useful for specifying the exact inclusive or
+ * exclusive interval type.
  *
  * Choices are [boost::icl intervals
- * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates) :
+ * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates)
+ * :
  *
  *  - `left_open_interval<BaseType>`
  *  - `right_open_interval<BaseType>`

@@ -34,10 +34,12 @@ namespace interval_dict
  *
  * Typically used for time-varying dictionaries.
  *
- * `BiIntervalDictICLExp` is useful for specifying the exact inclusive or exclusive interval type.
+ * `BiIntervalDictICLExp` is useful for specifying the exact inclusive or
+ * exclusive interval type.
  *
  * Choices are [boost::icl intervals
- * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates) :
+ * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates)
+ * :
  *
  *  - `left_open_interval<BaseType>`
  *  - `right_open_interval<BaseType>`

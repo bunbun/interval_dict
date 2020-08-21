@@ -71,9 +71,10 @@ public:
 
 } // namespace interval_dict
 
-namespace boost::gregorian{
+namespace boost::gregorian
+{
 using boost::icl::operator--;
 using boost::icl::operator++;
-}
+} // namespace boost::gregorian
 
 #endif // INCLUDE_INTERVAL_DICT_GREGORIAN_H
