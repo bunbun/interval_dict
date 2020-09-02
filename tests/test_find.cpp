@@ -19,6 +19,7 @@
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
 #include <vector>
 

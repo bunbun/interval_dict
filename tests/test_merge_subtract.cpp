@@ -18,31 +18,33 @@
 #include "test_utils.h"
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
 #include <vector>
 
-TEMPLATE_TEST_CASE("Test merging for different interval types",
-                   "[merge][subtract]",
-                   boost::icl::interval<int>::type,
-                   boost::icl::left_open_interval<int>,
-                   boost::icl::right_open_interval<int>,
-                   boost::icl::closed_interval<int>,
-                   boost::icl::open_interval<int>,
-                   boost::icl::interval<float>::type,
-                   boost::icl::left_open_interval<float>,
-                   boost::icl::right_open_interval<float>,
-                   boost::icl::interval<boost::posix_time::ptime>::type,
-                   boost::icl::left_open_interval<boost::posix_time::ptime>,
-                   boost::icl::right_open_interval<boost::posix_time::ptime>,
-                   boost::icl::open_interval<boost::posix_time::ptime>,
-                   boost::icl::closed_interval<boost::posix_time::ptime>,
-                   boost::icl::discrete_interval<boost::posix_time::ptime>,
-                   boost::icl::interval<boost::gregorian::date>::type,
-                   boost::icl::left_open_interval<boost::gregorian::date>,
-                   boost::icl::right_open_interval<boost::gregorian::date>,
-                   boost::icl::open_interval<boost::gregorian::date>,
-                   boost::icl::closed_interval<boost::gregorian::date>,
-                   boost::icl::discrete_interval<boost::gregorian::date>)
+TEMPLATE_TEST_CASE("Test merging for different interval types"
+                   , "[merge][subtract]"
+                   , boost::icl::interval<int>::type
+                   , boost::icl::left_open_interval<int>
+                   , boost::icl::right_open_interval<int>
+                   , boost::icl::closed_interval<int>
+                   , boost::icl::open_interval<int>
+                   , boost::icl::interval<float>::type
+                   , boost::icl::left_open_interval<float>
+                   , boost::icl::right_open_interval<float>
+                   , boost::icl::interval<boost::posix_time::ptime>::type
+                   , boost::icl::left_open_interval<boost::posix_time::ptime>
+                   , boost::icl::right_open_interval<boost::posix_time::ptime>
+                   , boost::icl::open_interval<boost::posix_time::ptime>
+                   , boost::icl::closed_interval<boost::posix_time::ptime>
+                   , boost::icl::discrete_interval<boost::posix_time::ptime>
+                   , boost::icl::interval<boost::gregorian::date>::type
+                   , boost::icl::left_open_interval<boost::gregorian::date>
+                   , boost::icl::right_open_interval<boost::gregorian::date>
+                   , boost::icl::open_interval<boost::gregorian::date>
+                   , boost::icl::closed_interval<boost::gregorian::date>
+                   , boost::icl::discrete_interval<boost::gregorian::date>
+                   )
 {
     using namespace std::string_literals;
     using namespace interval_dict::date_literals;

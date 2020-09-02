@@ -70,10 +70,46 @@ public:
 };
 } // namespace interval_dict
 
+namespace interval_dict
+{
+namespace
+{
+// Code from boost
+// Reciprocal of the golden ratio helps spread entropy
+//     and handles duplicates.
+// See Mike Seymour in magic-numbers-in-boosthash-combine:
+//     http://stackoverflow.com/questions/4948780
+template <class T> inline void hash_combine(std::size_t& seed, T const& v)
+{
+    seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+} // namespace
+} // namespace interval_dict
+
 namespace boost::posix_time
 {
 using boost::icl::operator--;
 using boost::icl::operator++;
 } // namespace boost::posix_time
+
+namespace std
+{
+/// \brief Hash function for boost::gregorian::date
+template <> struct hash<boost::posix_time::ptime>
+{
+    size_t operator()(const boost::posix_time::ptime& ptime) const
+    {
+        size_t hash_value = 0;
+
+        auto tod = ptime.time_of_day().total_nanoseconds();
+        auto jd = ptime.date().julian_day();
+
+        interval_dict::hash_combine(hash_value, tod);
+        interval_dict::hash_combine(hash_value, jd);
+        return hash_value;
+    }
+};
+
+} // namespace std
 
 #endif // INCLUDE_INTERVAL_DICT_PTIME_H

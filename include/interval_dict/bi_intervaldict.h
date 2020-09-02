@@ -20,7 +20,6 @@
 #define INCLUDE_INTERVAL_DICT_BI_INTERVALDICT_H
 
 #include "intervaldict.h"
-#include "rebase_implementation.h"
 
 namespace interval_dict
 {
@@ -325,7 +324,9 @@ public:
     using InverseImplType = InverseImpl;
 
     template <typename OtherVal>
-    using OtherImplType = typename Rebased<Val, OtherVal, Interval, Impl>::type;
+    using OtherImplType =
+        typename Implementation<Val, Interval, Impl>::template rebind<
+            OtherVal>::type;
     using DataType = std::map<Key, Impl>;
     using InverseDataType = std::map<Key, InverseImpl>;
     using KeyValueIntervals = std::vector<std::tuple<Key, Val, Interval>>;
@@ -1550,11 +1551,12 @@ template <typename A,
           typename Impl,
           typename InverseImpl>
 template <typename C, typename OtherImpl, typename OtherInverseImpl>
-BiIntervalDictExp<A,
-                  C,
-                  Interval,
-                  typename Rebased<B, C, Interval, Impl>::type,
-                  InverseImpl>
+BiIntervalDictExp<
+    A,
+    C,
+    Interval,
+    typename Implementation<B, Interval, Impl>::template rebind<C>::type,
+    InverseImpl>
 BiIntervalDictExp<A, B, Interval, Impl, InverseImpl>::joined_to(
     const BiIntervalDictExp<B, C, Interval, OtherImpl, OtherInverseImpl>&
         b_to_c) const

@@ -11,6 +11,8 @@ add_executable (${TARGET_NAME}
         ../print_tuple.h
         ../print_vector.h
         ../test_data.h
+        ../test_utils.h
+        ../test_intervaldict.cpp
         ../test_disjoint_intervals.cpp
         ../test_erase.cpp
         ../test_fill.cpp
@@ -20,14 +22,11 @@ add_executable (${TARGET_NAME}
         ../test_intervals.cpp
         ../test_inverse_find.cpp
         ../test_inverse_member_functions.cpp
-        ../test_ostream.cpp
         ../test_join.cpp
         ../test_member_functions.cpp
         ../test_merge_subtract.cpp
-        ../test_subset.cpp
-        ../test_utils.h
-        ../test_intervaldict.cpp
-        ../../include/interval_dict/config.h.in)
+        ../test_ostream.cpp
+        ../test_subset.cpp)
 
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"

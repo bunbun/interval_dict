@@ -51,6 +51,11 @@ set_target_properties(cppcoro PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/cppcoro/include)
 #       catch2
 include_directories(extern/catch2)
+#       catch2
+include_directories(extern/ygg)
+add_library(ygg INTERFACE IMPORTED)
+set_target_properties(ygg PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/ygg/src)
 
 
 #
@@ -58,14 +63,18 @@ include_directories(extern/catch2)
 #
 # Only public header files go here.
 set(HEADER_FILES
-        include/interval_dict/rebase_implementation.h
+        include/interval_dict/adaptor.h
+        include/interval_dict/adaptor_icl_interval_map.h
+        include/interval_dict/adaptor_interval_tree.h
         include/interval_dict/bi_intervaldict.h
         include/interval_dict/bi_intervaldicticl.h
+        include/interval_dict/bi_intervaldictitree.h
         include/interval_dict/gregorian.h
-        include/interval_dict/icl_interval_map_adaptor.h
         include/interval_dict/interval_traits.h
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldicticl.h
+        include/interval_dict/intervaldictitree.h
+        include/interval_dict/interval_tree.h
         include/interval_dict/ptime.h)
 set(SOURCE_FILES src/intervaldicticl.cpp)
 add_library(interval_dict
@@ -155,9 +164,11 @@ export(PACKAGE interval_dict)
 
 
 #add_library(interval_dict SHARED STATIC ${SOURCE_FILES})
-#add_subdirectory(boost_tests)
+
 add_subdirectory(tests/test_interval_dict_icl)
 add_subdirectory(tests/test_bi_interval_dict_icl)
+add_subdirectory(tests/test_interval_dict_itree)
+add_subdirectory(tests/test_bi_interval_dict_itree)
 
 install(TARGETS interval_dict DESTINATION ${INTERVAL_DICT_INSTALL_LIB_DIR})
 

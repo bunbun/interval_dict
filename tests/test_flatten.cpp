@@ -17,30 +17,32 @@
 #include "test_data.h"
 #include "test_utils.h"
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/intervaldictitree.h>
 #include <vector>
 
-TEMPLATE_TEST_CASE("Test flattening for different interval types",
-                   "[flattened]",
-                   boost::icl::interval<int>::type,
-                   // boost::icl::left_open_interval<int>,
-                   // boost::icl::right_open_interval<int>,
-                   // boost::icl::open_interval<int>,
-                   // boost::icl::closed_interval<int>,
-                   // boost::icl::interval<float>::type,
-                   // boost::icl::left_open_interval<float>,
-                   // boost::icl::right_open_interval<float>,
-                   // boost::icl::interval<boost::posix_time::ptime>::type,
-                   // boost::icl::left_open_interval<boost::posix_time::ptime>,
-                   // boost::icl::right_open_interval<boost::posix_time::ptime>,
-                   // boost::icl::open_interval<boost::posix_time::ptime>,
-                   // boost::icl::closed_interval<boost::posix_time::ptime>,
-                   // boost::icl::discrete_interval<boost::posix_time::ptime>,
-                   // boost::icl::interval<boost::gregorian::date>::type,
-                   // boost::icl::left_open_interval<boost::gregorian::date>,
-                   // boost::icl::right_open_interval<boost::gregorian::date>,
-                   // boost::icl::open_interval<boost::gregorian::date>,
-                   // boost::icl::closed_interval<boost::gregorian::date>,
-                   boost::icl::discrete_interval<boost::gregorian::date>)
+TEMPLATE_TEST_CASE("Test flattening for different interval types"
+                   , "[flattened]"
+                   , boost::icl::interval<int>::type
+                   , boost::icl::left_open_interval<int>
+                   , boost::icl::right_open_interval<int>
+                   , boost::icl::open_interval<int>
+                   , boost::icl::closed_interval<int>
+                   , boost::icl::interval<float>::type
+                   , boost::icl::left_open_interval<float>
+                   , boost::icl::right_open_interval<float>
+                   , boost::icl::interval<boost::posix_time::ptime>::type
+                   , boost::icl::left_open_interval<boost::posix_time::ptime>
+                   , boost::icl::right_open_interval<boost::posix_time::ptime>
+                   , boost::icl::open_interval<boost::posix_time::ptime>
+                   , boost::icl::closed_interval<boost::posix_time::ptime>
+                   , boost::icl::discrete_interval<boost::posix_time::ptime>
+                   , boost::icl::interval<boost::gregorian::date>::type
+                   , boost::icl::left_open_interval<boost::gregorian::date>
+                   , boost::icl::right_open_interval<boost::gregorian::date>
+                   , boost::icl::open_interval<boost::gregorian::date>
+                   , boost::icl::closed_interval<boost::gregorian::date>
+                   , boost::icl::discrete_interval<boost::gregorian::date>
+                   )
 {
     using namespace std::string_literals;
     using Interval = TestType;
@@ -79,10 +81,13 @@ TEMPLATE_TEST_CASE("Test flattening for different interval types",
                 }};
                 // Resolved cases
                 REQUIRE(test_dict - flattened(test_dict) == expected);
+
                 // Resolved the same way even when non-flat region is not
                 // contiguous with the flat one.
-                REQUIRE(test_dict - flattened(copy(test_dict).erase("dd"s, Interval{values[6],
-                                                                                    midvalues[6]}))
+                REQUIRE(test_dict - flattened(copy(test_dict).erase("dd"s,
+                            adjust
+                            .lower(Interval{values[6],
+                                                                                    midvalues[6]})))
                 == expected);
             }
         }

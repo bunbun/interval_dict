@@ -18,6 +18,7 @@ Two stage lookup:
 ## Documentation:
 
 Woefully incomplete documentation [here](https://github.com/bunbun/interval_dict).
+Better documentation coming soon!
 
 ## Special features:
 
@@ -54,7 +55,7 @@ Under the hood, the bidirectional interval map stores the data in both direction
   `IntervalDict` thus supports many interval variants: open, close, left-open, right-open, dynamic, discrete (dates) and continuous (floats) underlying types etc.
   
 - Lazy / synchronous iteration of intervals uses co-routines, provided by `generator<T>` from [cppcoro](https://github.com/lewissbaker/cppcoro).  
-  This requires a compiler that supports the coroutines TS or C++20.
+  This requires a compiler that supports the coroutines TS (C++17) or C++20.
   
 ## Supported Compilers
 
@@ -64,63 +65,63 @@ The code is known to work on the following compilers:
 
 This reflects the requirements of the cppcoro library
 
-## Development Status
-`interval dict` is under active development.
+### Current Status:
 
-### Done:  
+`interval dict` is under active development.  
 
-1. Initial implementation `IntervalDictICL` of `interval dict` using a [Boost ICL](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html) [`interval_map`](https://www.boost.org/doc/libs/release/libs/icl/doc/html/header/boost/icl/interval_map_hpp.html) of `std::set`
-   This is straightforward to implement, and stores the underlying data as disjoint intervals for quick lookups.
-   
-   However, for insertion/removal of elements, this data structure can have polynomial or worse complexity .
-   This typically is noticeable if there are large number of intervals (>50,000) for a single key.
-   This happens if the associations are very imbalanced (each key has many tens of thousands of values with overlapping validity intervals).   
-  
-1. Abstract common traits for "implementing" `interval dict` using alternative data structures / algorithms
-
-1. Support open/close etc intervals comprising 
+1. Support open/close/mixed intervals comprising 
     - int / double
     - [boost:gregorian::date](https://www.boost.org/doc/libs/release/doc/html/date_time/gregorian.html)
     - [boost::posix_time::ptime](https://www.boost.org/doc/libs/release/doc/html/date_time/posix_time.html)
     
     Empty intervals are ignored 
 
+1. Two choices of implementation:
+ 
+   1. `IntervalDictICL` of `interval_dict` uses a [Boost ICL](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html) [`interval_map`](https://www.boost.org/doc/libs/release/libs/icl/doc/html/header/boost/icl/interval_map_hpp.html) of `std::set`
+       This was straightforward to implement, and stores the underlying data as disjoint intervals for quick lookups.
+       
+       Search operations have <img src="https://render.githubusercontent.com/render/math?math=O(n%20\log%20n)"> complexity.
+       However, for insertion/removal of elements, this data structure can result in polynomial or worse complexity .
+       
+       This typically is noticeable if there are large number of intervals (>50,000) for a single key.
+       This happens if the associations are very imbalanced (each key has many tens of thousands of values with overlapping validity intervals).
+   
+    1. The second implementation `IntervalDictITree` of `interval_dict` uses an [Interval Tree](https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree).
+       This stores the underlying data as continguous non-overlapping intervals.
+       
+       Search operations have <img src="https://render.githubusercontent.com/render/math?math=O(n%20\log%20n%20%2B%20m)"> complexity.
+       However, insertion and deletions can be much more efficient: <img src="https://render.githubusercontent.com/render/math?math=O(n%20\log%20n)">.
+       
+       Implemented using [tinloaf/ygg](https://github.com/tinloaf/ygg) and [boost::intrusive](https://www.boost.org/doc/libs/release/doc/html/intrusive/set_multiset.html),
+       both red-black trees underneath.
+  
 1. Tests
    100% coverage
    
-1. bidirectional dictionary
-   This can be parameterised for different implementation in the two different directions!
+1. Bidirectional dictionary.
+   This can be parameterised for different implementation in each direction.
 
 ### In progress:
 
-1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  Specific tests for bidirectional dictionaries
+1. ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Benchmarks 
+   - For succesively overlapping intervals
+   - For nested intervals (like a pyramid)
+   - Simulate a random proportion of values swapping between different keys at successive intervals
+2. ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Fuzzing tests for implementation 1 vs 2   
    
-   (All tests pass in the "forward" direction.) 
-
-1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  Benchmarks for large number of values per keys etc. 
-   
-1. ![#f03c15](https://via.placeholder.com/20/f03c15/000000?text=+)  More performant alternatives that store the data as overlapping intervals with traditional or bioinformatics algorithms. 
-   The leading candidate is the Augmented [Interval Tree](https://en.wikipedia.org/wiki/Interval_tree) 
-   using the [tinloaf/ygg](https://github.com/tinloaf/ygg) library
-   
-   Alternatives include 
-     1. Centered interval trees
-     1. [Nested Containment Lists](https://academic.oup.com/bioinformatics/article/23/11/1386/199545). See
-        [ncls](https://github.com/biocore-ntnu/ncls)
-     1. RTrees (Will not pursue further)
-     
-     For implementations, see  
-     - [cGranges](https://github.com/lh3/cgranges)
-     - [quicksect](https://github.com/brentp/quicksect)
-     - [Erik Garrison's Interval Tree](https://github.com/ekg/intervaltree/blob/master/IntervalTree.h)
-     - [Julia Discussion](https://github.com/BioJulia/Bio.jl/issues/340)
-
 ### Not yet started :bowtie:      
 
-1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=10)  Tutorial
+1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=8) Tutorial
 
-1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=10)  Cython / Python wrapper    
+1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=8) Cython / Python wrapper    
 
+1. ![#f03c15](https://fakeimg.pl/20x10/0000ff,0/ff0000/?retina=1&text=%E9%9A%A8%E7%B7%A3&font=noto&font_size=8) Other performant alternative algorithms from bioinformatics.
+     - [Nested Containment Lists](https://academic.oup.com/bioinformatics/article/23/11/1386/199545). See
+       [ncls](https://github.com/biocore-ntnu/ncls)
+     - [cGranges](https://github.com/lh3/cgranges)
+     - [quicksect](https://github.com/brentp/quicksect)
+     - [Julia Discussion](https://github.com/BioJulia/Bio.jl/issues/340)
 
 ## Build Status
 

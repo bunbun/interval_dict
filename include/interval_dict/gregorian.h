@@ -75,6 +75,19 @@ namespace boost::gregorian
 {
 using boost::icl::operator--;
 using boost::icl::operator++;
+
 } // namespace boost::gregorian
+
+namespace std
+{
+/// \brief Hash function for boost::gregorian::date
+template <> struct hash<boost::gregorian::date>
+{
+    size_t operator()(const boost::gregorian::date& date) const
+    {
+        return std::hash<decltype(date.julian_day())>()(date.julian_day());
+    }
+};
+} // namespace std
 
 #endif // INCLUDE_INTERVAL_DICT_GREGORIAN_H

@@ -18,6 +18,7 @@
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
 
 template <typename Key, typename Val, typename Interval, typename Impl>

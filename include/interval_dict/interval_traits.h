@@ -19,8 +19,8 @@
 /// INF or NAN
 /// 2) lowest() and max() must be chosen that calculations do not underflow()
 
-#ifndef INCLUDE_INTERVAL_DICT__INTERVAL_TRAITS_H
-#define INCLUDE_INTERVAL_DICT__INTERVAL_TRAITS_H
+#ifndef INCLUDE_INTERVAL_DICT_INTERVAL_TRAITS_H
+#define INCLUDE_INTERVAL_DICT_INTERVAL_TRAITS_H
 #include <boost/icl/interval_traits.hpp>
 #include <limits>
 #include <type_traits>

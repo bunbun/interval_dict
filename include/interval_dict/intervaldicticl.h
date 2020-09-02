@@ -20,8 +20,8 @@
 #ifndef INCLUDE_INTERVAL_DICT_INTERVALDICTICL_H
 #define INCLUDE_INTERVAL_DICT_INTERVALDICTICL_H
 
-#include <interval_dict/icl_interval_map_adaptor.h>
-#include <interval_dict/intervaldict.h>
+#include "adaptor_icl_interval_map.h"
+#include "intervaldict.h"
 
 namespace interval_dict
 {

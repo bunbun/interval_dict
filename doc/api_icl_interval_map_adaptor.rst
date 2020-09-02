@@ -14,7 +14,7 @@ Any alternative implementations just need to follow this model and provide:
 
 Trait to derive the "inverse" implementation for boost::icl::interval_map
 =============================================================================================
-.. doxygenstruct:: interval_dict::Rebased< OldVal_, NewVal_, Interval_, Impl_, typename std::enable_if< std::is_same< Impl_, implementation::IntervalDictICLSubMap< OldVal_, Interval_ > >::value, void >::type >
+.. doxygenstruct:: interval_dict::rebind< OldVal_, NewVal_, Interval_, Impl_, typename std::enable_if< std::is_same< Impl_, implementation::IntervalDictICLSubMap< OldVal_, Interval_ > >::value, void >::type >
    :members:
 
 Implement IdentifierMap using boost::icl::interval_map

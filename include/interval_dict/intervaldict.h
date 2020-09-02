@@ -19,7 +19,6 @@
 #define INCLUDE_INTERVAL_DICT_INTERVALDICT_H
 
 #include "interval_traits.h"
-#include "rebase_implementation.h"
 
 #include <cppcoro/generator.hpp>
 #include <range/v3/algorithm/sort.hpp>
@@ -429,9 +428,13 @@ public:
     // boost icl interval_set of Intervals
     using Intervals = interval_dict::Intervals<Interval>;
     using ImplType = Impl;
-    using InverseImplType = typename Rebased<Val, Key, Interval, Impl>::type;
+    using InverseImplType =
+        typename Implementation<Val, Interval, Impl>::template rebind<
+            Key>::type;
     template <typename OtherVal>
-    using OtherImplType = typename Rebased<Val, OtherVal, Interval, Impl>::type;
+    using OtherImplType =
+        typename Implementation<Val, Interval, Impl>::template rebind<
+            OtherVal>::type;
     using DataType = std::map<Key, Impl>;
     using KeyValueIntervals = std::vector<std::tuple<Key, Val, Interval>>;
     /// @endcond
@@ -1023,7 +1026,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
     {
         for (const auto& [key, value] : key_value_pairs)
         {
-            implementation::insert(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::insert(
+                data[key], interval, value);
         }
     }
     return *this;
@@ -1038,7 +1042,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::insert(
     {
         if (!boost::icl::is_empty(interval))
         {
-            implementation::insert(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::insert(
+                data[key], interval, value);
         }
     }
     return *this;
@@ -1066,7 +1071,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
     {
         if (!boost::icl::is_empty(interval))
         {
-            implementation::insert(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::insert(
+                data[key], interval, value);
         }
     }
     return *this;
@@ -1081,7 +1087,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
     {
         for (const auto& [value, key] : value_key_pairs)
         {
-            implementation::insert(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::insert(
+                data[key], interval, value);
         }
     }
     return *this;
@@ -1103,13 +1110,13 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
 /// @cond Suppress_Doxygen_Warning
 namespace detail
 {
-template <typename Key, typename Impl>
+template <typename Val, typename Interval, typename Key, typename Impl>
 void cleanup_empty_keys(std::map<Key, Impl>& data,
                         const std::set<Key>& keys_with_erases)
 {
     for (const auto& key : keys_with_erases)
     {
-        if (implementation::empty(data[key]))
+        if (Implementation<Val, Interval, Impl>::is_empty(data[key]))
         {
             data.erase(key);
         }
@@ -1130,10 +1137,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
         if (!boost::icl::is_empty(interval))
         {
             keys_with_erases.insert(key);
-            implementation::erase(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::erase(
+                data[key], interval, value);
         }
     }
-    detail::cleanup_empty_keys(data, keys_with_erases);
+    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1152,9 +1160,9 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
     for (const auto& [key, value] : key_value_pairs)
     {
         keys_with_erases.insert(key);
-        implementation::erase(data[key], interval, value);
+        Implementation<Val, Interval, Impl>::erase(data[key], interval, value);
     }
-    detail::cleanup_empty_keys(data, keys_with_erases);
+    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1185,8 +1193,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(const Key& key,
         return *this;
     }
 
-    implementation::erase(data[key], query_interval);
-    if (implementation::empty(data[key]))
+    Implementation<Val, Interval, Impl>::erase(data[key], query_interval);
+    if (Implementation<Val, Interval, Impl>::is_empty(data[key]))
     {
         data.erase(key);
     }
@@ -1217,10 +1225,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
     std::set<Key> keys_with_erases;
     for (const auto& [key, interval_values] : data)
     {
-        implementation::erase(data[key], query_interval);
+        Implementation<Val, Interval, Impl>::erase(data[key], query_interval);
         keys_with_erases.insert(key);
     }
-    detail::cleanup_empty_keys(data, keys_with_erases);
+    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1247,11 +1255,12 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     {
         if (!boost::icl::is_empty(interval))
         {
-            implementation::erase(data[key], interval, value);
+            Implementation<Val, Interval, Impl>::erase(
+                data[key], interval, value);
             keys_with_erases.insert(key);
         }
     }
-    detail::cleanup_empty_keys(data, keys_with_erases);
+    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1269,10 +1278,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
     std::set<Key> keys_with_erases;
     for (const auto& [value, key] : value_key_pairs)
     {
-        implementation::erase(data[key], interval, value);
+        Implementation<Val, Interval, Impl>::erase(data[key], interval, value);
         keys_with_erases.insert(key);
     }
-    detail::cleanup_empty_keys(data, keys_with_erases);
+    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1298,7 +1307,8 @@ std::vector<Val> IntervalDictExp<Key, Val, Interval, Impl>::find(
         if (!boost::icl::is_empty(query_interval))
         {
             for (const auto& [_, value] :
-                 implementation::intervals(ff->second, query_interval))
+                 Implementation<Val, Interval, Impl>::intervals(ff->second,
+                                                                query_interval))
             {
                 unique_results.insert(value);
             }
@@ -1328,7 +1338,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::find(const std::vector<Key>& keys,
         }
 
         for (const auto& [_, value] :
-             implementation::intervals(ff->second, query_interval))
+             Implementation<Val, Interval, Impl>::intervals(ff->second,
+                                                            query_interval))
         {
             unique_results.insert(value);
         }
@@ -1410,10 +1421,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
  * invert
  */
 template <typename Key, typename Val, typename Interval, typename Impl>
-IntervalDictExp<Val,
-                Key,
-                Interval,
-                typename Rebased<Val, Key, Interval, Impl>::type>
+IntervalDictExp<
+    Val,
+    Key,
+    Interval,
+    typename Implementation<Val, Interval, Impl>::template rebind<Key>::type>
 IntervalDictExp<Key, Val, Interval, Impl>::invert() const
 {
     using InverseDataType =
@@ -1421,10 +1433,11 @@ IntervalDictExp<Key, Val, Interval, Impl>::invert() const
     InverseDataType inverted_data;
     for (const auto& [key, interval_values] : data)
     {
-        for (const auto& [interval, value] : implementation::intervals(
+        for (const auto& [interval, value] :
+             Implementation<Val, Interval, Impl>::intervals(
                  interval_values, interval_extent<Interval>))
         {
-            implementation::insert<Key, Interval>(
+            Implementation<Key, Interval, InverseImplType>::insert(
                 inverted_data[value], interval, key);
         }
     }
@@ -1448,9 +1461,10 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator-=(
         if (const auto f = other.data.find(key); f != other.data.end())
         {
             auto& interval_values = data.find(key)->second;
-            implementation::subtract_by(interval_values, f->second);
+            Implementation<Val, Interval, Impl>::subtract_by(interval_values,
+                                                             f->second);
             // remove empty keys
-            if (implementation::empty(interval_values))
+            if (Implementation<Val, Interval, Impl>::is_empty(interval_values))
             {
                 data.erase(key);
             }
@@ -1473,7 +1487,8 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator+=(
         }
         else
         {
-            implementation::merged_with(f->second, interval_values_other);
+            Implementation<Val, Interval, Impl>::merged_with(
+                f->second, interval_values_other);
         }
     }
     return *this;
@@ -1483,16 +1498,22 @@ IntervalDictExp<Key, Val, Interval, Impl>::operator+=(
 /// @cond Suppress_Doxygen_Warning
 template <typename A, typename B, typename Interval, typename Impl>
 template <typename C, typename OtherImpl>
-IntervalDictExp<A, C, Interval, typename Rebased<B, C, Interval, Impl>::type>
+IntervalDictExp<
+    A,
+    C,
+    Interval,
+    typename Implementation<B, Interval, Impl>::template rebind<C>::type>
 IntervalDictExp<A, B, Interval, Impl>::joined_to(
     const IntervalDictExp<B, C, Interval, OtherImpl>& b_to_c) const
 {
-    using ReturnType = IntervalDictExp<A, C, Interval, OtherImplType<C>>;
-    using OtherDataType = typename ReturnType::DataType;
-    OtherDataType other_data;
+    using ReturnImplType = OtherImplType<C>;
+    using ReturnType = IntervalDictExp<A, C, Interval, ReturnImplType>;
+    using ReturnDataType = typename ReturnType::DataType;
+    ReturnDataType return_data;
     for (const auto& [key_a, interval_values_ab] : data)
     {
-        for (const auto& [interval_ab, value_b] : implementation::intervals(
+        for (const auto& [interval_ab, value_b] :
+             Implementation<B, Interval, Impl>::intervals(
                  interval_values_ab, interval_extent<Interval>))
         {
             // Ignore values that are missing from the other dictionary
@@ -1505,14 +1526,15 @@ IntervalDictExp<A, B, Interval, Impl>::joined_to(
             // look up b->c values that overlap the a->b interval
             const auto& interval_values_bc = ii->second;
             for (const auto& [interval_bc, value_c] :
-                 implementation::intervals(interval_values_bc, interval_ab))
+                 Implementation<C, Interval, OtherImpl>::intervals(
+                     interval_values_bc, interval_ab))
             {
-                implementation::insert(
-                    other_data[key_a], interval_ab & interval_bc, value_c);
+                Implementation<C, Interval, ReturnImplType>::insert(
+                    return_data[key_a], interval_ab & interval_bc, value_c);
             }
         }
     }
-    return ReturnType(other_data);
+    return ReturnType(return_data);
 }
 /// @endcond
 
@@ -1607,7 +1629,8 @@ subset_inserts(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         if (unique_keys_subset.count(key))
         {
             for (const auto& [interval, value] :
-                 implementation::intervals(interval_values, query_interval))
+                 Implementation<Val, Interval, Impl>::intervals(interval_values,
+                                                                query_interval))
             {
                 // Only add interval if there are any matching specified values
                 if (unique_values_subset.count(value) != 0)
@@ -1643,7 +1666,8 @@ subset_inserts(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         if (unique_keys_subset.count(key))
         {
             for (const auto& [interval, value] :
-                 implementation::intervals(interval_values, query_interval))
+                 Implementation<Val, Interval, Impl>::intervals(interval_values,
+                                                                query_interval))
             {
                 results.push_back(
                     std::tuple{key, value, interval & query_interval});
@@ -1705,7 +1729,8 @@ Insertions<Key, Val, Interval> fill_gaps_with_inserts(
         auto f = data.find(key_other);
         if (f == data.end())
         {
-            for (const auto& [interval, value] : implementation::intervals(
+            for (const auto& [interval, value] :
+                 Implementation<Val, Interval, Impl>::intervals(
                      interval_values_other, interval_extent<Interval>))
             {
                 results.push_back({key_other, value, interval});
@@ -1715,10 +1740,12 @@ Insertions<Key, Val, Interval> fill_gaps_with_inserts(
 
         // Otherwise only insert values for gaps
         auto& interval_values = f->second;
-        for (const auto& gap_interval : implementation::gaps(interval_values))
+        for (const auto& gap_interval :
+             Implementation<Val, Interval, Impl>::gaps(interval_values))
         {
             for (const auto& [interval, value] :
-                 implementation::intervals(interval_values_other, gap_interval))
+                 Implementation<Val, Interval, Impl>::intervals(
+                     interval_values_other, gap_interval))
             {
                 results.push_back({key_other, value, interval & gap_interval});
             }
@@ -1741,7 +1768,8 @@ Insertions<Key, Val, Interval> fill_to_start_inserts(
     {
         // Make sure first interval is at or before starting_point
         const auto& [interval, values] =
-            implementation::first_disjoint_interval(interval_values);
+            Implementation<Val, Interval, Impl>::initial_values(
+                interval_values);
         if (!intersects(query_interval, interval))
         {
             continue;
@@ -1773,7 +1801,7 @@ Insertions<Key, Val, Interval> fill_to_end_inserts(
     {
         // Make sure first interval is at or before starting_point
         const auto& [interval, values] =
-            implementation::last_disjoint_interval(interval_values);
+            Implementation<Val, Interval, Impl>::final_values(interval_values);
         if (!intersects(query_interval, interval))
         {
             continue;
@@ -1813,7 +1841,8 @@ Insertions<Key, Val, Interval> fill_gaps_inserts(
     for (const auto& [key, interval_values] : interval_dict.data)
     {
         for (const auto& [values1, gap_interval, values2] :
-             implementation::sandwiched_gaps(interval_values))
+             Implementation<Val, Interval, Impl>::sandwiched_gaps(
+                 interval_values))
         {
             // only fill if there are the common values that are on both sides
             std::vector<Val> common_values;
@@ -1863,7 +1892,8 @@ Insertions<Key, Val, Interval> extend_into_gaps_inserts(
     for (const auto& [key, interval_values] : interval_dict.data)
     {
         for (const auto& [values1, gap_interval, values2] :
-             implementation::sandwiched_gaps(interval_values))
+             Implementation<Val, Interval, Impl>::sandwiched_gaps(
+                 interval_values))
         {
             // fill short gaps in their entirety
             if (length(gap_interval) <= max_extension)
@@ -1924,7 +1954,8 @@ intervals(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         }
 
         for (const auto& [interval, value] :
-             implementation::intervals(ff->second, query_interval))
+             Implementation<Val, Interval, Impl>::intervals(ff->second,
+                                                            query_interval))
         {
             co_yield std::tuple{key, value, interval};
         }
@@ -1970,7 +2001,8 @@ disjoint_intervals(
         }
 
         for (const auto& [interval, vec_values] :
-             implementation::disjoint_intervals(ff->second, query_interval))
+             Implementation<Val, Interval, Impl>::disjoint_intervals(
+                 ff->second, query_interval))
         {
             co_yield std::tie(key, vec_values, interval);
         }
@@ -2109,8 +2141,8 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         Interval status_quo_interval;
         std::optional<Val> status_quo;
         for (const auto& [interval, values] :
-             implementation::disjoint_intervals(interval_values,
-                                                interval_extent<Interval>))
+             Implementation<Val, Interval, Impl>::disjoint_intervals(
+                 interval_values, interval_extent<Interval>))
         {
             // Save as status_quo if key-value 1:1
             if (values.size() == 1)

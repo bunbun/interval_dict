@@ -1,4 +1,4 @@
-    #include <interval_dict/icl_interval_map_adaptor.h>
+    #include <interval_dict/adaptor_icl_interval_map.h>
     #include <interval_dict/intervaldict.h>
     #include <interval_dict/gregorian.h>
 

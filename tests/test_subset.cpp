@@ -16,11 +16,19 @@
 #include "catch.hpp"
 #include "test_data.h"
 #include "test_utils.h"
+#include "print_tuple.h"
+#include "print_set.h"
+#include "print_vector.h"
+
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
+
+
 #include <tuple>
 #include <vector>
+
 
 TEMPLATE_TEST_CASE("Test subsetting for different interval types",
                    "[subset]",

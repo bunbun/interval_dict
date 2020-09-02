@@ -21,6 +21,8 @@
 
 #include <interval_dict/bi_intervaldicticl.h>
 #include <interval_dict/intervaldicticl.h>
+#include <interval_dict/bi_intervaldictitree.h>
+#include <interval_dict/intervaldictitree.h>
 
 #include "test_utils.h"
 
@@ -63,6 +65,7 @@ Interval empty_interval_from_upper(Interval orig_interval)
 
 namespace test_detail
 {
+// Initial test data to construct a single interval_dict
 template <typename Interval>
 std::vector<std::tuple<std::string, int, Interval>> initial(
     const std::vector<typename Interval::domain_type>& values)
@@ -85,6 +88,7 @@ std::vector<std::tuple<std::string, int, Interval>> initial(
     };
 }
 
+// Expected changes after fill_gaps
 template <typename Interval>
 std::vector<std::tuple<std::string, int, Interval>> fill_gaps_with_data(
     const std::vector<typename Interval::domain_type>& values)
@@ -96,6 +100,7 @@ std::vector<std::tuple<std::string, int, Interval>> fill_gaps_with_data(
     };
 }
 
+// Initial test data to construct another interval_dict to join to the first
 template <typename Interval>
 std::vector<std::tuple<int, double, Interval>> initial2(
     const std::vector<typename Interval::domain_type>& values)
@@ -121,6 +126,7 @@ std::vector<std::tuple<int, double, Interval>> initial2(
     };
 }
 
+// Expected results from calling intervals()
 template <typename Interval>
 std::vector<std::tuple<std::string, int, Interval>> intervals(
     const std::vector<typename Interval::domain_type>& values)
@@ -135,12 +141,13 @@ std::vector<std::tuple<std::string, int, Interval>> intervals(
         {"bb"s, 2, {values[4], values[6]}},
         {"cc"s, 3, {values[3], values[11]}},
         {"dd"s, 5, {values[4], values[6]}},
-        {"dd"s, 5, {values[9], values[15]}},
         {"dd"s, 6, adjust.lower({values[6], values[7]})},
         {"dd"s, 7, adjust.lower({values[6], values[7]})},
+        {"dd"s, 5, {values[9], values[15]}},
     };
 }
 
+// Expected results from calling disjoint_intervals()
 template <typename Interval>
 std::vector<std::tuple<std::string, std::set<int>, Interval>>
 disjoint_intervals(
@@ -168,6 +175,7 @@ to_str(Interval interval)
     return boost::lexical_cast<std::string>(interval);
 }
 
+// Expected string representation
 template <typename Interval>
 std::string
 to_str(const std::vector<typename Interval::domain_type>& values)

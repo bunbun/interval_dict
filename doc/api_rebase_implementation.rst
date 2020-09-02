@@ -10,6 +10,6 @@ Used in
  - `interval_dict::BiIntervalDict::joined_to()`
  - `interval_dict::IntervalDict::invert()`
 
-.. doxygenstruct:: interval_dict::Rebased
+.. doxygenstruct:: interval_dict::rebind
    :members:
 
