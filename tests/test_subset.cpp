@@ -14,21 +14,19 @@
 /// Contact intervaldict@llew.org.uk
 
 #include "catch.hpp"
+#include "print_set.h"
+#include "print_tuple.h"
+#include "print_vector.h"
 #include "test_data.h"
 #include "test_utils.h"
-#include "print_tuple.h"
-#include "print_set.h"
-#include "print_vector.h"
 
 #include <interval_dict/gregorian.h>
 #include <interval_dict/intervaldicticl.h>
 #include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
 
-
 #include <tuple>
 #include <vector>
-
 
 TEMPLATE_TEST_CASE("Test subsetting for different interval types",
                    "[subset]",
@@ -126,7 +124,8 @@ TEMPLATE_TEST_CASE("Test subsetting for different interval types",
                 // Empty keys
                 REQUIRE(test_dict.subset(std::vector<Key>{}).is_empty());
                 // Empty values
-                REQUIRE(test_dict.subset(all_keys, std::vector<Val>{}).is_empty());
+                REQUIRE(
+                    test_dict.subset(all_keys, std::vector<Val>{}).is_empty());
                 // Empty interval
                 REQUIRE(test_dict.subset(all_keys, empty_query) == IDict());
                 REQUIRE(test_dict.subset(
@@ -142,7 +141,9 @@ TEMPLATE_TEST_CASE("Test subsetting for different interval types",
 // interval types for each int/float/posix time/date
 TEMPLATE_TEST_CASE("Test subsetting for different underlying types",
                    "[subset]",
-                   int, float, boost::posix_time::ptime,
+                   int,
+                   float,
+                   boost::posix_time::ptime,
                    boost::gregorian::date)
 {
     using namespace std::string_literals;
@@ -150,8 +151,8 @@ TEMPLATE_TEST_CASE("Test subsetting for different underlying types",
     using Key = std::string;
     using Val = int;
     using Interval = typename boost::icl::interval<TestType>::type;
-    using IDictOriginal = interval_dict::INTERVALDICTTESTTYPE<Key, Val,
-                                                              Interval>;
+    using IDictOriginal =
+        interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
     using Impl = typename IDictOriginal::ImplType;
     using IDict = interval_dict::IntervalDict<Key, Val, BaseType, Impl>;
     using Interval = typename IDict::IntervalType;

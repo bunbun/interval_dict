@@ -76,9 +76,9 @@ TEMPLATE_TEST_CASE("Test inverse member functions different interval types",
             {
                 for (const auto& key : all_keys)
                 {
-                    const auto subset_dict = inverse_dict.subset_values(std::vector{key}).invert();
-                    REQUIRE(test_dict.subset(std::vector{key}) ==
-                            subset_dict);
+                    const auto subset_dict =
+                        inverse_dict.subset_values(std::vector{key}).invert();
+                    REQUIRE(test_dict.subset(std::vector{key}) == subset_dict);
                     // only has one key as keys()
                     REQUIRE(subset_dict.keys() == std::vector{key});
                     REQUIRE(subset_dict.invert().values() == std::vector{key});
@@ -99,8 +99,8 @@ TEMPLATE_TEST_CASE("Test inverse member functions different interval types",
                                 (key == check_key ? 1 : 0));
                         REQUIRE(subset_dict.invert().count_value(check_key) ==
                                 (key == check_key ? 1 : 0));
-                        REQUIRE(subset_dict.invert().contains_value(check_key) ==
-                                (key == check_key));
+                        REQUIRE(subset_dict.invert().contains_value(
+                                    check_key) == (key == check_key));
                     }
                 }
             }

@@ -24,28 +24,27 @@
 #include <vector>
 
 TEMPLATE_TEST_CASE("Test joining for different interval types",
-                   "[joined_to]"
-                   , boost::icl::interval<int>::type
-                   , boost::icl::left_open_interval<int>
-                   , boost::icl::right_open_interval<int>
-                   , boost::icl::closed_interval<int>
-                   , boost::icl::open_interval<int>
-                   , boost::icl::interval<float>::type
-                   , boost::icl::left_open_interval<float>
-                   , boost::icl::right_open_interval<float>
-                   , boost::icl::interval<boost::posix_time::ptime>::type
-                   , boost::icl::left_open_interval<boost::posix_time::ptime>
-                   , boost::icl::right_open_interval<boost::posix_time::ptime>
-                   , boost::icl::open_interval<boost::posix_time::ptime>
-                   , boost::icl::closed_interval<boost::posix_time::ptime>
-                   , boost::icl::discrete_interval<boost::posix_time::ptime>
-                   , boost::icl::interval<boost::gregorian::date>::type
-                   , boost::icl::left_open_interval<boost::gregorian::date>
-                   , boost::icl::right_open_interval<boost::gregorian::date>
-                   , boost::icl::open_interval<boost::gregorian::date>
-                   , boost::icl::closed_interval<boost::gregorian::date>
-                   , boost::icl::discrete_interval<boost::gregorian::date>
-                       )
+                   "[joined_to]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using namespace interval_dict::date_literals;
@@ -156,7 +155,8 @@ TEMPLATE_TEST_CASE("Test joining for different interval types",
         {
             const auto inv_test_dict = test_dict.invert();
             const auto inv_test_dict2 = test_dict2.invert();
-            const auto inv_joined_dict = inv_test_dict2.joined_to(inv_test_dict);
+            const auto inv_joined_dict =
+                inv_test_dict2.joined_to(inv_test_dict);
             THEN("you expect the same results as the inverse join:")
             {
                 REQUIRE(inv_joined_dict == joined_dict.invert());

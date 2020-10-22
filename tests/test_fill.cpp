@@ -28,29 +28,28 @@
 // in interval maps
 // boost::icl::closed_interval<float>
 // boost::icl::open_interval<float>
-TEMPLATE_TEST_CASE("Test gap filling to start for different interval types"
-                   ,"[fill_to_start]"
-                   ,boost::icl::interval<int>::type
-                   ,boost::icl::left_open_interval<int>
-                   ,boost::icl::right_open_interval<int>
-                   ,boost::icl::open_interval<int>
-                   ,boost::icl::closed_interval<int>
-                   ,boost::icl::interval<float>::type
-                   ,boost::icl::left_open_interval<float>
-                   ,boost::icl::right_open_interval<float>
-                   ,boost::icl::interval<boost::posix_time::ptime>::type
-                   ,boost::icl::left_open_interval<boost::posix_time::ptime>
-                   ,boost::icl::right_open_interval<boost::posix_time::ptime>
-                   ,boost::icl::open_interval<boost::posix_time::ptime>
-                   ,boost::icl::closed_interval<boost::posix_time::ptime>
-                   ,boost::icl::discrete_interval<boost::posix_time::ptime>
-                   ,boost::icl::interval<boost::gregorian::date>::type
-                   ,boost::icl::left_open_interval<boost::gregorian::date>
-                   ,boost::icl::right_open_interval<boost::gregorian::date>
-                   ,boost::icl::open_interval<boost::gregorian::date>
-                   ,boost::icl::closed_interval<boost::gregorian::date>
-                   ,boost::icl::discrete_interval<boost::gregorian::date>
-                  )
+TEMPLATE_TEST_CASE("Test gap filling to start for different interval types",
+                   "[fill_to_start]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using namespace boost::posix_time;
@@ -107,29 +106,28 @@ TEMPLATE_TEST_CASE("Test gap filling to start for different interval types"
     }
 }
 
-TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types"
-                    ,"[fill_to_end]"
-                    ,boost::icl::interval<int>::type
-                    ,boost::icl::left_open_interval<int>
-                    ,boost::icl::right_open_interval<int>
-                    ,boost::icl::open_interval<int>
-                    ,boost::icl::closed_interval<int>
-                    ,boost::icl::interval<float>::type
-                    ,boost::icl::left_open_interval<float>
-                    ,boost::icl::right_open_interval<float>
-                    ,boost::icl::interval<boost::posix_time::ptime>::type
-                    ,boost::icl::left_open_interval<boost::posix_time::ptime>
-                    ,boost::icl::right_open_interval<boost::posix_time::ptime>
-                    ,boost::icl::open_interval<boost::posix_time::ptime>
-                    ,boost::icl::closed_interval<boost::posix_time::ptime>
-                    ,boost::icl::discrete_interval<boost::posix_time::ptime>
-                    ,boost::icl::interval<boost::gregorian::date>::type
-                    ,boost::icl::left_open_interval<boost::gregorian::date>
-                    ,boost::icl::right_open_interval<boost::gregorian::date>
-                    ,boost::icl::open_interval<boost::gregorian::date>
-                    ,boost::icl::closed_interval<boost::gregorian::date>
-                    ,boost::icl::discrete_interval<boost::gregorian::date>
-                                      )
+TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types",
+                   "[fill_to_end]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 
 {
     using namespace std::string_literals;
@@ -192,29 +190,28 @@ TEMPLATE_TEST_CASE("Test filling gaps to end for different interval types"
     }
 }
 
-TEMPLATE_TEST_CASE("Test gap filling for different interval types"
-                    ,"[fill_gaps]"
-                    ,boost::icl::interval<int>::type
-                    ,boost::icl::left_open_interval<int>
-                    ,boost::icl::right_open_interval<int>
-                    ,boost::icl::open_interval<int>
-                    ,boost::icl::closed_interval<int>
-                    ,boost::icl::interval<float>::type
-                    ,boost::icl::left_open_interval<float>
-                    ,boost::icl::right_open_interval<float>
-                    ,boost::icl::interval<boost::posix_time::ptime>::type
-                    ,boost::icl::left_open_interval<boost::posix_time::ptime>
-                    ,boost::icl::right_open_interval<boost::posix_time::ptime>
-                    ,boost::icl::open_interval<boost::posix_time::ptime>
-                    ,boost::icl::closed_interval<boost::posix_time::ptime>
-                    ,boost::icl::discrete_interval<boost::posix_time::ptime>
-                    ,boost::icl::interval<boost::gregorian::date>::type
-                    ,boost::icl::left_open_interval<boost::gregorian::date>
-                    ,boost::icl::right_open_interval<boost::gregorian::date>
-                    ,boost::icl::open_interval<boost::gregorian::date>
-                    ,boost::icl::closed_interval<boost::gregorian::date>
-                    ,boost::icl::discrete_interval<boost::gregorian::date>
-                  )
+TEMPLATE_TEST_CASE("Test gap filling for different interval types",
+                   "[fill_gaps]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using Interval = TestType;
@@ -271,29 +268,28 @@ TEMPLATE_TEST_CASE("Test gap filling for different interval types"
     }
 }
 
-TEMPLATE_TEST_CASE("Test extension into gaps for different interval types"
-                   , "[extend_into_gaps]"
-                   , boost::icl::interval<int>::type
-                   , boost::icl::left_open_interval<int>
-                   , boost::icl::right_open_interval<int>
-                   , boost::icl::open_interval<int>
-                   , boost::icl::closed_interval<int>
-                   , boost::icl::interval<float>::type
-                   , boost::icl::left_open_interval<float>
-                   , boost::icl::right_open_interval<float>
-                   , boost::icl::interval<boost::posix_time::ptime>::type
-                   , boost::icl::left_open_interval<boost::posix_time::ptime>
-                   , boost::icl::right_open_interval<boost::posix_time::ptime>
-                   , boost::icl::open_interval<boost::posix_time::ptime>
-                   , boost::icl::closed_interval<boost::posix_time::ptime>
-                   , boost::icl::discrete_interval<boost::posix_time::ptime>
-                   , boost::icl::interval<boost::gregorian::date>::type
-                   , boost::icl::left_open_interval<boost::gregorian::date>
-                   , boost::icl::right_open_interval<boost::gregorian::date>
-                   , boost::icl::open_interval<boost::gregorian::date>
-                   , boost::icl::closed_interval<boost::gregorian::date>
-                   , boost::icl::discrete_interval<boost::gregorian::date>
-                  )
+TEMPLATE_TEST_CASE("Test extension into gaps for different interval types",
+                   "[extend_into_gaps]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using Interval = TestType;
@@ -378,29 +374,28 @@ TEMPLATE_TEST_CASE("Test extension into gaps for different interval types"
     }
 }
 
-TEMPLATE_TEST_CASE("Test gap filling by using another dictionary as a backstop"
-                   , "[fill_gaps_with]"
-                   , boost::icl::interval<int>::type
-                   , boost::icl::left_open_interval<int>
-                   , boost::icl::right_open_interval<int>
-                   , boost::icl::open_interval<int>
-                   , boost::icl::closed_interval<int>
-                   , boost::icl::interval<float>::type
-                   , boost::icl::left_open_interval<float>
-                   , boost::icl::right_open_interval<float>
-                   , boost::icl::interval<boost::posix_time::ptime>::type
-                   , boost::icl::left_open_interval<boost::posix_time::ptime>
-                   , boost::icl::right_open_interval<boost::posix_time::ptime>
-                   , boost::icl::open_interval<boost::posix_time::ptime>
-                   , boost::icl::closed_interval<boost::posix_time::ptime>
-                   , boost::icl::discrete_interval<boost::posix_time::ptime>
-                   , boost::icl::interval<boost::gregorian::date>::type
-                   , boost::icl::left_open_interval<boost::gregorian::date>
-                   , boost::icl::right_open_interval<boost::gregorian::date>
-                   , boost::icl::open_interval<boost::gregorian::date>
-                   , boost::icl::closed_interval<boost::gregorian::date>
-                   , boost::icl::discrete_interval<boost::gregorian::date>
-                   )
+TEMPLATE_TEST_CASE("Test gap filling by using another dictionary as a backstop",
+                   "[fill_gaps_with]",
+                   boost::icl::interval<int>::type,
+                   boost::icl::left_open_interval<int>,
+                   boost::icl::right_open_interval<int>,
+                   boost::icl::open_interval<int>,
+                   boost::icl::closed_interval<int>,
+                   boost::icl::interval<float>::type,
+                   boost::icl::left_open_interval<float>,
+                   boost::icl::right_open_interval<float>,
+                   boost::icl::interval<boost::posix_time::ptime>::type,
+                   boost::icl::left_open_interval<boost::posix_time::ptime>,
+                   boost::icl::right_open_interval<boost::posix_time::ptime>,
+                   boost::icl::open_interval<boost::posix_time::ptime>,
+                   boost::icl::closed_interval<boost::posix_time::ptime>,
+                   boost::icl::discrete_interval<boost::posix_time::ptime>,
+                   boost::icl::interval<boost::gregorian::date>::type,
+                   boost::icl::left_open_interval<boost::gregorian::date>,
+                   boost::icl::right_open_interval<boost::gregorian::date>,
+                   boost::icl::open_interval<boost::gregorian::date>,
+                   boost::icl::closed_interval<boost::gregorian::date>,
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using Interval = TestType;
@@ -424,7 +419,8 @@ TEMPLATE_TEST_CASE("Test gap filling by using another dictionary as a backstop"
         WHEN("The IntervalDict is supplemented with a backstop")
         {
             const IDict backstop(test_data.fill_gaps_with_data());
-            const auto gap_filled = copy(test_dict).fill_gaps_with(backstop) - test_dict;
+            const auto gap_filled =
+                copy(test_dict).fill_gaps_with(backstop) - test_dict;
             THEN("Extra data is derived from the backstop only during gaps.")
             {
                 REQUIRE(gap_filled ==
@@ -434,7 +430,7 @@ TEMPLATE_TEST_CASE("Test gap filling by using another dictionary as a backstop"
                         }));
 
                 // Only fill_gap_with in empty positions
-                for (const auto& [key, _, interval]: intervals(gap_filled))
+                for (const auto& [key, _, interval] : intervals(gap_filled))
                 {
                     REQUIRE(test_dict.find(key, interval).empty());
                 }

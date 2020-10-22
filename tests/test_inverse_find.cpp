@@ -62,7 +62,6 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
         const IDict test_dict(test_data.initial());
         const auto inverse_dict = test_dict.invert();
 
-
         // N.B. "ee" should be ignored
         const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s, "ee"s};
         const auto adjust = Adjust<Interval>{};
@@ -84,14 +83,15 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
                         std::vector{0, 1, 2, 3, 5, 6, 7});
                 REQUIRE(inverse_dict.inverse_find({"bb"s, "dd"s}, max_ext) ==
                         std::vector{1, 2, 5, 6, 7});
-                REQUIRE(inverse_dict.inverse_find("bb"s, max_ext) == std::vector{1, 2});
+                REQUIRE(inverse_dict.inverse_find("bb"s, max_ext) ==
+                        std::vector{1, 2});
                 REQUIRE(inverse_dict.inverse_find("bb"s,
-                                       boost::icl::lower(max_ext),
-                                       boost::icl::upper(max_ext)) ==
+                                                  boost::icl::lower(max_ext),
+                                                  boost::icl::upper(max_ext)) ==
                         std::vector{1, 2});
                 REQUIRE(inverse_dict.inverse_find("not a key"s,
-                                       boost::icl::lower(max_ext),
-                                       boost::icl::upper(max_ext)) ==
+                                                  boost::icl::lower(max_ext),
+                                                  boost::icl::upper(max_ext)) ==
                         std::vector<Val>());
             }
         }
@@ -101,11 +101,13 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
             THEN("Expect all corresponding values for those keys only over "
                  "that interval")
             {
-                REQUIRE(inverse_dict.inverse_find(all_keys, adjust.both(query)) ==
-                        std::vector{1, 2, 3, 5});
+                REQUIRE(
+                    inverse_dict.inverse_find(all_keys, adjust.both(query)) ==
+                    std::vector{1, 2, 3, 5});
                 REQUIRE(inverse_dict.inverse_find({"bb"s, "dd"s}, query) ==
                         std::vector{1, 2, 5});
-                REQUIRE(inverse_dict.inverse_find("bb"s, query) == std::vector{1, 2});
+                REQUIRE(inverse_dict.inverse_find("bb"s, query) ==
+                        std::vector{1, 2});
                 // nothing for this key
                 REQUIRE(inverse_dict.inverse_find("aa"s, adjust.both(query)) ==
                         std::vector<Val>());
@@ -120,17 +122,17 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
             THEN("Expect all corresponding values for those keys")
             {
                 REQUIRE(inverse_dict.inverse_find("bb"s,
-                                       boost::icl::lower(query),
-                                       boost::icl::upper(query)) ==
+                                                  boost::icl::lower(query),
+                                                  boost::icl::upper(query)) ==
                         std::vector{1, 2});
                 // Inclusive single point
                 if (!boost::icl::is_empty(query_end))
                 {
                     REQUIRE(inverse_dict.inverse_find(all_keys, query_end) ==
                             std::vector{1, 2, 3, 5});
-                    REQUIRE(
-                        inverse_dict.inverse_find("bb"s, boost::icl::lower(query_end)) ==
-                        std::vector{1, 2});
+                    REQUIRE(inverse_dict.inverse_find(
+                                "bb"s, boost::icl::lower(query_end)) ==
+                            std::vector{1, 2});
                 }
             }
         }
@@ -139,19 +141,23 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
         {
             THEN("Expect all corresponding values for those keys")
             {
-                REQUIRE(inverse_dict.inverse_find("aa"s, queries) == std::vector{0});
-                REQUIRE(inverse_dict.inverse_find("bb"s, queries) == std::vector{1});
-                REQUIRE(inverse_dict.inverse_find("dd"s, queries) == std::vector{6, 7});
+                REQUIRE(inverse_dict.inverse_find("aa"s, queries) ==
+                        std::vector{0});
+                REQUIRE(inverse_dict.inverse_find("bb"s, queries) ==
+                        std::vector{1});
+                REQUIRE(inverse_dict.inverse_find("dd"s, queries) ==
+                        std::vector{6, 7});
                 // not a key
                 REQUIRE(inverse_dict.inverse_find("not a key"s, queries) ==
                         std::vector<Val>());
                 // Empty intervals
-                REQUIRE(inverse_dict.inverse_find("dd"s,
-                                       interval_dict::Intervals<Interval>()) ==
+                REQUIRE(inverse_dict.inverse_find(
+                            "dd"s, interval_dict::Intervals<Interval>()) ==
                         std::vector<Val>{});
-                REQUIRE(inverse_dict.inverse_find("not a key"s,
-                                       interval_dict::Intervals<Interval>()) ==
-                        std::vector<Val>{});
+                REQUIRE(
+                    inverse_dict.inverse_find(
+                        "not a key"s, interval_dict::Intervals<Interval>()) ==
+                    std::vector<Val>{});
             }
         }
 
@@ -167,14 +173,17 @@ TEMPLATE_TEST_CASE("Test inverse_find() for different interval types",
                 }
                 REQUIRE(inverse_dict.inverse_find(all_keys, query_max) ==
                         std::vector<Val>{});
-                REQUIRE(inverse_dict.inverse_find("bb"s, query_max) == std::vector<Val>{});
+                REQUIRE(inverse_dict.inverse_find("bb"s, query_max) ==
+                        std::vector<Val>{});
 
                 // Empty query interval: Empty result
-                REQUIRE(inverse_dict.inverse_find("bb"s,
-                                       boost::icl::upper(query_max),
-                                       boost::icl::upper(query_max)) ==
-                        std::vector<Val>{});
-                REQUIRE(inverse_dict.inverse_find("bb"s, boost::icl::upper(query_max)) ==
+                REQUIRE(
+                    inverse_dict.inverse_find("bb"s,
+                                              boost::icl::upper(query_max),
+                                              boost::icl::upper(query_max)) ==
+                    std::vector<Val>{});
+                REQUIRE(inverse_dict.inverse_find(
+                            "bb"s, boost::icl::upper(query_max)) ==
                         std::vector<Val>{});
             }
         }

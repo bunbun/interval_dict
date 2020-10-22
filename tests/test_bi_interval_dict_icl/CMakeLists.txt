@@ -26,7 +26,7 @@ add_executable (${TARGET_NAME}
         ../test_member_functions.cpp
         ../test_merge_subtract.cpp
         ../test_ostream.cpp
-        ../test_subset.cpp)
+        ../test_subset.cpp ../test_interval_overlaps.cpp)
 
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"

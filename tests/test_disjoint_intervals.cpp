@@ -47,8 +47,7 @@ TEMPLATE_TEST_CASE("Test disjoint intervals for different interval types",
                    boost::icl::right_open_interval<boost::gregorian::date>,
                    boost::icl::open_interval<boost::gregorian::date>,
                    boost::icl::closed_interval<boost::gregorian::date>,
-                   boost::icl::discrete_interval<boost::gregorian::date>
-                       )
+                   boost::icl::discrete_interval<boost::gregorian::date>)
 {
     using namespace std::string_literals;
     using Interval = TestType;
@@ -70,7 +69,8 @@ TEMPLATE_TEST_CASE("Test disjoint intervals for different interval types",
         const auto expected = test_data.disjoint_intervals();
         const auto query = test_data.query_interval();
 
-        WHEN("All data is retrieved via disjoint_intervals() specified with keys")
+        WHEN("All data is retrieved via disjoint_intervals() specified with "
+             "keys")
         {
             auto vec_intervals =
                 interval_dict::disjoint_intervals(test_dict, all_keys);
