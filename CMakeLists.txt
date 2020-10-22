@@ -51,7 +51,7 @@ set_target_properties(cppcoro PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/cppcoro/include)
 #       catch2
 include_directories(extern/catch2)
-#       catch2
+#       ygg
 include_directories(extern/ygg)
 add_library(ygg INTERFACE IMPORTED)
 set_target_properties(ygg PROPERTIES
@@ -70,20 +70,25 @@ set(HEADER_FILES
         include/interval_dict/bi_intervaldicticl.h
         include/interval_dict/bi_intervaldictitree.h
         include/interval_dict/gregorian.h
+        include/interval_dict/interval_compare.h
         include/interval_dict/interval_traits.h
+        include/interval_dict/interval_tree.h
+        include/interval_dict/interval_tree.h
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldicticl.h
         include/interval_dict/intervaldictitree.h
-        include/interval_dict/interval_tree.h
-        include/interval_dict/ptime.h)
-set(SOURCE_FILES src/intervaldicticl.cpp)
+        include/interval_dict/non_disjoint.h
+        include/interval_dict/ptime.h
+        include/interval_dict/value_interval.h
+        include/interval_dict/interval_overlaps.h)
+set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/augmented_interval_list.h)
 add_library(interval_dict
         ${HEADER_FILES}
         ${SOURCE_FILES})
 
 
 
-# We also add an alias definition so that we shadown
+# We also add an alias definition so that we shadow
 # the export namespace when using add_subdirectory() instead.
 add_library(interval_dict::interval_dict ALIAS interval_dict)
 
@@ -169,10 +174,12 @@ add_subdirectory(tests/test_interval_dict_icl)
 add_subdirectory(tests/test_bi_interval_dict_icl)
 add_subdirectory(tests/test_interval_dict_itree)
 add_subdirectory(tests/test_bi_interval_dict_itree)
+add_subdirectory(tests/test_general)
 
 install(TARGETS interval_dict DESTINATION ${INTERVAL_DICT_INSTALL_LIB_DIR})
 
 add_subdirectory(examples)
+add_subdirectory(experimental)
 
 # Enable Doxygen
 set(${PROJECT_NAME}_ENABLE_DOXYGEN ON)

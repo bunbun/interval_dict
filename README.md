@@ -105,10 +105,15 @@ This reflects the requirements of the cppcoro library
 ### In progress:
 
 1. ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Benchmarks 
-   - For succesively overlapping intervals
+   - For successively overlapping intervals
    - For nested intervals (like a pyramid)
    - Simulate a random proportion of values swapping between different keys at successive intervals
-2. ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Fuzzing tests for implementation 1 vs 2   
+1. ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Fuzzing tests for implementation 1 vs 2
+1. Abandon ygg and move to boost::intrusive
+1. Write docs
+1. Doxygen for new implementation
+1. Doxygen html for website 
+1. Build and integration tests for website 
    
 ### Not yet started :bowtie:      
 
@@ -122,7 +127,7 @@ This reflects the requirements of the cppcoro library
      - [cGranges](https://github.com/lh3/cgranges)
      - [quicksect](https://github.com/brentp/quicksect)
      - [Julia Discussion](https://github.com/BioJulia/Bio.jl/issues/340)
-
+     
 ## Build Status
 
 - [![Build Status](https://travis-ci.org/bunbun/intervaldict.svg?branch=master)](https://travis-ci.org/bunbun/intervaldict)
