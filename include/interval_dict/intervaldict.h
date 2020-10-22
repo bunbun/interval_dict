@@ -18,6 +18,7 @@
 #ifndef INCLUDE_INTERVAL_DICT_INTERVALDICT_H
 #define INCLUDE_INTERVAL_DICT_INTERVALDICT_H
 
+#include "interval_operators.h"
 #include "interval_traits.h"
 
 #include <cppcoro/generator.hpp>
@@ -228,7 +229,7 @@ FlattenPolicyPreferStatusQuo<FlattenPolicy> flatten_policy_prefer_status_quo(
     FlattenPolicy fallback_policy = flatten_policy_discard());
 
 /// @cond Suppress_Doxygen_Warning
-namespace detail
+namespace details
 {
 // Exclude specific arguments from deduction for flattened()
 // (available as std::type_identity as of C++20)
@@ -238,7 +239,7 @@ template <typename T> struct identity
 {
     typedef T type;
 };
-} // namespace detail
+} // namespace details
 /// @endcond
 
 /// \brief Flattens dictionary to one value per key per interval
@@ -269,9 +270,9 @@ template <typename T> struct identity
 template <typename Key, typename Val, typename Interval, typename Impl>
 [[nodiscard]] IntervalDictExp<Key, Val, Interval, Impl> flattened(
     IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
-    FlattenPolicy<typename detail::identity<Key>::type,
-                  typename detail::identity<Val>::type,
-                  typename detail::identity<Interval>::type> keep_one_value =
+    FlattenPolicy<typename details::identity<Key>::type,
+                  typename details::identity<Val>::type,
+                  typename details::identity<Interval>::type> keep_one_value =
         // flatten_policy_prefer_status_quo<Key, Val, Interval>());
     flatten_policy_prefer_status_quo());
 
@@ -282,7 +283,7 @@ operator<<(std::ostream& ostream,
            const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict);
 
 /// @cond Suppress_Doxygen_Warning
-namespace detail
+namespace details
 {
 
 /*
@@ -375,7 +376,7 @@ std::tuple<Insertions<Key, Val, Interval>, Erasures<Key, Val, Interval>>
 flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
                 FlattenPolicy<Key, Val, Interval> keep_one_value);
 
-} // namespace detail
+} // namespace details
 /// @endcond
 
 /**
@@ -403,7 +404,7 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
  */
 //
 // Some IntervalDict functionality is implemented in two steps:
-// 1) functions in the detail namespace that return a list of insertion or
+// 1) functions in the details namespace that return a list of insertion or
 //    erase operations
 // 2) Calling insert/erase with these lists
 // This is less efficient because it requires storage for the intermediate
@@ -876,37 +877,38 @@ public:
                                    const IntervalDictExp& dict_2);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
-    detail::fill_gaps_with_inserts<>(
+    details::fill_gaps_with_inserts<>(
         const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
         const IntervalDictExp<Key, Val, Interval, Impl>& other);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
-    detail::fill_to_start_inserts<>(
+    details::fill_to_start_inserts<>(
         const IntervalDictExp& interval_dict,
         BaseType starting_from,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
-    detail::fill_to_end_inserts<>(
+    details::fill_to_end_inserts<>(
         const IntervalDictExp& interval_dict,
         BaseType starting_from,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
-    detail::fill_gaps_inserts<>(
+    details::fill_gaps_inserts<>(
         const IntervalDictExp& interval_dict,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
     friend std::vector<std::tuple<Key, Val, Interval>>
-    detail::extend_into_gaps_inserts<>(
+    details::extend_into_gaps_inserts<>(
         const IntervalDictExp& interval_dict,
         GapExtensionDirection gap_extension_direction,
         typename IntervalTraits<Interval>::BaseDifferenceType max_extension);
 
-    friend std::tuple<detail::Insertions<Key, Val, Interval>,
-                      detail::Erasures<Key, Val, Interval>>
-    detail::flatten_actions<>(const IntervalDictExp& interval_dict,
-                              FlattenPolicy<Key, Val, Interval> keep_one_value);
+    friend std::tuple<details::Insertions<Key, Val, Interval>,
+                      details::Erasures<Key, Val, Interval>>
+    details::flatten_actions<>(
+        const IntervalDictExp& interval_dict,
+        FlattenPolicy<Key, Val, Interval> keep_one_value);
 
     template <typename Key_,
               typename Val_,
@@ -914,7 +916,7 @@ public:
               typename Impl_,
               typename KeyRange>
     friend std::vector<std::tuple<Key_, Val_, Interval_>>
-    detail::subset_inserts(
+    details::subset_inserts(
         const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
         const KeyRange& keys_subset,
         Interval_ query_interval);
@@ -926,7 +928,7 @@ public:
               typename KeyRange,
               typename ValRange>
     friend std::vector<std::tuple<Key_, Val_, Interval_>>
-    detail::subset_inserts(
+    details::subset_inserts(
         const IntervalDictExp<Key_, Val_, Interval_, Impl_>& interval_dict,
         const KeyRange& keys_subset,
         const ValRange& values_subset,
@@ -1108,7 +1110,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_insert(
  * Erase
  */
 /// @cond Suppress_Doxygen_Warning
-namespace detail
+namespace details
 {
 template <typename Val, typename Interval, typename Key, typename Impl>
 void cleanup_empty_keys(std::map<Key, Impl>& data,
@@ -1122,7 +1124,7 @@ void cleanup_empty_keys(std::map<Key, Impl>& data,
         }
     }
 }
-} // namespace detail
+} // namespace details
 /// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -1141,7 +1143,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
                 data[key], interval, value);
         }
     }
-    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
+    details::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1162,7 +1164,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(
         keys_with_erases.insert(key);
         Implementation<Val, Interval, Impl>::erase(data[key], interval, value);
     }
-    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
+    details::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1228,7 +1230,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::erase(Interval query_interval)
         Implementation<Val, Interval, Impl>::erase(data[key], query_interval);
         keys_with_erases.insert(key);
     }
-    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
+    details::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1260,7 +1262,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
             keys_with_erases.insert(key);
         }
     }
-    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
+    details::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1281,7 +1283,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::inverse_erase(
         Implementation<Val, Interval, Impl>::erase(data[key], interval, value);
         keys_with_erases.insert(key);
     }
-    detail::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
+    details::cleanup_empty_keys<Val, Interval>(data, keys_with_erases);
     return *this;
 }
 
@@ -1399,7 +1401,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
     }
 
     return IntervalDictExp<Key, Val, Interval, Impl>().insert(
-        detail::subset_inserts(
+        details::subset_inserts(
             *this, keys_subset, values_subset, query_interval));
 }
 
@@ -1414,7 +1416,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::subset(const KeyRange& keys_subset,
         return {};
     }
     return IntervalDictExp<Key, Val, Interval, Impl>().insert(
-        detail::subset_inserts(*this, keys_subset, query_interval));
+        details::subset_inserts(*this, keys_subset, query_interval));
 }
 
 /*
@@ -1543,7 +1545,7 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::fill_gaps_with(
     const IntervalDictExp<Key, Val, Interval, Impl>& other)
 {
-    return insert(detail::fill_gaps_with_inserts(*this, other));
+    return insert(details::fill_gaps_with_inserts(*this, other));
 }
 
 /*
@@ -1556,7 +1558,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::fill_to_start(
     typename IntervalDictExp::BaseDifferenceType max_extension)
 {
     return insert(
-        detail::fill_to_start_inserts(*this, starting_point, max_extension));
+        details::fill_to_start_inserts(*this, starting_point, max_extension));
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -1566,7 +1568,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::fill_to_end(
     typename IntervalDictExp::BaseDifferenceType max_extension)
 {
     return insert(
-        detail::fill_to_end_inserts(*this, starting_point, max_extension));
+        details::fill_to_end_inserts(*this, starting_point, max_extension));
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -1575,7 +1577,7 @@ IntervalDictExp<Key, Val, Interval, Impl>::extend_into_gaps(
     GapExtensionDirection gap_extension_direction,
     typename IntervalDictExp::BaseDifferenceType max_extension)
 {
-    return insert(detail::extend_into_gaps_inserts(
+    return insert(details::extend_into_gaps_inserts(
         *this, gap_extension_direction, max_extension));
 }
 
@@ -1584,7 +1586,7 @@ IntervalDictExp<Key, Val, Interval, Impl>&
 IntervalDictExp<Key, Val, Interval, Impl>::fill_gaps(
     typename IntervalDictExp::BaseDifferenceType max_extension)
 {
-    return insert(detail::fill_gaps_inserts(*this, max_extension));
+    return insert(details::fill_gaps_inserts(*this, max_extension));
 }
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -1602,7 +1604,7 @@ bool IntervalDictExp<Key, Val, Interval, Impl>::operator!=(
 }
 
 /// @cond Suppress_Doxygen_Warning
-namespace detail
+namespace details
 {
 // Helper function for subset()
 // returns a vector for passing to insert()
@@ -1677,43 +1679,6 @@ subset_inserts(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
     return results;
 }
 
-template <typename Interval>
-Interval
-right_extend(Interval interval,
-             typename IntervalTraits<Interval>::BaseDifferenceType size)
-{
-    using namespace boost::icl;
-    const auto left = lower(interval);
-    const auto right = upper(interval);
-
-    // Don't extend interval by more than max()
-    if (size == IntervalTraits<Interval>::max_size() ||
-        right > IntervalTraits<Interval>::max() - size)
-    {
-        return Interval{left, IntervalTraits<Interval>::max()};
-    }
-
-    return Interval{lower(interval), right + size};
-}
-
-template <typename Interval>
-Interval left_extend(Interval interval,
-                     typename IntervalTraits<Interval>::BaseDifferenceType size)
-{
-    using namespace boost::icl;
-    const auto left = lower(interval);
-    const auto right = upper(interval);
-
-    // Don't extend interval by more than max()
-    if (size == IntervalTraits<Interval>::max_size() ||
-        left < IntervalTraits<Interval>::lowest() + size)
-    {
-        return Interval{IntervalTraits<Interval>::lowest(), right};
-    }
-
-    return Interval{lower(interval) - size, right};
-}
-
 // xxx_inserts() are helper functions for implementing xxx() in conjunction
 // with insert()
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -1776,8 +1741,8 @@ Insertions<Key, Val, Interval> fill_to_start_inserts(
         }
 
         // Don't extend fill interval by more than max_extension
-        auto fill_interval =
-            right_subtract(left_extend(interval, max_extension), interval);
+        auto fill_interval = right_subtract(
+            operators::left_extend(interval, max_extension), interval);
         for (const auto& val : values)
         {
             results.push_back({key, val, fill_interval});
@@ -1808,8 +1773,8 @@ Insertions<Key, Val, Interval> fill_to_end_inserts(
         }
 
         // Don't extend fill interval by more than max_extension
-        auto fill_interval =
-            left_subtract(right_extend(interval, max_extension), interval);
+        auto fill_interval = left_subtract(
+            operators::right_extend(interval, max_extension), interval);
         for (const auto& val : values)
         {
             results.push_back({key, val, fill_interval});
@@ -1932,7 +1897,7 @@ Insertions<Key, Val, Interval> extend_into_gaps_inserts(
     return results;
 }
 
-} // namespace detail
+} // namespace details
 /// @endcond
 
 template <typename Key, typename Val, typename Interval, typename Impl>
@@ -2124,7 +2089,7 @@ flatten_policy_prefer_status_quo(FlattenPolicy fallback_policy)
 }
 
 /// @cond Suppress_Doxygen_Warning
-namespace detail
+namespace details
 {
 template <typename Key, typename Val, typename Interval, typename Impl>
 std::tuple<Insertions<Key, Val, Interval>, Erasures<Key, Val, Interval>>
@@ -2200,7 +2165,7 @@ flatten_actions(const IntervalDictExp<Key, Val, Interval, Impl>& interval_dict,
     return {deferred_insertions, deferred_erasures};
 }
 
-} // namespace detail
+} // namespace details
 /// @endcond
 
 template <typename FlattenPolicy>
@@ -2225,12 +2190,12 @@ std::optional<Val> FlattenPolicyPreferStatusQuo<FlattenPolicy>::operator()(
 template <typename Key, typename Val, typename Interval, typename Impl>
 IntervalDictExp<Key, Val, Interval, Impl> flattened(
     IntervalDictExp<Key, Val, Interval, Impl> interval_dict,
-    FlattenPolicy<typename detail::identity<Key>::type,
-                  typename detail::identity<Val>::type,
-                  typename detail::identity<Interval>::type> keep_one_value)
+    FlattenPolicy<typename details::identity<Key>::type,
+                  typename details::identity<Val>::type,
+                  typename details::identity<Interval>::type> keep_one_value)
 {
     const auto [insertions, erasures] =
-        detail::flatten_actions(interval_dict, keep_one_value);
+        details::flatten_actions(interval_dict, keep_one_value);
     interval_dict.insert(insertions);
     interval_dict.erase(erasures);
     return interval_dict;

@@ -104,7 +104,8 @@ struct Implementation<
         }
     }
 
-    /// @return coroutine enumerating gaps between intervals and the values on either side
+    /// @return coroutine enumerating gaps between intervals and the values on
+    /// either side
     static cppcoro::generator<std::tuple<const std::vector<Val>&,
                                          const Interval&,
                                          const std::vector<Val>&>>

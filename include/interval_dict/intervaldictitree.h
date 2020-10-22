@@ -51,7 +51,7 @@ namespace interval_dict
  */
 template <typename Key, typename Val, typename Interval>
 using IntervalDictITreeExp =
-    IntervalDictExp<Key, Val, Interval, IntervalTree<Val, Interval>>;
+    IntervalDictExp<Key, Val, Interval, tree::IntervalTree<Val, Interval>>;
 
 /// \brief one-to-many interval dictionary powered by boost::icl::interval_map
 ///

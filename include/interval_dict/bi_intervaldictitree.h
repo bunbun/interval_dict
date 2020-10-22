@@ -54,11 +54,12 @@ namespace interval_dict
  * @tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
  */
 template <typename Key, typename Val, typename Interval>
-using BiIntervalDictITreeExp = BiIntervalDictExp<Key,
-                                                 Val,
-                                                 Interval,
-                                                 IntervalTree<Val, Interval>,
-                                                 IntervalTree<Key, Interval>>;
+using BiIntervalDictITreeExp =
+    BiIntervalDictExp<Key,
+                      Val,
+                      Interval,
+                      tree::IntervalTree<Val, Interval>,
+                      tree::IntervalTree<Key, Interval>>;
 
 /// \brief Bidirectional interval dictionary powered by boost::icl::interval_map
 /// in both directions

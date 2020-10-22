@@ -252,9 +252,9 @@ template <typename Key,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> flattened(
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> interval_dict,
-    FlattenPolicy<typename detail::identity<Key>::type,
-                  typename detail::identity<Val>::type,
-                  typename detail::identity<Interval>::type> keep_one_value =
+    FlattenPolicy<typename details::identity<Key>::type,
+                  typename details::identity<Val>::type,
+                  typename details::identity<Interval>::type> keep_one_value =
         flatten_policy_prefer_status_quo());
 
 /// output streaming operator: prints disjoint intervals
@@ -855,9 +855,9 @@ public:
 
     friend BiIntervalDictExp
     flattened<>(BiIntervalDictExp interval_dict,
-                FlattenPolicy<typename detail::identity<Key>::type,
-                              typename detail::identity<Val>::type,
-                              typename detail::identity<Interval>::type>
+                FlattenPolicy<typename details::identity<Key>::type,
+                              typename details::identity<Val>::type,
+                              typename details::identity<Interval>::type>
                     keep_one_value);
     /// @endcond
 
@@ -1443,7 +1443,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::subset(
     }
 
     return BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>().insert(
-        detail::subset_inserts(
+        details::subset_inserts(
             m_forward, keys_subset, values_subset, query_interval));
 }
 
@@ -1462,7 +1462,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::subset(
         return {};
     }
     return BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>().insert(
-        detail::subset_inserts(m_forward, keys_subset, query_interval));
+        details::subset_inserts(m_forward, keys_subset, query_interval));
 }
 
 template <typename Key,
@@ -1481,7 +1481,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::subset_values(
     }
     return BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>()
         .inverse_insert(
-            detail::subset_inserts(m_inverse, values_subset, query_interval));
+            details::subset_inserts(m_inverse, values_subset, query_interval));
 }
 
 /*
@@ -1581,7 +1581,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_gaps_with(
     const BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>& other)
 {
     const auto insertions =
-        detail::fill_gaps_with_inserts(m_forward, other.m_forward);
+        details::fill_gaps_with_inserts(m_forward, other.m_forward);
     m_forward.insert(insertions);
     m_inverse.inverse_insert(insertions);
     return *this;
@@ -1601,8 +1601,8 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_to_start(
     typename IntervalTraits<Interval>::BaseType starting_point,
     typename IntervalTraits<Interval>::BaseDifferenceType max_extension)
 {
-    const auto insertions =
-        detail::fill_to_start_inserts(m_forward, starting_point, max_extension);
+    const auto insertions = details::fill_to_start_inserts(
+        m_forward, starting_point, max_extension);
     m_forward.insert(insertions);
     m_inverse.inverse_insert(insertions);
     return *this;
@@ -1621,7 +1621,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_to_end(
     typename IntervalTraits<Interval>::BaseDifferenceType max_extension)
 {
     const auto insertions =
-        detail::fill_to_end_inserts(m_forward, starting_point, max_extension);
+        details::fill_to_end_inserts(m_forward, starting_point, max_extension);
     m_forward.insert(insertions);
     m_inverse.inverse_insert(insertions);
     return *this;
@@ -1638,7 +1638,7 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::extend_into_gaps(
     GapExtensionDirection gap_extension_direction,
     typename IntervalTraits<Interval>::BaseDifferenceType max_extension)
 {
-    const auto insertions = detail::extend_into_gaps_inserts(
+    const auto insertions = details::extend_into_gaps_inserts(
         m_forward, gap_extension_direction, max_extension);
     m_forward.insert(insertions);
     m_inverse.inverse_insert(insertions);
@@ -1654,7 +1654,8 @@ BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>&
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl>::fill_gaps(
     typename IntervalTraits<Interval>::BaseDifferenceType max_extension)
 {
-    const auto insertions = detail::fill_gaps_inserts(m_forward, max_extension);
+    const auto insertions =
+        details::fill_gaps_inserts(m_forward, max_extension);
     m_forward.insert(insertions);
     m_inverse.inverse_insert(insertions);
     return *this;
@@ -1856,12 +1857,12 @@ template <typename Key,
           typename InverseImpl>
 BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> flattened(
     BiIntervalDictExp<Key, Val, Interval, Impl, InverseImpl> interval_dict,
-    FlattenPolicy<typename detail::identity<Key>::type,
-                  typename detail::identity<Val>::type,
-                  typename detail::identity<Interval>::type> keep_one_value)
+    FlattenPolicy<typename details::identity<Key>::type,
+                  typename details::identity<Val>::type,
+                  typename details::identity<Interval>::type> keep_one_value)
 {
     const auto [insertions, erasures] =
-        detail::flatten_actions(interval_dict.m_forward, keep_one_value);
+        details::flatten_actions(interval_dict.m_forward, keep_one_value);
     interval_dict.insert(insertions);
     interval_dict.erase(erasures);
     return interval_dict;

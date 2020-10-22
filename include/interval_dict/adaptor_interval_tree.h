@@ -40,9 +40,8 @@ namespace interval_dict
 namespace implementation
 {
 template <typename Val, typename Interval>
-using IntervalTree = interval_dict::IntervalTree<Val, Interval>;
+using IntervalTree = interval_dict::tree::IntervalTree<Val, Interval>;
 }
-
 
 template <typename Val, typename Interval, typename Impl>
 struct Implementation<
@@ -80,10 +79,10 @@ struct Implementation<
         return interval_values.gaps();
     }
 
-    /// @return coroutine enumerating gaps between intervals and the values on either side
-    static cppcoro::generator<std::tuple<const std::vector<Val>&,
-                                         const Interval&,
-                                         const std::vector<Val>&>>
+    /// @return coroutine enumerating gaps between intervals and the values on
+    /// either side
+    static cppcoro::generator<
+        std::tuple<const std::vector<Val>&, Interval, const std::vector<Val>&>>
     sandwiched_gaps(const Impl& interval_values)
     {
         return interval_values.sandwiched_gaps();
@@ -112,15 +111,15 @@ struct Implementation<
     }
 
     /// @return coroutine enumerating all interval/values over @p query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const Val&>>
-    intervals(const Impl& interval_values, const Interval& query_interval)
+    static auto intervals(const Impl& interval_values,
+                          const Interval& query_interval)
     {
         return interval_values.intervals(query_interval);
     }
 
     /// @return coroutine enumerating all disjoint interval/values over @p
     /// query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const std::set<Val>&>>
+    static cppcoro::generator<std::tuple<Interval, const std::set<Val>&>>
     disjoint_intervals(const Impl& interval_values,
                        const Interval& query_interval)
     {
