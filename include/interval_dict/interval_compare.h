@@ -156,6 +156,14 @@ exclusive_less(
     return boost::icl::domain_less<IntervalType>(left_upper, first_right);
 }
 
+// intersects()
+/// Like boost::icl::intersects but without empty() tests
+template <typename T>
+bool intersects(const T& a, const T& b)
+{
+    return !(comparisons::exclusive_less(a, b) || comparisons::exclusive_less(b, a));
+}
+
 //
 // upper_edge()
 // Get the edges of an interval, consistent across dynamic and static
@@ -271,16 +279,6 @@ struct CompareValIntervalTouches
         return false;
     }
 };
-
-// template <typename IntervalType, typename
-//     enable = boost::icl::interval_traits<IntervalType>::domain_type>
-// struct GetIntervalOp
-// {
-//     static const IntervalType& apply(const IntervalType& interval)
-//     {
-//         return interval;
-//     }
-// };
 
 // Trait for getting intervals from different types
 template <typename T, typename Enabled = void> struct GetIntervalOp
