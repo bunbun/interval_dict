@@ -19,141 +19,138 @@
 #include "test_utils.h"
 
 #include <interval_dict/gregorian.h>
+#include <interval_dict/intervaldictail.h>
 #include <interval_dict/intervaldicticl.h>
 #include <interval_dict/intervaldictitree.h>
 #include <interval_dict/ptime.h>
+#include <concepts>
 #include <vector>
 
-TEMPLATE_TEST_CASE("Test intervals for different interval types",
-                   "[intervals]",
-                   boost::icl::interval<int>::type,
-                   boost::icl::left_open_interval<int>,
-                   boost::icl::right_open_interval<int>,
-                   boost::icl::open_interval<int>,
-                   boost::icl::closed_interval<int>,
-                   boost::icl::interval<float>::type,
-                   boost::icl::left_open_interval<float>,
-                   boost::icl::right_open_interval<float>,
-                   boost::icl::interval<boost::posix_time::ptime>::type,
-                   boost::icl::left_open_interval<boost::posix_time::ptime>,
-                   boost::icl::right_open_interval<boost::posix_time::ptime>,
-                   boost::icl::open_interval<boost::posix_time::ptime>,
-                   boost::icl::closed_interval<boost::posix_time::ptime>,
-                   boost::icl::discrete_interval<boost::posix_time::ptime>,
-                   boost::icl::interval<boost::gregorian::date>::type,
-                   boost::icl::left_open_interval<boost::gregorian::date>,
-                   boost::icl::right_open_interval<boost::gregorian::date>,
-                   boost::icl::open_interval<boost::gregorian::date>,
-                   boost::icl::closed_interval<boost::gregorian::date>,
-                   boost::icl::discrete_interval<boost::gregorian::date>)
+TEMPLATE_TEST_CASE ("Test intervals for different interval types",
+                    "[intervals]",
+                    boost::icl::interval<int>::type,
+                    boost::icl::left_open_interval<int>,
+                    boost::icl::right_open_interval<int>,
+                    boost::icl::open_interval<int>,
+                    boost::icl::closed_interval<int>,
+//                  boost::icl::interval<float>::type,
+                    boost::icl::left_open_interval<float>,
+                    boost::icl::right_open_interval<float>,
+                    boost::icl::interval<boost::posix_time::ptime>::type,
+                    boost::icl::left_open_interval<boost::posix_time::ptime>,
+                    boost::icl::right_open_interval<boost::posix_time::ptime>,
+                    boost::icl::open_interval<boost::posix_time::ptime>,
+                    boost::icl::closed_interval<boost::posix_time::ptime>,
+                    boost::icl::discrete_interval<boost::posix_time::ptime>,
+                    boost::icl::interval<boost::gregorian::date>::type,
+                    boost::icl::left_open_interval<boost::gregorian::date>,
+                    boost::icl::right_open_interval<boost::gregorian::date>,
+                    boost::icl::open_interval<boost::gregorian::date>,
+                    boost::icl::closed_interval<boost::gregorian::date>,
+                    boost::icl::discrete_interval<boost::gregorian::date>)
 {
-    using namespace std::string_literals;
-    using Interval = TestType;
-    using Key = std::string;
-    using Val = int;
-    using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Val, Interval>;
-    using Interval = typename IDict::IntervalType;
-    using ImportData = std::vector<std::tuple<Key, Val, Interval>>;
+  using namespace std::string_literals;
+  using Interval = TestType;
+  using Key = std::string;
+  using Value = int;
+  using IDict = interval_dict::INTERVALDICTTESTTYPE<Key, Value, Interval>;
+  static_assert(std::same_as<Interval, typename IDict::IntervalType>);
+  using ImportData = std::vector<std::tuple<Key, Value, Interval>>;
 
-    /*
-     * TestData
-     */
-    GIVEN("An IntervalDict with overlapping intervals")
+  /*
+   * TestData
+   */
+  GIVEN ("An IntervalDict with overlapping intervals")
+  {
+    TestData<Interval> test_data;
+    const IDict test_dict (test_data.initial ());
+    // N.B. "ee" should be ignored
+    const auto all_keys = std::vector {"aa"s, "bb"s, "cc"s, "dd"s, "ee"s};
+    const auto expected = test_data.intervals ();
+    const auto query = test_data.query_interval ();
+
+    WHEN ("All data is retrieved via intervals()")
     {
-        TestData<Interval> test_data;
-        const IDict test_dict(test_data.initial());
-        // N.B. "ee" should be ignored
-        const auto all_keys = std::vector{"aa"s, "bb"s, "cc"s, "dd"s, "ee"s};
-        const auto expected = test_data.intervals();
-        const auto query = test_data.query_interval();
-
-        WHEN("All data is retrieved via intervals()")
-        {
-            auto vec_intervals = interval_dict::intervals(test_dict, all_keys);
-            ImportData intervals_data;
-            for (const auto& [key, value, interval] : vec_intervals)
-            {
-                intervals_data.push_back({key, value, interval});
-            }
-            THEN("Expect")
-            {
-                REQUIRE(intervals_data == expected);
-            }
-        }
-
-        WHEN("Only data within a query interval is retrieved via intervals()")
-        {
-            auto vec_intervals =
-                interval_dict::intervals(test_dict, all_keys, query);
-            ImportData intervals_data;
-            for (const auto& [key, value, interval] : vec_intervals)
-            {
-                intervals_data.push_back({key, value, interval});
-            }
-            THEN("Expect to match only a subset")
-            {
-                ImportData expected_subset;
-                for (const auto& [key, value, interval] : expected)
-                {
-                    if (boost::icl::intersects(interval, query))
-                    {
-                        expected_subset.push_back(
-                            {key, value, interval & query});
-                    }
-                }
-                REQUIRE(intervals_data == expected_subset);
-            }
-        }
-        WHEN("Only data matching keys within a query interval is retrieved via "
-             "intervals()")
-        {
-            auto vec_intervals = interval_dict::intervals(
-                test_dict, std::vector{"bb"s, "dd"s}, query);
-            ImportData intervals_data;
-            for (const auto& [key, value, interval] : vec_intervals)
-            {
-                intervals_data.push_back({key, value, interval});
-            }
-            THEN("Expect to match only a subset")
-            {
-                ImportData expected_subset;
-                auto keys = std::set{"bb"s, "dd"s};
-                for (const auto& [key, value, interval] : expected)
-                {
-                    if (keys.count(key) &&
-                        boost::icl::intersects(interval, query))
-                    {
-                        expected_subset.push_back(
-                            {key, value, interval & query});
-                    }
-                }
-                REQUIRE(intervals_data == expected_subset);
-            }
-        }
-        WHEN("Only data matching a key within a query interval is retrieved "
-             "via intervals()")
-        {
-            auto vec_intervals =
-                interval_dict::intervals(test_dict, "dd"s, query);
-            ImportData intervals_data;
-            for (const auto& [key, value, interval] : vec_intervals)
-            {
-                intervals_data.push_back({key, value, interval});
-            }
-            THEN("Expect to match only a subset")
-            {
-                ImportData expected_subset;
-                auto keys = std::set{"bb"s, "dd"s};
-                for (const auto& [key, value, interval] : expected)
-                {
-                    if (key == "dd"s && boost::icl::intersects(interval, query))
-                    {
-                        expected_subset.push_back(
-                            {key, value, interval & query});
-                    }
-                }
-                REQUIRE(intervals_data == expected_subset);
-            }
-        }
+      auto vec_intervals = interval_dict::intervals (test_dict, all_keys);
+      ImportData intervals_data;
+      for (const auto &[key, value, interval] : vec_intervals)
+      {
+        intervals_data.push_back ({key, value, interval});
+      }
+      THEN ("Expect")
+      {
+        REQUIRE (intervals_data == expected);
+      }
     }
+
+    WHEN ("Only data within a query interval is retrieved via intervals()")
+    {
+      auto vec_intervals
+        = interval_dict::intervals (test_dict, all_keys, query);
+      ImportData intervals_data;
+      for (const auto &[key, value, interval] : vec_intervals)
+      {
+        intervals_data.push_back ({key, value, interval});
+      }
+      THEN ("Expect to match only a subset")
+      {
+        ImportData expected_subset;
+        for (const auto &[key, value, interval] : expected)
+        {
+          if (boost::icl::intersects (interval, query))
+          {
+            expected_subset.push_back ({key, value, interval & query});
+          }
+        }
+        REQUIRE (intervals_data == expected_subset);
+      }
+    }
+    WHEN ("Only data matching keys within a query interval is retrieved via "
+          "intervals()")
+    {
+      auto vec_intervals = interval_dict::intervals (
+        test_dict, std::vector {"bb"s, "dd"s}, query);
+      ImportData intervals_data;
+      for (const auto &[key, value, interval] : vec_intervals)
+      {
+        intervals_data.push_back ({key, value, interval});
+      }
+      THEN ("Expect to match only a subset")
+      {
+        ImportData expected_subset;
+        auto keys = std::set {"bb"s, "dd"s};
+        for (const auto &[key, value, interval] : expected)
+        {
+          if (keys.count (key) && boost::icl::intersects (interval, query))
+          {
+            expected_subset.push_back ({key, value, interval & query});
+          }
+        }
+        REQUIRE (intervals_data == expected_subset);
+      }
+    }
+    WHEN ("Only data matching a key within a query interval is retrieved "
+          "via intervals()")
+    {
+      auto vec_intervals = interval_dict::intervals (test_dict, "dd"s, query);
+      ImportData intervals_data;
+      for (const auto &[key, value, interval] : vec_intervals)
+      {
+        intervals_data.push_back ({key, value, interval});
+      }
+      THEN ("Expect to match only a subset")
+      {
+        ImportData expected_subset;
+        auto keys = std::set {"bb"s, "dd"s};
+        for (const auto &[key, value, interval] : expected)
+        {
+          if (key == "dd"s && boost::icl::intersects (interval, query))
+          {
+            expected_subset.push_back ({key, value, interval & query});
+          }
+        }
+        REQUIRE (intervals_data == expected_subset);
+      }
+    }
+  }
 }

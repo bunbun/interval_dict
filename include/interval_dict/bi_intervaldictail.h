@@ -8,30 +8,33 @@
 //
 //  Project home: https://github.com/goodstadt/intervaldict
 //
-/// \file intervaldictitree.h
-/// \brief Declaration of the IntervalDictITreeExp / IntervalDictITree classes
+/// \file bi_intervaldictail.h
+/// \brief Declaration of the BiIntervalDictAILExp / BiIntervalDictAIL classes
 //
-// Provides interval associative dictionaries implemented using
-// an Interval Tree storing values in non-disjoint intervals
+// Provides bidirectional interval associative dictionaries implemented using
+// augmented interval lists storing values in non-disjoint intervals
 //
 /// \author Leo Goodstadt
 /// Contact intervaldict@llew.org.uk
 
-#ifndef INCLUDE_INTERVAL_DICT_INTERVALDICTITREE_H
-#define INCLUDE_INTERVAL_DICT_INTERVALDICTITREE_H
+#ifndef INCLUDE_INTERVAL_DICT_BI_INTERVALDICTAIL_H
+#define INCLUDE_INTERVAL_DICT_BI_INTERVALDICTAIL_H
 
-#include "adaptor_interval_tree.h"
+#include "adaptor_ail.h"
+
 #include "intervaldict.h"
+
+#include "bi_intervaldict.h"
 
 namespace interval_dict
 {
   /**
-   * @brief one-to-many interval dictionary powered by
-   * an Interval Tree storing values in non-disjoint intervals
+   * @brief Bidirectional interval dictionary powered by using
+   * Augmented Interval Lists in both directions
    *
-   *  Typically used for time-varying dictionaries.
+   * Typically used for time-varying dictionaries.
    *
-   *  `IntervalDictITreeExp` is useful for specifying the exact inclusive or
+   * `BiIntervalDictAILExp` is useful for specifying the exact inclusive or
    * exclusive interval type.
    *
    * Choices are [boost::icl intervals
@@ -50,23 +53,25 @@ namespace interval_dict
    * @tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
    */
   template<typename Key, typename Value, typename Interval>
-  using IntervalDictITreeExp
-    = IntervalDictExp<Key,
-                      Value,
-                      Interval,
-                      tree::IntervalTree<Value, Interval>>;
+  using BiIntervalDictAILExp
+    = BiIntervalDictExp<Key,
+                        Value,
+                        Interval,
+                        implementation::AugmentedIntervalList<Value, Interval>,
+                        implementation::AugmentedIntervalList<Key, Interval>>;
 
-  /// \brief one-to-many interval dictionary powered by boost::icl::interval_map
+  /// \brief Bidirectional interval dictionary powered by
+  /// boost::icl::interval_map in both directions
   ///
   /// \tparam Key Type of keys
   /// \tparam Value Type of Values
   /// \tparam BaseType The base type of the interval: Date or Posix Time etc.
   template<typename Key, typename Value, typename BaseType>
-  using IntervalDictITree
-    = IntervalDictITreeExp<Key,
+  using BiIntervalDictAIL
+    = BiIntervalDictAILExp<Key,
                            Value,
                            typename boost::icl::interval<BaseType>::type>;
 
 } // namespace interval_dict
 
-#endif
+#endif // INCLUDE_INTERVAL_DICT_BI_INTERVALDICTAIL_H

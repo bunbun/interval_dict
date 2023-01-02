@@ -1,0 +1,258 @@
+---
+Language:        Cpp
+AccessModifierOffset: 0
+AlignAfterOpenBracket: Align
+# LEO
+AlignArrayOfStructures: None
+AlignConsecutiveMacros: None
+# LEO
+AlignConsecutiveAssignments: None
+# LEO
+AlignConsecutiveBitFields: None
+# LEO
+AlignConsecutiveDeclarations: None
+AlignEscapedNewlines: Left
+AlignOperands:   Align
+AlignTrailingComments: true
+# LEO
+AllowAllArgumentsOnNextLine: true
+# LEO
+AllowAllParametersOfDeclarationOnNextLine: true
+# LEO
+AllowShortEnumsOnASingleLine: true
+# LEO
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+# LEO
+AllowShortLambdasOnASingleLine: false
+# LEO
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+# LEO
+AlwaysBreakAfterDefinitionReturnType: None
+# LEO
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+# AlwaysBreakTemplateDeclarations: MultiLine
+AlwaysBreakTemplateDeclarations: Yes
+# LEO
+AttributeMacros:
+  - __capability
+# LEO
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+# LEO
+  AfterCaseLabel:  true
+# LEO
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+# LEO
+  BeforeLambdaBody: true
+  BeforeWhile:     true
+# LEO
+  IndentBraces:    true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBinaryOperators: All
+# LEO
+BreakBeforeConceptDeclarations: Always
+IndentRequiresClause: true
+RequiresClausePosition: OwnLine
+# LEO
+BreakBeforeBraces: Allman
+BreakBeforeInheritanceComma: false
+BreakInheritanceList: BeforeColon
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: true
+BreakConstructorInitializers: BeforeComma
+BreakStringLiterals: false
+# LEO
+BreakAfterJavaFieldAnnotations: false
+# LEO
+ColumnLimit:     80
+CommentPragmas:  '^ IWYU pragma:'
+# LEO
+QualifierAlignment: Leave
+# LEO
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat:   false
+FixNamespaceComments: true
+# LEO
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+ExperimentalAutoDetectBinPacking: false
+PackConstructorInitializers: BinPack
+BasedOnStyle:    ''
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+AllowAllConstructorInitializersOnNextLine: true
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+IfMacros:
+  - KJ_IF_MAYBE
+# LEO
+IncludeBlocks:   Preserve
+IncludeCategories:
+  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*'
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+IncludeIsMainRegex: '(Test)?$'
+# LEO
+IncludeIsMainSourceRegex: ''
+IndentAccessModifiers: false
+# LEO
+IndentCaseLabels: true
+# LEO
+IndentCaseBlocks: false
+IndentGotoLabels: true
+# LEO
+IndentPPDirectives: None
+# LEO
+IndentExternBlock: AfterExternBlock
+IndentRequires:  false
+# LEO
+IndentWidth:     2
+IndentWrappedFunctionNames: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+# LEO
+InsertTrailingCommas: None
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+LambdaBodyIndentation: Signature
+# LEO
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: All
+# LEO
+ObjCBinPackProtocolList: Auto
+ObjCBlockIndentWidth: 2
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+# LEO
+PenaltyBreakAssignment: 0
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+# LEO
+PenaltyBreakOpenParenthesis: 0
+# LEO
+PenaltyBreakString: 10
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 60
+# LEO
+PenaltyIndentedWhitespace: 0
+# LEO
+PointerAlignment: Right
+# LEO
+PPIndentWidth:   -1
+ReferenceAlignment: Pointer
+# LEO
+ReflowComments:  true
+# LEO
+RemoveBracesLLVM: false
+SeparateDefinitionBlocks: Leave
+ShortNamespaceLines: 1
+# LEO
+SortIncludes:    CaseSensitive
+# LEO
+SortJavaStaticImport: Before
+# LEO
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+# LEO
+SpaceAfterLogicalNot: false
+# LEO
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+# LEO
+SpaceBeforeCaseColon: false
+# LEO
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Always
+# LEO
+SpaceBeforeParensOptions:
+  # LEO
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: true
+  # LEO
+  AfterControlStatements: true
+  AfterForeachMacros: true
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros:   true
+  AfterOverloadedOperator: false
+  BeforeNonEmptyParentheses: false
+SpaceAroundPointerQualifiers: Default
+# LEO
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles:  Never
+# LEO
+SpacesInConditionalStatement: false
+# LEO
+SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
+# LEO
+SpacesInLineCommentPrefix:
+  Minimum:         1
+  Maximum:         -1
+# LEO
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+# LEO
+SpaceBeforeSquareBrackets: false
+BitFieldColonSpacing: Both
+Standard:        Latest
+StatementAttributeLikeMacros:
+  - Q_EMIT
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+# LEO
+TabWidth:        2
+UseTab:          Never
+# LEO
+UseCRLF:         false
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
+  - NS_SWIFT_NAME
+  - CF_SWIFT_NAME
+# LEO
+...
+

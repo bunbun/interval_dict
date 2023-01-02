@@ -16,34 +16,37 @@
 #ifndef INCLUDE_INTERVAL_DICT_GREGORIAN_H
 #define INCLUDE_INTERVAL_DICT_GREGORIAN_H
 
+#include "interval_traits.h"
+
 #include <boost/icl/gregorian.hpp>
 
-#include "interval_traits.h"
+#include <concepts>
 
 namespace interval_dict::date_literals
 {
-/// Convenience function to make dates
-inline boost::gregorian::date operator"" _dt(unsigned long long int date_int)
-{
-    const auto year = date_int / 10000;
-    const auto month = date_int / 100 - year * 100;
-    const auto day = date_int - date_int / 100 * 100;
+  /// Convenience function to make dates
+  inline boost::gregorian::date operator"" _dt (unsigned long long int date_int)
+  {
+    const short unsigned int year = date_int / 10000;
+    const short unsigned int month = date_int / 100 - year * 100;
+    const short unsigned int day = date_int - date_int / 100 * 100;
     return {year, month, day};
-}
+  }
 } // namespace interval_dict::date_literals
 
 namespace interval_dict
 {
-/// Traits specialised to adapt boost::gregorian::date for use with
-/// IntervalDict
-template <typename Interval>
-class IntervalTraits<
-    Interval,
-    typename std::enable_if<std::is_same<
-        typename boost::icl::interval_traits<Interval>::domain_type,
-        boost::gregorian::date>::value>::type>
-{
-public:
+  template<typename Interval>
+  concept GregorianInterval
+    = std::is_same_v<typename ICLTraits<Interval>::BaseType,
+                     boost::gregorian::date>;
+
+  /// Traits specialised to adapt boost::gregorian::date for use with
+  /// IntervalDict
+  template<GregorianInterval Interval>
+  class IntervalTraits<Interval>
+  {
+    public:
     /// The underlying type for the interval
     using BaseType = boost::gregorian::date;
 
@@ -51,43 +54,43 @@ public:
     using BaseDifferenceType = boost::gregorian::date_duration;
 
     /// The earliest possible date
-    static boost::gregorian::date lowest() noexcept
+    static boost::gregorian::date minimum () noexcept
     {
-        return boost::gregorian::date{boost::date_time::min_date_time};
+      return boost::gregorian::date {boost::date_time::min_date_time};
     }
 
     /// The latest possible date
-    static boost::gregorian::date max() noexcept
+    static boost::gregorian::date maximum () noexcept
     {
-        return boost::gregorian::date{boost::date_time::max_date_time};
+      return boost::gregorian::date {boost::date_time::max_date_time};
     }
 
     /// The maximum size of a date interval
-    static boost::gregorian::date_duration max_size() noexcept
+    static boost::gregorian::date_duration max_size () noexcept
     {
-        return boost::gregorian::date_duration{boost::date_time::max_date_time};
+      return boost::gregorian::date_duration {boost::date_time::max_date_time};
     }
-};
+  };
 
 } // namespace interval_dict
 
 namespace boost::gregorian
 {
-using boost::icl::operator--;
-using boost::icl::operator++;
-
+  using boost::icl::operator--;
+  using boost::icl::operator++;
 } // namespace boost::gregorian
 
 namespace std
 {
-/// \brief Hash function for boost::gregorian::date
-template <> struct hash<boost::gregorian::date>
-{
-    size_t operator()(const boost::gregorian::date& date) const
+  /// \brief Hash function for boost::gregorian::date
+  template<>
+  struct hash<boost::gregorian::date>
+  {
+    size_t operator() (const boost::gregorian::date &date) const
     {
-        return std::hash<decltype(date.julian_day())>()(date.julian_day());
+      return std::hash<decltype (date.julian_day ())> () (date.julian_day ());
     }
-};
+  };
 } // namespace std
 
 #endif // INCLUDE_INTERVAL_DICT_GREGORIAN_H

@@ -18,105 +18,76 @@
 #define INCLUDE_INTERVAL_DICT_ADAPTOR_H
 
 #include "interval_traits.h"
+#include "value_interval.h"
 
 #include <boost/icl/interval_map.hpp>
 #include <cppcoro/generator.hpp>
-#include <range/v3/view/subrange.hpp>
+#include <ranges>
 
 namespace interval_dict
 {
-
-///  Abstract trait definition to implement IntervalDict
-template <typename Val, typename Interval, typename T, typename enable = void>
-struct Implementation
-{
-
+  ///  Abstract trait definition to implement IntervalDict
+  template<typename Value, typename Interval, typename Impl>
+  struct Implementation
+  {
     /// Type manipulating function for obtaining the same implementation
     /// underlying an IntervalDict that is uses the same Interval type but
-    /// "rebased" with a new Val type.
+    /// "rebased" with a new Value type.
     ///
     /// The return type is `::type` as per C++ convention.
     ///
     /// This is used to create types to hold data in the `invert()`
     /// orientation or after joining with a compatible IntervalDict
     /// with possibly different Key / Value types. See `joined_to()`.
-    template <typename NewVal> struct rebind
+    template<typename NewVal>
+    struct rebind
     {
-        /// Holds type of the implementation in the inverse() direction
-        using type = void;
+      /// Holds type of the implementation in the inverse() direction
+      using type = void;
     };
-
-    /// @return coroutine enumerating gaps between intervals
-    cppcoro::generator<Interval> gaps(const T&)
-    {
-    }
 
     /// @return coroutine enumerating gaps between intervals and the values on
     /// either side
-    static cppcoro::generator<std::tuple<const std::vector<Val>&,
-                                         const Interval&,
-                                         const std::vector<Val>&>>
-    sandwiched_gaps(const T&)
-    {
-    }
+    static SandwichedGaps<Value, Interval> sandwiched_gaps (const Impl &);
 
-    /// erase @p value for @p query_interval
-    static void erase(T&, const Interval&, const Val&)
-    {
-    }
-
-    /// erase all values for @p query_interval
-    static void erase(T&, const Interval&)
-    {
-    }
-
-    /// insert @p value for @p query_interval
-    static void insert(T&, const Interval&, const Val&)
-    {
-    }
+    /// @return coroutine enumerating gaps between intervals
+    static cppcoro::generator<Interval> gaps (const Impl &);
 
     /// @return coroutine enumerating all interval/values over @p query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const Val&>>
-    intervals(const T&, const Interval&)
-    {
-    }
+    static cppcoro::generator<ValueInterval<Value, Interval>>
+    intervals (const Impl &, const Interval &);
 
     /// @return coroutine enumerating all disjoint interval/values over @p
     /// query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const std::set<Val>&>>
-    disjoint_intervals(const T&, const Interval&)
-    {
-    }
+    static cppcoro::generator<ValuesDisjointInterval<Value, Interval>>
+    disjoint_intervals (const Impl &, const Interval &);
+
+    /// @return first disjoint interval (with one or more values)
+    static ValuesDisjointInterval<Value, Interval>
+    initial_values (const Impl &);
+
+    /// @return last disjoint interval (with one or more values)
+    static ValuesDisjointInterval<Value, Interval> final_values (const Impl &);
+
+    /// erase @p value for @p query_interval
+    static void erase (Impl &, const Interval &, const Value &);
+
+    /// erase all values for @p query_interval
+    static void erase (Impl &, const Interval &);
+
+    /// insert @p value for @p query_interval
+    static void insert (Impl &, const Interval &, const Value &);
 
     /// @return whether there are no values
-    static bool empty(const T&)
-    {
-        return false;
-    }
+    static bool empty (const Impl &);
 
     /// @return the union with another set of interval-values
-    static T& merged_with(T&, const T&)
-    {
-    }
+    static Impl &merged_with (Impl &, const Impl &);
 
     /// @return the asymmetrical difference with another set of
     /// interval-values
-    static T& subtract_by(T&, const T&)
-    {
-    }
-
-    /// @return first disjoint interval (with one or more values)
-    static std::tuple<const Interval&, const std::set<Val>&>
-    initial_values(const T&)
-    {
-    }
-
-    /// @return last disjoint interval (with one or more values)
-    static std::tuple<const Interval&, const std::set<Val>&>
-    final_values(const T&)
-    {
-    }
-};
+    static Impl &subtract_by (Impl &, const Impl &);
+  };
 
 } // namespace interval_dict
 #endif // INCLUDE_INTERVAL_DICT_ADAPTOR_H

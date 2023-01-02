@@ -4,11 +4,19 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fcoroutines-ts -D_FORTIFY_SOURCE=2 -Wall ")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_COMPILER "g++-12")
+set(CMAKE_C_COMPILER "gcc-12")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 -Wall ")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ")# -lc++abi")
+
+#set(CMAKE_CXX_COMPILER "clang++")
+#set(CMAKE_C_COMPILER "clang")
+# Use libc++ when ranges are supported after v.15
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fcoroutines-ts -D_FORTIFY_SOURCE=2 -Wall ")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")# -lc++abi")
+
+
 
 # This include defines standard install locations.
 # https://cmake.org/cmake/help/v3.11/module/GNUInstallDirs.html
@@ -40,16 +48,17 @@ include_directories(${Boost_INCLUDE_DIR})
 #   External projects
 #       range-v3
 #
-include_directories(extern/range-v3)
-add_library(range_v3 INTERFACE IMPORTED)
-set_target_properties(range_v3 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/range-v3/include)
+#include_directories(extern/range-v3)
+#add_library(range_v3 INTERFACE IMPORTED)
+#set_target_properties(range_v3 PROPERTIES
+#        INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/range-v3/include)
 #       cppcoro
 include_directories(extern/cppcoro)
 add_library(cppcoro INTERFACE IMPORTED)
 set_target_properties(cppcoro PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES ${interval_dict_SOURCE_DIR}/extern/cppcoro/include)
 #       catch2
+#find_package(Catch2 REQUIRED)
 include_directories(extern/catch2)
 #       ygg
 include_directories(extern/ygg)
@@ -66,31 +75,39 @@ set(HEADER_FILES
         include/interval_dict/adaptor.h
         include/interval_dict/adaptor_icl_interval_map.h
         include/interval_dict/adaptor_interval_tree.h
+        include/interval_dict/adaptor_ail.h
+        include/interval_dict/augmented_interval_list.h
         include/interval_dict/bi_intervaldict.h
         include/interval_dict/bi_intervaldicticl.h
+        include/interval_dict/bi_intervaldictail.h
         include/interval_dict/bi_intervaldictitree.h
+        include/interval_dict/default_init_allocator.h
         include/interval_dict/gregorian.h
         include/interval_dict/interval_compare.h
+        include/interval_dict/interval_operators.h
+        include/interval_dict/interval_overlaps.h
         include/interval_dict/interval_traits.h
-        include/interval_dict/interval_tree.h
         include/interval_dict/interval_tree.h
         include/interval_dict/intervaldict.h
         include/interval_dict/intervaldicticl.h
+        include/interval_dict/intervaldictail.h
         include/interval_dict/intervaldictitree.h
-        include/interval_dict/non_disjoint.h
+        include/interval_dict/disjoint_adaptor.h
         include/interval_dict/ptime.h
         include/interval_dict/value_interval.h
-        include/interval_dict/interval_overlaps.h)
-set(SOURCE_FILES src/intervaldicticl.cpp include/interval_dict/augmented_interval_list.h)
+        include/interval_dict/std_ranges_23_patch.h)
 add_library(interval_dict
         ${HEADER_FILES}
-        ${SOURCE_FILES})
+        # ${SOURCE_FILES}
+        )
 
 
 
 # We also add an alias definition so that we shadow
 # the export namespace when using add_subdirectory() instead.
 add_library(interval_dict::interval_dict ALIAS interval_dict)
+set_target_properties(interval_dict PROPERTIES LINKER_LANGUAGE CXX)
+
 
 # By prefixing the installation paths with our name and version
 # we can have multiple versions installed at the same time.
@@ -112,7 +129,7 @@ target_include_directories(interval_dict
 #
 #   external dependencies
 #
-target_link_libraries(interval_dict PUBLIC range_v3 cppcoro)
+target_link_libraries(interval_dict PUBLIC cppcoro)
 
 
 # Here we configure variables specifying the target directories.
@@ -172,6 +189,9 @@ export(PACKAGE interval_dict)
 
 add_subdirectory(tests/test_interval_dict_icl)
 add_subdirectory(tests/test_bi_interval_dict_icl)
+add_subdirectory(tests/test_simple)
+add_subdirectory(tests/test_interval_dict_ail)
+add_subdirectory(tests/test_bi_interval_dict_ail)
 add_subdirectory(tests/test_interval_dict_itree)
 add_subdirectory(tests/test_bi_interval_dict_itree)
 add_subdirectory(tests/test_general)
@@ -179,7 +199,7 @@ add_subdirectory(tests/test_general)
 install(TARGETS interval_dict DESTINATION ${INTERVAL_DICT_INSTALL_LIB_DIR})
 
 add_subdirectory(examples)
-add_subdirectory(experimental)
+#add_subdirectory(experimental)
 
 # Enable Doxygen
 set(${PROJECT_NAME}_ENABLE_DOXYGEN ON)

@@ -2,7 +2,7 @@ project(test_interval_dict LANGUAGES CXX DESCRIPTION "Boost test of interval_dic
 
 set(TARGET_NAME test_interval_dict_icl)
 
-set(CMAKE_BUILD_TYPE "coverage")
+#set(CMAKE_BUILD_TYPE "coverage")
 include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name
@@ -38,38 +38,38 @@ target_include_directories(${TARGET_NAME}
         $<BUILD_INTERFACE:${interval_dict_SOURCE_DIR}/include/interval_dict>
         )
 
-if(CMAKE_BUILD_TYPE STREQUAL "coverage" OR CODE_COVERAGE)
-    if("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-        message("Building with llvm Code Coverage Tools")
-
-        # Warning/Error messages
-        #endif()
-
-        # set Flags
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
-
-
-    elseif(CMAKE_COMPILER_IS_GNUCXX)
-        message("Building with lcov Code Coverage Tools")
-
-        # Warning/Error messages
-        if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-            message(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
-        endif()
-        if(NOT LCOV_PATH)
-            message(FATAL_ERROR "lcov not found! Aborting...")
-        endif()
-        if(NOT GENHTML_PATH)
-            message(FATAL_ERROR "genhtml not found! Aborting...")
-        endif()
-
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-    else()
-        message(FATAL_ERROR "Code coverage requires Clang or GCC. Aborting.")
-    endif()
-endif()
+#if(CMAKE_BUILD_TYPE STREQUAL "coverage" OR CODE_COVERAGE)
+#    if("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+#        message("Building with llvm Code Coverage Tools")
+#
+#        # Warning/Error messages
+#        #endif()
+#
+#        # set Flags
+#        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+#
+#
+#    elseif(CMAKE_COMPILER_IS_GNUCXX)
+#        message("Building with lcov Code Coverage Tools")
+#
+#        # Warning/Error messages
+#        if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+#            message(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
+#        endif()
+#        if(NOT LCOV_PATH)
+#            message(FATAL_ERROR "lcov not found! Aborting...")
+#        endif()
+#        if(NOT GENHTML_PATH)
+#            message(FATAL_ERROR "genhtml not found! Aborting...")
+#        endif()
+#
+#        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+#    else()
+#        message(FATAL_ERROR "Code coverage requires Clang or GCC. Aborting.")
+#    endif()
+#endif()
 
 
 # llvm-cov

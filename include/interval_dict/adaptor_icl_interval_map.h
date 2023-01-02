@@ -23,236 +23,233 @@
 
 #include "adaptor.h"
 #include "interval_traits.h"
+#include "std_ranges_23_patch.h"
+#include "value_interval.h"
 
 #include <boost/icl/interval_map.hpp>
 #include <cppcoro/generator.hpp>
-#include <range/v3/view/subrange.hpp>
 
 namespace interval_dict
 {
+  /*
+   * _____________________________________________________________________________
+   *
+   * Functions to handle boost::icl::interval_map of std::set<Value>
+   *
+   */
 
-/*
- * _____________________________________________________________________________
- *
- * Functions to handle boost::icl::interval_map of std::set<Val>
- *
- */
+  namespace implementation
+  {
+    /// boost icl interval_map associating each Interval with a std::set of
+    /// values
+    template<typename Val, typename Interval>
+    using IntervalDictICLSubMap
+      = boost::icl::interval_map<typename IntervalTraits<Interval>::BaseType,
+                                 std::set<Val>,
+                                 boost::icl::partial_absorber,
+                                 std::less,
+                                 boost::icl::inplace_plus,
+                                 boost::icl::inplace_et,
+                                 Interval>;
+  } // namespace implementation
 
-namespace implementation
-{
-/// boost icl interval_map associating each Interval with a std::set of values
-template <typename Val, typename Interval>
-using IntervalDictICLSubMap =
-    boost::icl::interval_map<typename IntervalTraits<Interval>::BaseType,
-                             std::set<Val>,
-                             boost::icl::partial_absorber,
-                             std::less,
-                             boost::icl::inplace_plus,
-                             boost::icl::inplace_et,
-                             Interval>;
-} // namespace implementation
+  template<typename Impl, typename Value, typename Interval>
+  concept IntervalDictICLSubMapConcept
+    = std::is_same_v<Impl,
+                     implementation::IntervalDictICLSubMap<Value, Interval>>;
 
-template <typename Val, typename Interval, typename Impl>
-struct Implementation<
-    Val,
-    Interval,
-    Impl,
-    typename std::enable_if_t<
-        std::is_same_v<Impl,
-                       implementation::IntervalDictICLSubMap<Val, Interval>>>>
-{
-
+  template<typename Value,
+           typename Interval,
+           IntervalDictICLSubMapConcept<Value, Interval> Impl>
+  struct Implementation<Value, Interval, Impl>
+  {
     /// Type manipulating function for obtaining the same implementation
     /// underlying an IntervalDict (IntervalDictICLSubMap in this case) that
-    /// uses the same Interval but "rebased" with a new Val type.
+    /// uses the same Interval but "rebased" with a new Value type.
     ///
     /// The return type is `::type` as per C++ convention.
     ///
     /// This is used to create types to hold data in the `invert()`
     /// orientation or after joining with a compatible IntervalDict
     /// with possibly different Key / Value types. See `joined_to()`.
-    template <typename NewVal> struct rebind
+    template<typename NewVal>
+    struct rebind
     {
-        /// Holds type of the implementation in the inverse() direction
-        using type = implementation::IntervalDictICLSubMap<NewVal, Interval>;
+      /// Holds type of the implementation in the inverse() direction
+      using type = implementation::IntervalDictICLSubMap<NewVal, Interval>;
     };
 
     /*
      * _____________________________________________________________________________
      *
-     * Functions to handle boost::icl::interval_map of std::set<Val>
+     * Functions to handle boost::icl::interval_map of std::set<Value>
      *
      */
     /// @return coroutine enumerating gaps between intervals
-    static cppcoro::generator<Interval> gaps(const Impl& interval_values)
+    static cppcoro::generator<Interval> gaps (const Impl &impl)
     {
-        if (interval_values.iterative_size() >= 2)
+      // Need two intervals for gaps between disjoint intervals
+      if (impl.iterative_size () >= 2)
+      {
+        auto first = impl.begin ();
+        auto next = std::next (first);
+        auto last = impl.end ();
+        for (; next != last; ++next, ++first)
         {
-            auto first = interval_values.begin();
-            auto next = std::next(first);
-            auto last = interval_values.end();
-            for (; next != last; ++next, ++first)
-            {
-                auto gap_interval =
-                    boost::icl::inner_complement(first->first, next->first);
-                if (!boost::icl::is_empty(gap_interval))
-                {
-                    co_yield boost::icl::inner_complement(first->first,
-                                                          next->first);
-                }
-            }
+          auto gap_interval
+            = boost::icl::inner_complement (first->first, next->first);
+          if (!boost::icl::is_empty (gap_interval))
+          {
+            co_yield boost::icl::inner_complement (first->first, next->first);
+          }
         }
+      }
     }
 
     /// @return coroutine enumerating gaps between intervals and the values on
     /// either side
-    static cppcoro::generator<std::tuple<const std::vector<Val>&,
-                                         const Interval&,
-                                         const std::vector<Val>&>>
-    sandwiched_gaps(const Impl& interval_values)
+    static SandwichedGaps<Value, Interval> sandwiched_gaps (const Impl &impl)
     {
-        // Reuse vectors for efficiency
-        std::vector<Val> before;
-        std::vector<Val> after;
-        if (interval_values.iterative_size() >= 2)
+      using legacy_ranges_conversion::to_vector;
+      SandwichedGaps<Value, Interval> results;
+      // Need two intervals for gaps between disjoint intervals
+      if (impl.iterative_size () >= 2)
+      {
+        auto first = impl.begin ();
+        auto next = std::next (first);
+        auto last = impl.end ();
+        for (; next != last; ++next, ++first)
         {
-            auto first = interval_values.begin();
-            auto next = std::next(first);
-            auto last = interval_values.end();
-            for (; next != last; ++next, ++first)
-            {
-                before.assign(first->second.begin(), first->second.end());
-                after.assign(next->second.begin(), next->second.end());
-                auto gap_interval =
-                    boost::icl::inner_complement(first->first, next->first);
-                if (!boost::icl::is_empty(gap_interval))
-                {
-                    co_yield {
-                        before,
-                        boost::icl::inner_complement(first->first, next->first),
-                        after};
-                }
-            }
+          auto gap_interval
+            = boost::icl::inner_complement (first->first, next->first);
+          if (!boost::icl::is_empty (gap_interval))
+          {
+            /*Previously used coroutines here (co_yield) for efficiency*/
+            results.push_back (
+              {first->second | to_vector (),
+               boost::icl::inner_complement (first->first, next->first),
+               next->second | to_vector ()});
+          }
         }
+      }
+      return results;
     }
 
     /// erase @p value for @p query_interval
-    static void erase(Impl& interval_values,
-                      const Interval& query_interval,
-                      const Val& value)
+    static void
+    erase (Impl &impl, const Interval &query_interval, const Value &value)
     {
-        using ValueSet = typename Impl::codomain_type;
-        interval_values -= std::pair(query_interval, ValueSet{value});
+      using ValueSet = typename Impl::codomain_type;
+      impl -= std::pair (query_interval, ValueSet {value});
     }
 
     /// erase all values for @p query_interval
-    static void erase(Impl& interval_values, const Interval& query_interval)
+    static void erase (Impl &impl, const Interval &query_interval)
     {
-        interval_values.set({query_interval, {}});
+      impl.set ({query_interval, {}});
     }
 
     /// insert @p value for @p query_interval
-    static void insert(Impl& interval_values,
-                       const Interval& query_interval,
-                       const Val& value)
+    static void
+    insert (Impl &impl, const Interval &query_interval, const Value &value)
     {
-        using ValueSet = typename Impl::codomain_type;
-        interval_values += std::pair(query_interval, ValueSet{value});
+      using ValueSet = typename Impl::codomain_type;
+      impl += std::pair (query_interval, ValueSet {value});
     }
 
     /// @return coroutine enumerating all interval/values over @p query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const Val&>>
-    intervals(const Impl& interval_values, const Interval& query_interval)
+    static cppcoro::generator<ValueInterval<Value, Interval>>
+    intervals (const Impl &impl, const Interval &query_interval)
     {
-        using Intervals = boost::icl::interval_set<
-            typename boost::icl::interval_traits<Interval>::domain_type,
-            std::less,
-            Interval>;
+      using Intervals = boost::icl::interval_set<
+        typename boost::icl::interval_traits<Interval>::domain_type,
+        std::less,
+        Interval>;
 
-        // Underlying storage is disjoint and must be combined
-        std::map<Val, Intervals> intervals_per_value;
-        const auto itpair = interval_values.equal_range(query_interval);
-        for (const auto& [interval, values] :
-             ranges::subrange(itpair.first, itpair.second))
+      // Underlying storage is disjoint and must be combined
+      std::map<Value, Intervals> intervals_per_value;
+      const auto itpair = impl.equal_range (query_interval);
+      for (const auto &[interval, values] :
+           std::ranges::subrange (itpair.first, itpair.second))
+      {
+        for (const auto &value : values)
         {
-            for (const auto& value : values)
-            {
-                intervals_per_value[value] += interval & query_interval;
-            }
+          intervals_per_value[value] += interval & query_interval;
         }
+      }
 
-        std::vector<std::tuple<Interval, Val>> vec_interval_values;
-        // Sorted by interval then by value
-        for (const auto& [value, intervals] : intervals_per_value)
+      std::vector<ValueInterval<Value, Interval>> vec_interval_values;
+      // Sorted by interval then by value
+      for (const auto &[value, intervals] : intervals_per_value)
+      {
+        for (const auto &interval : intervals)
         {
-            for (const auto& interval : intervals)
-            {
-                vec_interval_values.push_back({interval, value});
-            }
+          vec_interval_values.push_back ({value, interval});
         }
-        std::sort(vec_interval_values.begin(), vec_interval_values.end());
-        for (const auto& i : vec_interval_values)
-        {
-            co_yield std::tie(std::get<0>(i), std::get<1>(i));
-        }
+      }
+      std::sort (vec_interval_values.begin (), vec_interval_values.end ());
+      for (auto &i : vec_interval_values)
+      {
+        co_yield i;
+      }
     }
 
     /// @return coroutine enumerating all disjoint interval/values over @p
     /// query_interval
-    static cppcoro::generator<std::tuple<const Interval&, const std::set<Val>&>>
-    disjoint_intervals(const Impl& interval_values,
-                       const Interval& query_interval)
+    static cppcoro::generator<ValuesDisjointInterval<Value, Interval>>
+    disjoint_intervals (const Impl &impl, const Interval &query_interval)
     {
-        // Naturally sorted by interval then value
-        const auto itpair = interval_values.equal_range(query_interval);
-        for (const auto& [interval, values] :
-             ranges::subrange(itpair.first, itpair.second))
-        {
-            const auto intersection = query_interval & interval;
-            co_yield std::tie(intersection, values);
-        }
+      // Naturally sorted by interval then value
+      const auto itpair = impl.equal_range (query_interval);
+      for (const auto &[interval, values] :
+           std::ranges::subrange (itpair.first, itpair.second))
+      {
+        const auto intersection = query_interval & interval;
+        using namespace legacy_ranges_conversion;
+        co_yield ValuesDisjointInterval {values | to_vector (), intersection};
+      }
     }
 
     /// @return whether there are no values
-    static bool is_empty(const Impl& interval_values)
+    static bool empty (const Impl &impl)
     {
-        // return interval_values.iterative_size() == 0;
-        return interval_values.empty();
+      // return impl.iterative_size() == 0;
+      return impl.empty ();
     }
 
     /// @return the union with another set of interval-values
-    static Impl& merged_with(Impl& interval_values, const Impl& other)
+    static Impl &merged_with (Impl &impl, const Impl &other)
     {
-        interval_values += other;
-        return interval_values;
+      impl += other;
+      return impl;
     }
 
     /// @return the asymmetrical difference with another set of
     /// interval-values
-    static Impl& subtract_by(Impl& interval_values, const Impl& other)
+    static Impl &subtract_by (Impl &impl, const Impl &other)
     {
-        interval_values -= other;
-        return interval_values;
+      impl -= other;
+      return impl;
     }
 
     /// @return first disjoint interval (with one or more values)
-    static std::tuple<Interval, std::set<Val>>
-    initial_values(const Impl& interval_values)
+    static ValuesDisjointInterval<Value, Interval>
+    initial_values (const Impl &impl)
     {
-        assert(interval_values.iterative_size() > 0);
-        const auto it = interval_values.begin();
-        return {it->first, it->second};
+      assert (impl.iterative_size () > 0);
+      const auto it = impl.begin ();
+      return {it->second | legacy_ranges_conversion::to_vector (), it->first};
     }
 
     /// @return last disjoint interval (with one or more values)
-    static std::tuple<Interval, std::set<Val>>
-    final_values(const Impl& interval_values)
+    static ValuesDisjointInterval<Value, Interval>
+    final_values (const Impl &impl)
     {
-        assert(interval_values.iterative_size());
-        const auto it = interval_values.rbegin();
-        return {it->first, it->second};
+      assert (impl.iterative_size ());
+      const auto it = impl.rbegin ();
+      return {it->second | legacy_ranges_conversion::to_vector (), it->first};
     }
-};
+  };
 
 } // namespace interval_dict
 #endif // INCLUDE_INTERVAL_DICT_ICL_INTERVAL_MAP_ADAPTOR_H

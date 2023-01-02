@@ -26,48 +26,54 @@
 
 namespace interval_dict
 {
-
-namespace operators
-{
-
-template <typename Interval>
-Interval
-right_extend(Interval interval,
-             typename IntervalTraits<Interval>::BaseDifferenceType size)
-{
-    using namespace boost::icl;
-    const auto left = lower(interval);
-    const auto right = upper(interval);
-
-    // Don't extend interval by more than max()
-    if (size == IntervalTraits<Interval>::max_size() ||
-        right > IntervalTraits<Interval>::max() - size)
+  namespace operators
+  {
+    template<typename Interval>
+    Interval
+    right_extend (Interval interval,
+                  typename IntervalTraits<Interval>::BaseDifferenceType size)
     {
-        return Interval{left, IntervalTraits<Interval>::max()};
+      using namespace boost::icl;
+      const auto left = lower (interval);
+      const auto right = upper (interval);
+
+      // Don't extend interval edge past maximum()
+      if (size == IntervalTraits<Interval>::max_size ()
+          || right > IntervalTraits<Interval>::maximum () - size)
+      {
+        return Interval {left, IntervalTraits<Interval>::maximum ()};
+      }
+
+      return Interval {lower (interval), right + size};
     }
 
-    return Interval{lower(interval), right + size};
-}
-
-template <typename Interval>
-Interval left_extend(Interval interval,
-                     typename IntervalTraits<Interval>::BaseDifferenceType size)
-{
-    using namespace boost::icl;
-    const auto left = lower(interval);
-    const auto right = upper(interval);
-
-    // Don't extend interval by more than max()
-    if (size == IntervalTraits<Interval>::max_size() ||
-        left < IntervalTraits<Interval>::lowest() + size)
+    template<typename Interval>
+    Interval
+    left_extend (Interval interval,
+                 typename IntervalTraits<Interval>::BaseDifferenceType size)
     {
-        return Interval{IntervalTraits<Interval>::lowest(), right};
+      using namespace boost::icl;
+      const auto left = lower (interval);
+      const auto right = upper (interval);
+
+      // Don't extend interval to more than maximum()
+      if (size == IntervalTraits<Interval>::max_size ()
+          || left < IntervalTraits<Interval>::minimum () + size)
+      {
+        return Interval {IntervalTraits<Interval>::minimum (), right};
+      }
+
+      return Interval {lower (interval) - size, right};
     }
 
-    return Interval{lower(interval) - size, right};
-}
+    template<typename Interval>
+    Interval tombstone (Interval interval)
+    {
+      using namespace boost::icl;
+      return Interval {lower (interval), IntervalTraits<Interval>::minimum ()};
+    }
 
-} // namespace operators
+  } // namespace operators
 
 } // namespace interval_dict
 

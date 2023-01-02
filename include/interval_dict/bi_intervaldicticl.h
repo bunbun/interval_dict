@@ -28,49 +28,49 @@
 
 namespace interval_dict
 {
-/**
- * @brief Bidirectional interval dictionary powered by using
-// Interval Trees in both directions
- *
- * Typically used for time-varying dictionaries.
- *
- * `BiIntervalDictICLExp` is useful for specifying the exact inclusive or
- * exclusive interval type.
- *
- * Choices are [boost::icl intervals
- * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates)
- * :
- *
- *  - `left_open_interval<BaseType>`
- *  - `right_open_interval<BaseType>`
- *  - `open_interval<BaseType>`
- *  - `closed_interval<BaseType>`
- *
- *  `BaseType` can be a Date or Time type, for example.
- *
- * @tparam Key Type of keys
- * @tparam Val Type of Values
- * @tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
- */
-template <typename Key, typename Val, typename Interval>
-using BiIntervalDictICLExp =
-    BiIntervalDictExp<Key,
-                      Val,
-                      Interval,
-                      implementation::IntervalDictICLSubMap<Val, Interval>,
-                      implementation::IntervalDictICLSubMap<Key, Interval>>;
+  /**
+   * @brief Bidirectional interval dictionary powered by using
+  // Interval Trees in both directions
+   *
+   * Typically used for time-varying dictionaries.
+   *
+   * `BiIntervalDictICLExp` is useful for specifying the exact inclusive or
+   * exclusive interval type.
+   *
+   * Choices are [boost::icl intervals
+   * ](https://www.boost.org/doc/libs/release/libs/icl/doc/html/index.html#boost_icl.introduction.icl_s_class_templates)
+   * :
+   *
+   *  - `left_open_interval<BaseType>`
+   *  - `right_open_interval<BaseType>`
+   *  - `open_interval<BaseType>`
+   *  - `closed_interval<BaseType>`
+   *
+   *  `BaseType` can be a Date or Time type, for example.
+   *
+   * @tparam Key Type of keys
+   * @tparam Value Type of Values
+   * @tparam Interval Interval Type. E.g. boost::icl::right_open_interval<Date>
+   */
+  template<typename Key, typename Value, typename Interval>
+  using BiIntervalDictICLExp
+    = BiIntervalDictExp<Key,
+                        Value,
+                        Interval,
+                        implementation::IntervalDictICLSubMap<Value, Interval>,
+                        implementation::IntervalDictICLSubMap<Key, Interval>>;
 
-/// \brief Bidirectional interval dictionary powered by boost::icl::interval_map
-/// in both directions
-///
-/// \tparam Key Type of keys
-/// \tparam Val Type of Values
-/// \tparam BaseType The base type of the interval: Date or Posix Time etc.
-template <typename Key, typename Val, typename BaseType>
-using BiIntervalDictICL =
-    BiIntervalDictICLExp<Key,
-                         Val,
-                         typename boost::icl::interval<BaseType>::type>;
+  /// \brief Bidirectional interval dictionary powered by
+  /// boost::icl::interval_map in both directions
+  ///
+  /// \tparam Key Type of keys
+  /// \tparam Value Type of Values
+  /// \tparam BaseType The base type of the interval: Date or Posix Time etc.
+  template<typename Key, typename Value, typename BaseType>
+  using BiIntervalDictICL
+    = BiIntervalDictICLExp<Key,
+                           Value,
+                           typename boost::icl::interval<BaseType>::type>;
 
 } // namespace interval_dict
 

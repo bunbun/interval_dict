@@ -1,8 +1,8 @@
 project(test_interval_dict LANGUAGES CXX DESCRIPTION "Boost test of interval_dict library.")
 
-set(TARGET_NAME test_bi_interval_dict_icl)
+set(TARGET_NAME test_bi_interval_dict_ail)
 
-##set(CMAKE_BUILD_TYPE "coverage")
+#set(CMAKE_BUILD_TYPE "coverage")
 include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name
@@ -32,7 +32,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         )
 target_link_libraries (${TARGET_NAME}  PRIVATE interval_dict)
-target_compile_definitions(${TARGET_NAME} PRIVATE INTERVALDICTTESTTYPE=BiIntervalDictICLExp)
+target_compile_definitions(${TARGET_NAME} PRIVATE INTERVALDICTTESTTYPE=BiIntervalDictAILExp)
 target_include_directories(${TARGET_NAME}
         PUBLIC
         # Used when building the library:

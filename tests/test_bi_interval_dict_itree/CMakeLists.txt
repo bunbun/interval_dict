@@ -2,7 +2,7 @@ project(test_interval_dict LANGUAGES CXX DESCRIPTION "Boost test of interval_dic
 
 set(TARGET_NAME test_bi_interval_dict_itree)
 
-set(CMAKE_BUILD_TYPE "coverage")
+#set(CMAKE_BUILD_TYPE "coverage")
 include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name

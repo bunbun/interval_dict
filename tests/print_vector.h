@@ -24,22 +24,22 @@
  */
 namespace std
 {
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& values)
-{
-    if (!values.empty())
+  template<typename T>
+  std::ostream &operator<< (std::ostream &os, const std::vector<T> &values)
+  {
+    if (!values.empty ())
     {
-        os << "[ ";
-        auto ii = values.begin();
-        os << *ii;
-        while (++ii != values.end())
-        {
-            os << ", " << *ii;
-        }
-        os << " ]";
+      os << "[ ";
+      auto ii = values.begin ();
+      os << *ii;
+      while (++ii != values.end ())
+      {
+        os << ", " << *ii;
+      }
+      os << " ]";
     }
     return os;
-}
+  }
 } // namespace std
 
 #endif // TESTS_PRINT_VECTOR_H

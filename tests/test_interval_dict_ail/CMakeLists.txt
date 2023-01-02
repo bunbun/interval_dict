@@ -1,8 +1,8 @@
 project(test_interval_dict LANGUAGES CXX DESCRIPTION "Boost test of interval_dict library.")
 
-set(TARGET_NAME test_bi_interval_dict_icl)
+set(TARGET_NAME test_interval_dict_ail)
 
-##set(CMAKE_BUILD_TYPE "coverage")
+#set(CMAKE_BUILD_TYPE "coverage")
 include_directories (${Boost_INCLUDE_DIRS})
 
 # 'test_boost_intervaldict' is the target name
@@ -20,19 +20,18 @@ add_executable (${TARGET_NAME}
         ../test_flatten.cpp
         ../test_insert.cpp
         ../test_intervals.cpp
-        ../test_inverse_find.cpp
-        ../test_inverse_member_functions.cpp
         ../test_join.cpp
         ../test_member_functions.cpp
         ../test_merge_subtract.cpp
         ../test_ostream.cpp
-        ../test_subset.cpp ../test_interval_overlaps.cpp)
+        ../test_subset.cpp
+        )
 
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         )
 target_link_libraries (${TARGET_NAME}  PRIVATE interval_dict)
-target_compile_definitions(${TARGET_NAME} PRIVATE INTERVALDICTTESTTYPE=BiIntervalDictICLExp)
+target_compile_definitions(${TARGET_NAME} PRIVATE INTERVALDICTTESTTYPE=IntervalDictAILExp)
 target_include_directories(${TARGET_NAME}
         PUBLIC
         # Used when building the library:
@@ -47,8 +46,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "coverage" OR CODE_COVERAGE)
         #endif()
 
         # set Flags
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -fno-inline -fno-elide-constructors")
+
 
     elseif(CMAKE_COMPILER_IS_GNUCXX)
         message("Building with lcov Code Coverage Tools")
@@ -96,9 +96,8 @@ add_custom_command(TARGET ${TARGET_NAME}-ccov POST_BUILD
         COMMENT "Open ${CMAKE_BINARY_DIR}/${TARGET_NAME}-llvm-cov/index.html in your browser to view the coverage report."
         )
 
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#     message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-#
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()

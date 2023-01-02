@@ -23,9 +23,9 @@ Implement IdentifierMap using boost::icl::interval_map
 
 .. doxygenfunction:: interval_dict::implementation::sandwiched_gaps
 
-.. doxygenfunction:: interval_dict::implementation::erase(IntervalDictICLSubMap<Val, Interval> &interval_values, const Interval &query_interval)
+.. doxygenfunction:: interval_dict::implementation::erase(IntervalDictICLSubMap<Value, Interval> &interval_values, const Interval &query_interval)
 
-.. doxygenfunction:: interval_dict::implementation::erase(IntervalDictICLSubMap<Val, Interval> &interval_values, const Interval &query_interval, const Val &value)
+.. doxygenfunction:: interval_dict::implementation::erase(IntervalDictICLSubMap<Value, Interval> &interval_values, const Interval &query_interval, const Value &value)
 
 .. doxygenfunction:: interval_dict::implementation::insert
 
