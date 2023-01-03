@@ -331,7 +331,7 @@ namespace interval_dict
         OtherVal>::type;
     using DataType = std::map<Key, Impl>;
     using InverseDataType = std::map<Key, InverseImpl>;
-    // using KeyValueIntervals = std::vector<std::tuple<Key, Value, Interval>>;
+    using KeyValueIntervals = std::vector<std::tuple<Key, Value, Interval>>;
     /// @endcond
 
     /// @name Constructors

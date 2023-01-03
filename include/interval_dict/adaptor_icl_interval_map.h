@@ -178,7 +178,7 @@ namespace interval_dict
         }
       }
 
-      std::vector<ValueInterval<Value, Interval>> vec_interval_values;
+      ValueIntervals<Value, Interval> vec_interval_values;
       // Sorted by interval then by value
       for (const auto &[value, intervals] : intervals_per_value)
       {

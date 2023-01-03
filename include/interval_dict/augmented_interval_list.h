@@ -100,57 +100,48 @@ namespace interval_dict::augmented_interval_list
                                  comparisons::CompareValIntervalTouches>;
 
     template<typename Value, typename Interval>
-    void
-    remove_empty (std::vector<ValueInterval<Value, Interval>> &value_intervals)
+    void remove_empty (ValueIntervals<Value, Interval> &value_intervals)
     {
       // remove empty intervals
-      value_intervals.erase (std::remove_if (value_intervals.begin (),
-                                             value_intervals.end (),
-                                             [] (const auto &iv)
-                                             {
-                                               return boost::icl::is_empty (
-                                                 iv.interval);
-                                             }),
-                             value_intervals.end ());
+      std::erase_if (value_intervals,
+                     [] (const auto &iv)
+                     {
+                       return boost::icl::is_empty (iv.interval);
+                     });
     }
 
     /**
      * Sort and merge overlapping intervals with the same value
      */
     template<typename Value, typename Interval>
-    void sort_combine_overlapping (
-      std::vector<ValueInterval<Value, Interval>> &value_intervals)
+    void
+    sort_combine_overlapping (ValueIntervals<Value, Interval> &value_intervals)
     {
-      using comparisons::CompareValInterval;
-      std::sort (value_intervals.begin (),
-                 value_intervals.end (),
-                 CompareValInterval {});
-      value_intervals.erase (std::unique (value_intervals.begin (),
-                                          value_intervals.end (),
-                                          [] (auto &lhs, const auto &rhs)
-                                          {
-                                            /*
-                                             * Only discard rhs (return true) if
-                                             * 1. values are the identical
-                                             * 2. intervals overlap
-                                             * In which case, also extend lhs to
-                                             * hull of both
-                                             */
-                                            if (lhs.value != rhs.value)
-                                            {
-                                              return false;
-                                            }
+      std::ranges::sort (value_intervals, comparisons::CompareValInterval {});
+      const auto [l, e] = std::ranges::unique (
+        value_intervals,
+        [] (auto &lhs, const auto &rhs)
+        {
+          /*
+           * Only discard rhs (return true) if
+           * 1. values are the identical
+           * 2. intervals overlap
+           * In which case, also extend lhs to
+           * hull of both
+           */
+          if (lhs.value != rhs.value)
+          {
+            return false;
+          }
 
-                                            if (!comparisons::exclusive_less (
-                                                  lhs.interval, rhs.interval))
-                                            {
-                                              lhs.interval = boost::icl::hull (
-                                                lhs.interval, rhs.interval);
-                                              return true;
-                                            }
-                                            return false;
-                                          }),
-                             value_intervals.end ());
+          if (!comparisons::exclusive_less (lhs.interval, rhs.interval))
+          {
+            lhs.interval = boost::icl::hull (lhs.interval, rhs.interval);
+            return true;
+          }
+          return false;
+        });
+      value_intervals.erase (l, e);
     }
 
   } // namespace details
@@ -253,9 +244,8 @@ namespace interval_dict::augmented_interval_list
         using const_pointer = const value_type *;
         using iterator_category = std::input_iterator_tag;
 
-        ConstIterator (
-          const std::vector<ValueInterval<Value, Interval>> &intervals,
-          std::vector<Run> runs)
+        ConstIterator (const ValueIntervals<Value, Interval> &intervals,
+                       std::vector<Run> runs)
           : m_value_intervals (intervals)
           , m_runs (std::move (runs))
         {
@@ -280,19 +270,18 @@ namespace interval_dict::augmented_interval_list
         const_pointer operator->() const;
 
         private:
-        const std::vector<ValueInterval<Value, Interval>> &m_value_intervals;
+        const ValueIntervals<Value, Interval> &m_value_intervals;
         std::vector<Run> m_runs;
       };
 
-      AllIntervalsRange (
-        const std::vector<ValueInterval<Value, Interval>> &intervals,
-        std::vector<Run> runs);
+      AllIntervalsRange (const ValueIntervals<Value, Interval> &intervals,
+                         std::vector<Run> runs);
 
       ConstIterator begin () const;
       ConstIterator end () const;
 
       private:
-      const std::vector<ValueInterval<Value, Interval>> &m_value_intervals;
+      const ValueIntervals<Value, Interval> &m_value_intervals;
       std::vector<Run> m_runs;
     };
     /// @endcond
@@ -319,10 +308,9 @@ namespace interval_dict::augmented_interval_list
         using const_pointer = const value_type *;
         using iterator_category = std::input_iterator_tag;
 
-        ConstIterator (
-          const std::vector<ValueInterval<Value, Interval>> &intervals,
-          const VecIndices &indices,
-          std::size_t pos = 0)
+        ConstIterator (const ValueIntervals<Value, Interval> &intervals,
+                       const VecIndices &indices,
+                       std::size_t pos = 0)
           : m_value_intervals (intervals)
           , m_indices (indices)
           , m_pos (pos)
@@ -349,14 +337,13 @@ namespace interval_dict::augmented_interval_list
 
         private:
         // Stores reference to
-        const std::vector<ValueInterval<Value, Interval>> &m_value_intervals;
+        const ValueIntervals<Value, Interval> &m_value_intervals;
         const VecIndices &m_indices;
         std::size_t m_pos = 0;
       };
 
-      IntervalsRange (
-        const std::vector<ValueInterval<Value, Interval>> &intervals,
-        VecIndices indices)
+      IntervalsRange (const ValueIntervals<Value, Interval> &intervals,
+                      VecIndices indices)
         : m_value_intervals (intervals)
         , m_indices (indices)
       {
@@ -366,7 +353,7 @@ namespace interval_dict::augmented_interval_list
       ConstIterator end () const;
 
       private:
-      const std::vector<ValueInterval<Value, Interval>> &m_value_intervals;
+      const ValueIntervals<Value, Interval> &m_value_intervals;
       VecIndices m_indices;
     };
     /// @endcond
@@ -386,11 +373,10 @@ namespace interval_dict::augmented_interval_list
      * In simulations, the chosen parameters are near optimal for different
      * data sets of widely varying sizes.
      */
-    explicit AugmentedIntervalList (
-      std::vector<ValueInterval<Value, Interval>> intervals,
-      int max_overlapping_neighbours = 30,
-      int min_run_length = 64,
-      double max_fraction_promoted_per_run = 0.50)
+    explicit AugmentedIntervalList (ValueIntervals<Value, Interval> intervals,
+                                    int max_overlapping_neighbours = 30,
+                                    int min_run_length = 64,
+                                    double max_fraction_promoted_per_run = 0.50)
       : m_max_overlapping_neighbours (
         static_cast<int_fast32_t> (max_overlapping_neighbours))
       , m_min_run_length (static_cast<int_fast32_t> (min_run_length))
@@ -471,7 +457,7 @@ namespace interval_dict::augmented_interval_list
      * add values and intervals, merging overlapping intervals with the same
      * value
      */
-    void insert (std::vector<ValueInterval<Value, Interval>> value_intervals);
+    void insert (ValueIntervals<Value, Interval> value_intervals);
 
     /**
      * add value and interval, merging overlapping intervals with the same value
@@ -550,7 +536,7 @@ namespace interval_dict::augmented_interval_list
     /**
      * list of intervals and values
      */
-    std::vector<ValueInterval<Value, Interval>> m_value_intervals;
+    ValueIntervals<Value, Interval> m_value_intervals;
 
     [[nodiscard]] const std::vector<Run> &runs () const
     {
@@ -601,8 +587,8 @@ namespace interval_dict::augmented_interval_list
                    details::TouchingSet<Value, Interval> &new_value_intervals);
 
     /**
-     * Mark intervals with indices as erased by setting their right side to the
-     * minimum value
+     * Mark intervals with indices as erased (set tombstone) by setting their
+     * right side to the minimum value
      */
     void mark_as_erased (const VecIndices &indices);
 
@@ -735,7 +721,7 @@ namespace interval_dict::augmented_interval_list
 
     // intervals that cover more than 'm_max_overlapping_neighbours' subsequent
     // intervals
-    std::vector<ValueInterval<Value, Interval>> overlapping;
+    ValueIntervals<Value, Interval> overlapping;
 
     int_fast32_t runs_count = 0;
     int_fast32_t pos = intervals_offset;
@@ -978,14 +964,14 @@ namespace interval_dict::augmented_interval_list
     /*
      * Return matching indices sorted by the intervals they point to
      */
-    std::sort (matching_indices.begin (),
-               matching_indices.end (),
-               [this, compare_interval = comparisons::CompareInterval {}] (
-                 const auto i, const auto j)
-               {
-                 return compare_interval (m_value_intervals[i].interval,
-                                          m_value_intervals[j].interval);
-               });
+    std::ranges::sort (
+      matching_indices,
+      [this, compare_interval = comparisons::CompareInterval {}] (auto i,
+                                                                  const auto j)
+      {
+        return compare_interval (m_value_intervals[i].interval,
+                                 m_value_intervals[j].interval);
+      });
   }
 
   template<typename Value, typename Interval>
@@ -1065,22 +1051,20 @@ namespace interval_dict::augmented_interval_list
     // Subtracts two vectors after sorting in value-interval order
     // returns a vector still in value_interval sorted order
     template<typename Value, typename Interval>
-    std::vector<ValueInterval<Value, Interval>> sort_subtract_intervals (
-      std::vector<ValueInterval<Value, Interval>> &value_intervals,
-      std::vector<ValueInterval<Value, Interval>> other)
+    ValueIntervals<Value, Interval>
+    sort_subtract_intervals (ValueIntervals<Value, Interval> &value_intervals,
+                             ValueIntervals<Value, Interval> other)
     {
       using comparisons::CompareValInterval;
 
-      std::sort (value_intervals.begin (),
-                 value_intervals.end (),
-                 CompareValInterval {});
-      std::sort (other.begin (), other.end (), CompareValInterval {});
+      std::ranges::sort (value_intervals, CompareValInterval {});
+      std::ranges::sort (other, CompareValInterval {});
 
       auto first1 = value_intervals.begin ();
       auto last1 = value_intervals.end ();
       auto first2 = other.end ();
       auto last2 = other.begin ();
-      std::vector<ValueInterval<Value, Interval>> result;
+      ValueIntervals<Value, Interval> result;
 
       while (first1 != last1)
       {
@@ -1209,7 +1193,7 @@ namespace interval_dict::augmented_interval_list
 
   template<typename Value, typename Interval>
   void AugmentedIntervalList<Value, Interval>::insert (
-    std::vector<ValueInterval<Value, Interval>> value_intervals)
+    ValueIntervals<Value, Interval> value_intervals)
   {
     // Prepare intervals for insertion
     details::remove_empty (value_intervals);
@@ -1341,7 +1325,7 @@ namespace interval_dict::augmented_interval_list
     {
       for (const auto &[value, interval] : other.m_value_intervals)
       {
-        erase (value, interval);
+        erase (interval, value);
       }
       return *this;
     }
@@ -1509,12 +1493,12 @@ namespace interval_dict::augmented_interval_list
 
   template<typename Value, typename Interval>
   AugmentedIntervalList<Value, Interval>::AllIntervalsRange::AllIntervalsRange (
-    const std::vector<ValueInterval<Value, Interval>> &intervals,
-    std::vector<Run> runs)
+    const ValueIntervals<Value, Interval> &intervals, std::vector<Run> runs)
     : m_value_intervals (intervals)
     , m_runs (std::move (runs))
   {
     // remove empty runs
+    // TODO: Bug? Needs erase?
     std::remove_if (m_runs.begin (),
                     m_runs.end (),
                     [] (const auto &a)
@@ -1523,13 +1507,12 @@ namespace interval_dict::augmented_interval_list
                     });
     // Inverse sort by interval so that the back() run contains the next
     // interval to return
-    std::sort (m_runs.begin (),
-               m_runs.end (),
-               [&intervals] (const auto &a, const auto &b)
-               {
-                 return intervals[b.begin].interval
-                        < intervals[a.begin].interval;
-               });
+    std::ranges::sort (m_runs,
+                       [&intervals] (const auto &a, const auto &b)
+                       {
+                         return intervals[b.begin].interval
+                                < intervals[a.begin].interval;
+                       });
   }
 
   template<typename Value, typename Interval>
@@ -1656,7 +1639,7 @@ namespace interval_dict::augmented_interval_list
 } // namespace interval_dict::augmented_interval_list
 
 #endif // INCLUDE_INTERVAL_DICT_AUGMENTED_INTERVAL_LIST_H
-       // TODO find other lower() and upper() dynamic intervals that break logic
+// TODO find other lower() and upper() dynamic intervals that break logic
 // TODO separate amortisation parameter and logic 0.2 * m_value_intervals.size()
 // TODO check calculate running_max_end still works
 // TODO tests for insertion deletions

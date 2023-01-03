@@ -128,7 +128,7 @@ namespace interval_dict
     /// together. There is no way to mix the two edges of continuous intervals
     /// so this is an acceptable compromise
     template<typename Value>
-    void update (const std::vector<ValueInterval<Value, Interval>> &intervals);
+    void update (const ValueIntervals<Value, Interval> &intervals);
     std::vector<int_fast32_t> m_counts;
 
     // private:
@@ -164,7 +164,7 @@ namespace interval_dict
   template<typename Interval>
   template<typename Value>
   void CountOverlap<Interval>::update (
-    const std::vector<ValueInterval<Value, Interval>> &intervals)
+    const ValueIntervals<Value, Interval> &intervals)
   {
     m_counts.resize (intervals.size ());
     m_overlap_counters.clear ();

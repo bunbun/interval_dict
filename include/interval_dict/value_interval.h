@@ -79,6 +79,9 @@ namespace interval_dict
     }
   };
 
+  template<typename Value, typename Interval>
+  using ValueIntervals = std::vector<ValueInterval<Value, Interval>>;
+
   //
   // ValueIntervalRef
   //

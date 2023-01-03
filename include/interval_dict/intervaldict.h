@@ -466,7 +466,7 @@ namespace interval_dict
       typename Implementation<Value, Interval, Impl>::template rebind<
         OtherVal>::type;
     using DataType = std::map<Key, Impl>;
-    // using KeyValueIntervals = std::vector<std::tuple<Key, Value, Interval>>;
+    using KeyValueIntervals = std::vector<std::tuple<Key, Value, Interval>>;
     /// @endcond
 
     /// @name Constructors

@@ -77,15 +77,17 @@ set(HEADER_FILES
         include/interval_dict/adaptor_interval_tree.h
         include/interval_dict/adaptor_ail.h
         include/interval_dict/augmented_interval_list.h
+        include/interval_dict/interval_overlaps.h
         include/interval_dict/bi_intervaldict.h
         include/interval_dict/bi_intervaldicticl.h
         include/interval_dict/bi_intervaldictail.h
         include/interval_dict/bi_intervaldictitree.h
         include/interval_dict/default_init_allocator.h
         include/interval_dict/gregorian.h
+        include/interval_dict/ptime.h
+        include/interval_dict/value_interval.h
         include/interval_dict/interval_compare.h
         include/interval_dict/interval_operators.h
-        include/interval_dict/interval_overlaps.h
         include/interval_dict/interval_traits.h
         include/interval_dict/interval_tree.h
         include/interval_dict/intervaldict.h
@@ -93,8 +95,6 @@ set(HEADER_FILES
         include/interval_dict/intervaldictail.h
         include/interval_dict/intervaldictitree.h
         include/interval_dict/disjoint_adaptor.h
-        include/interval_dict/ptime.h
-        include/interval_dict/value_interval.h
         include/interval_dict/std_ranges_23_patch.h)
 add_library(interval_dict
         ${HEADER_FILES}
